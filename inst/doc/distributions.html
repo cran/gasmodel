@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Vladimír Holý" />
+
+<meta name="date" content="2022-09-19" />
+
+<title>Probability Distributions</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Probability Distributions</h1>
+<h4 class="author">Vladimír Holý</h4>
+<h4 class="date">2022-09-19</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#binary-data" id="toc-binary-data">Binary Data</a>
+<ul>
+<li><a href="#bernoulli-distribution" id="toc-bernoulli-distribution">Bernoulli Distribution</a></li>
+</ul></li>
+<li><a href="#categorical-data" id="toc-categorical-data">Categorical
+Data</a>
+<ul>
+<li><a href="#categorical-distribution" id="toc-categorical-distribution">Categorical Distribution</a></li>
+</ul></li>
+<li><a href="#ranking-data" id="toc-ranking-data">Ranking Data</a>
+<ul>
+<li><a href="#plackett-luce-distribution" id="toc-plackett-luce-distribution">Plackett-Luce Distribution</a></li>
+</ul></li>
+<li><a href="#count-data" id="toc-count-data">Count Data</a>
+<ul>
+<li><a href="#double-poisson-distribution" id="toc-double-poisson-distribution">Double Poisson
+Distribution</a></li>
+<li><a href="#geometric-distribution" id="toc-geometric-distribution">Geometric Distribution</a></li>
+<li><a href="#negative-binomial-distribution" id="toc-negative-binomial-distribution">Negative Binomial
+Distribution</a></li>
+<li><a href="#poisson-distribution" id="toc-poisson-distribution">Poisson Distribution</a></li>
+<li><a href="#zero-inflated-geometric-distribution" id="toc-zero-inflated-geometric-distribution">Zero-Inflated Geometric
+Distribution</a></li>
+<li><a href="#zero-inflated-negative-binomial-distribution" id="toc-zero-inflated-negative-binomial-distribution">Zero-Inflated
+Negative Binomial Distribution</a></li>
+<li><a href="#zero-inflated-poisson-distribution" id="toc-zero-inflated-poisson-distribution">Zero-Inflated Poisson
+Distribution</a></li>
+</ul></li>
+<li><a href="#integer-data" id="toc-integer-data">Integer Data</a>
+<ul>
+<li><a href="#skellam-distribution" id="toc-skellam-distribution">Skellam Distribution</a></li>
+</ul></li>
+<li><a href="#duration-data" id="toc-duration-data">Duration Data</a>
+<ul>
+<li><a href="#exponential-distribution" id="toc-exponential-distribution">Exponential Distribution</a></li>
+<li><a href="#gamma-distribution" id="toc-gamma-distribution">Gamma
+Distribution</a></li>
+<li><a href="#generalized-gamma-distribution" id="toc-generalized-gamma-distribution">Generalized Gamma
+Distribution</a></li>
+<li><a href="#weibull-distribution" id="toc-weibull-distribution">Weibull Distribution</a></li>
+</ul></li>
+<li><a href="#real-data" id="toc-real-data">Real Data</a>
+<ul>
+<li><a href="#normal-distribution" id="toc-normal-distribution">Normal
+Distribution</a></li>
+<li><a href="#students-t-distribution" id="toc-students-t-distribution">Student’s t Distribution</a></li>
+</ul></li>
+<li><a href="#multivariate-real-data" id="toc-multivariate-real-data">Multivariate Real Data</a>
+<ul>
+<li><a href="#multivariate-normal-distribution" id="toc-multivariate-normal-distribution">Multivariate Normal
+Distribution</a></li>
+<li><a href="#multivariate-students-t-distribution" id="toc-multivariate-students-t-distribution">Multivariate Student’s t
+Distribution</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div id="binary-data" class="section level1">
+<h1>Binary Data</h1>
+<div id="bernoulli-distribution" class="section level2">
+<h2>Bernoulli Distribution</h2>
+<div id="probabilistic-parametrization" class="section level3">
+<h3>Probabilistic Parametrization</h3>
+<div id="parameter" class="section level4">
+<h4>Parameter</h4>
+<ul>
+<li>Probability parameter <span class="math inline">\(p \in (0,
+1)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{P} [Y = y | p] &amp;= \begin{cases}
+1 - p &amp; \text{ for } y = 0 \\
+p &amp; \text{ for } y = 1 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="moments" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= p \\
+\mathrm{var}[Y] &amp;= p (1 - p) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\nabla_{m} (y; p) = \begin{cases}
+\frac{1}{p - 1} &amp; \text{ for } y = 0 \\
+\frac{1}{p} &amp; \text{ for } y = 1 \\
+\end{cases}
+\]</span></p>
+</div>
+<div id="fisher-information" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{p, p} (p) &amp;= \frac{1}{p (1 - p)} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div id="categorical-data" class="section level1">
+<h1>Categorical Data</h1>
+<div id="categorical-distribution" class="section level2">
+<h2>Categorical Distribution</h2>
+<div id="worth-parametrization" class="section level3">
+<h3>Worth Parametrization</h3>
+<div id="parameters" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Worth parameters <span class="math inline">\(w_i \in (0, \infty), i
+= 1, \ldots, n\)</span></li>
+</ul>
+</div>
+<div id="vector-notation" class="section level4">
+<h4>Vector Notation</h4>
+<ul>
+<li>Worth vector <span class="math inline">\(\boldsymbol{w}\)</span> of
+length <span class="math inline">\(n\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-1" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{P} [\boldsymbol{Y} = \boldsymbol{y} | \boldsymbol{w}] &amp;=
+\frac{1}{\sum_{i=1}^n w_i} \prod_{i=1}^n w_i^{y_i}
+\end{aligned}
+\]</span></p>
+</div>
+<div id="moments-1" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[\boldsymbol{Y}] &amp;= \frac{1}{\sum_{i=1}^n w_i}
+\boldsymbol{w} \\
+\mathrm{var}[\boldsymbol{Y}] &amp;= \frac{1}{\sum_{i=1}^n
+w_i}  \mathrm{diag} (\boldsymbol{w}) - \frac{1}{\left( \sum_{i=1}^n w_i
+\right)^2} \boldsymbol{w} \boldsymbol{w}&#39; \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-1" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\nabla_{\boldsymbol{w}} (\boldsymbol{y}; \boldsymbol{w}) =
+\boldsymbol{y} \oslash \boldsymbol{w} - \frac{1}{\sum_{i=1}^n w_i}
+\boldsymbol{1}_n
+\]</span></p>
+</div>
+<div id="fisher-information-1" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\mathcal{I}_{\boldsymbol{w}, \boldsymbol{w}} (\boldsymbol{w}) =
+\mathrm{diag} \left( \sum_{i=1}^n w_i \boldsymbol{1}_n  \oslash
+\boldsymbol{w} \right) - \frac{1}{\left( \sum_{i=1}^n w_i \right)^2}
+\boldsymbol{1}_{n \times n}
+\]</span></p>
+</div>
+</div>
+<div id="notes" class="section level3">
+<h3>Notes</h3>
+<ul>
+<li><p>We treat the categorical distribution as a multivariate
+distribution. For <span class="math inline">\(n\)</span> categories,
+observations are in the form of vectors of length <span class="math inline">\(n\)</span> with exactly one element equal to 1 and
+the others to 0.</p></li>
+<li><p>The probability mass function is invariant to the multiplication
+by a constant of the worth parameters. In the case of the logarithmic
+transformation, it is invariant to the addition of a constant to the
+transformed worth parameters. The parameters therefore need to be
+standardized, e.g. to zero sum in the latter case.</p></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="ranking-data" class="section level1">
+<h1>Ranking Data</h1>
+<div id="plackett-luce-distribution" class="section level2">
+<h2>Plackett-Luce Distribution</h2>
+<div id="worth-parametrization-1" class="section level3">
+<h3>Worth Parametrization</h3>
+<div id="parameters-1" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Worth parameters <span class="math inline">\(w_i \in (0, \infty), i
+= 1, \ldots, n\)</span></li>
+</ul>
+</div>
+<div id="ranking-notation" class="section level4">
+<h4>Ranking Notation</h4>
+<ul>
+<li>Worth parameters by rank <span class="math inline">\(w_{j^{\mathrm{th}}}, j = 1, \ldots,
+n\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-2" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\mathrm{P} [\boldsymbol{Y} = \boldsymbol{y} | w_1, \ldots, w_n] =
+\prod_{j=1}^n \frac{w_{j^{\mathrm{th}}}}{\sum_{k=j}^n
+w_{k^{\mathrm{th}}}}
+\]</span></p>
+</div>
+<div id="score-2" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\nabla_{w_i} (\boldsymbol{y}; w_1, \ldots, w_n) = \frac{1}{w_i} -
+\sum_{j=1}^{y_i} \frac{1}{\sum_{k = r}^n w_{k^{\mathrm{th}}}}
+\]</span></p>
+</div>
+</div>
+<div id="notes-1" class="section level3">
+<h3>Notes</h3>
+<ul>
+<li><p>The expected value, the variance, and the Fisher information are
+computed directly from the definitions as sums over all possible
+rankings. As the number of permutations grows drastically with
+increasing <span class="math inline">\(n\)</span>, we only use this
+approach for <span class="math inline">\(n \leq 9\)</span>. For <span class="math inline">\(n \geq 10\)</span>, we randomly sample 1 million
+rankings. In this case, the computed expected characteristics are
+subject to random error.</p></li>
+<li><p>The probability mass function is invariant to the multiplication
+by a constant of the worth parameters. In the case of the logarithmic
+transformation, it is invariant to the addition of a constant to the
+transformed worth parameters. The parameters therefore need to be
+standardized, e.g. to zero sum in the latter case.</p></li>
+</ul>
+</div>
+<div id="further-reading" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li><p>Alvo, M. and Yu, P. L. H. (2014). <em>Statistical Methods for
+Ranking Data</em>. Springer. doi: <a href="https://doi.org/10.1007/978-1-4939-1471-5">10.1007/978-1-4939-1471-5</a>.</p></li>
+<li><p>Holý, V. and Zouhar, J. (2021). Modelling Time-Varying Rankings
+with Autoregressive and Score-Driven Dynamics. arXiv: <a href="https://arxiv.org/abs/2101.04040">2101.04040</a>.</p></li>
+<li><p>Luce, R. D. (1977). The Choice Axiom after Twenty Years.
+<em>Journal of Mathematical Psychology</em>, <strong>15</strong>(3),
+215–233. doi: <a href="https://doi.org/10.1016/0022-2496(77)90032-3">10.1016/0022-2496(77)90032-3</a>.</p></li>
+<li><p>Plackett, R. L. (1975). The Analysis of Permutations. <em>Journal
+of the Royal Statistical Society: Series C (Applied Statistics)</em>,
+<strong>24</strong>(2), 193–202. doi: <a href="https://doi.org/10.2307/2346567">10.2307/2346567</a>.</p></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="count-data" class="section level1">
+<h1>Count Data</h1>
+<div id="double-poisson-distribution" class="section level2">
+<h2>Double Poisson Distribution</h2>
+<div id="mean-parametrization" class="section level3">
+<h3>Mean Parametrization</h3>
+<div id="parameters-2" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in (0,
+\infty)\)</span></li>
+<li>Dispersion parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-3" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\mathrm{P} [Y = y | m, s] \approx \frac{1}{1 + \frac{1 - s}{12 s m}
+\left(1 + \frac{1}{s m} \right)} \sqrt{s} \frac{y^y}{y!} \left(
+\frac{m}{y} \right)^{s y} \exp(s y - s m - y)
+\]</span></p>
+</div>
+<div id="moments-2" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;\approx m \\
+\mathrm{var}[Y] &amp;\approx \frac{m}{s} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-3" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s) &amp;\approx \frac{s}{m} (y - m) \\
+\nabla_{s} (y; m, s) &amp;\approx \frac{1}{2 s} - m \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-2" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &amp;\approx \frac{s}{m} \\
+\mathcal{I}_{m, s} (m, s) &amp;\approx 0 \\
+\mathcal{I}_{s, s} (m, s) &amp;\approx \frac{1}{2 s^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="note" class="section level3">
+<h3>Note</h3>
+<ul>
+<li>The probability mass function is not available in a closed form. We
+use the approximation of Efron (1986) for the probability mass function,
+the mean, the variance, the score, and the Fisher information.</li>
+</ul>
+</div>
+<div id="further-reading-1" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li><p>Aragon, D. C., Achcar, J. A., and Martinez, E. Z. (2018). Maximum
+Likelihood and Bayesian Estimators for the Double Poisson Distribution.
+<em>Journal of Statistical Theory and Practice</em>,
+<strong>12</strong>(4), 886–911. doi: <a href="https://doi.org/10.1080/15598608.2018.1489919">10.1080/15598608.2018.1489919</a>.</p></li>
+<li><p>Cameron, A. C. and Trivedi, P. K. (2013). <em>Regression Analysis
+of Count Data</em>. Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9781139013567">10.1017/cbo9781139013567</a>.</p></li>
+<li><p>Efron, B. (1986). Double Exponential Families and Their Use in
+Generalized Linear Regression. <em>Journal of the American Statistical
+Association</em>, <strong>81</strong>(395), 709–721. doi: <a href="https://doi.org/10.1080/01621459.1986.10478327">10.1080/01621459.1986.10478327</a>.</p></li>
+<li><p>Hilbe, J. M. (2011). <em>Negative Binomial Regression</em>.
+Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9780511973420">10.1017/cbo9780511973420</a>.</p></li>
+<li><p>Holý, V. and Tomanová, P. (2022). Modeling Price Clustering in
+High-Frequency Prices. <em>Quantitative Finance</em>. doi: <a href="https://doi.org/10.1080/14697688.2022.2050285">10.1080/14697688.2022.2050285</a>.</p></li>
+<li><p>Sellers, K. F. and Morris, D. S. (2017). Underdispersion Models:
+Models That Are “Under the Radar.” <em>Communications in Statistics -
+Theory and Methods</em>, <strong>46</strong>(24), 12075–12086. doi: <a href="https://doi.org/10.1080/03610926.2017.1291976">10.1080/03610926.2017.1291976</a>.</p></li>
+<li><p>Zou, Y., Geedipally, S. R., and Lord, D. (2013). Evaluating the
+Double Poisson Generalized Linear Model. <em>Accident Analysis and
+Prevention</em>, <strong>59</strong>, 497–505. doi: <a href="https://doi.org/10.1016/j.aap.2013.07.017">10.1016/j.aap.2013.07.017</a>.</p></li>
+</ul>
+</div>
+</div>
+<div id="geometric-distribution" class="section level2">
+<h2>Geometric Distribution</h2>
+<div id="mean-parametrization-1" class="section level3">
+<h3>Mean Parametrization</h3>
+<div id="parameter-1" class="section level4">
+<h4>Parameter</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-4" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\mathrm{P} [Y = y | m] = \frac{1}{1 + m} \left( \frac{m}{1 + m}
+\right)^{y}
+\]</span></p>
+</div>
+<div id="moments-3" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m \\
+\mathrm{var}[Y] &amp;= m (1 + m) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-4" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\nabla_{m} (y; m) = \frac{y - m}{m (1 + m) }
+\]</span></p>
+</div>
+<div id="fisher-information-3" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\mathcal{I}_{m, m} (m) = \frac{1}{m (1 + m)}
+\]</span></p>
+</div>
+</div>
+<div id="probabilistic-parametrization-1" class="section level3">
+<h3>Probabilistic Parametrization</h3>
+<div id="parameter-2" class="section level4">
+<h4>Parameter</h4>
+<ul>
+<li>Probability parameter <span class="math inline">\(p \in (0,
+1)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-5" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\mathrm{P} [Y = y | p] = p (1 - p)^{y}
+\]</span></p>
+</div>
+<div id="moments-4" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= \frac{1 - p}{p} \\
+\mathrm{var}[Y] &amp;= \frac{1 - p}{p^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-5" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\nabla_{p} (y; p) = \frac{p y + p - 1}{p (p - 1)}
+\]</span></p>
+</div>
+<div id="fisher-information-4" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\mathcal{I}_{p, p} (p) = \frac{1}{p^2 (1 - p)}
+\]</span></p>
+</div>
+</div>
+</div>
+<div id="negative-binomial-distribution" class="section level2">
+<h2>Negative Binomial Distribution</h2>
+<div id="nb2-parametrization" class="section level3">
+<h3>NB2 Parametrization</h3>
+<div id="parameters-3" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in (0,
+\infty)\)</span></li>
+<li>Dispersion parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-6" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\mathrm{P} [Y = y | m, s] = \frac{\Gamma (y + s^{-1})}{\Gamma (y + 1)
+\Gamma (s^{-1})} \left( \frac{1}{1 + s m} \right)^{s^{-1}} \left(
+\frac{s m}{1 + s m} \right)^{y}
+\]</span></p>
+</div>
+<div id="moments-5" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m \\
+\mathrm{var}[Y] &amp;= m (1 + s m) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-6" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s) &amp;= \frac{y - m}{m (1 + s m) } \\
+\nabla_{s} (y; m, s) &amp;= \frac{ y - m}{s (1 + s m)} + \frac{1}{s^2}
+\left( \ln(1 + s m) + \psi_0 \left( \frac{1}{s} \right) - \psi_0 \left(
+y + \frac{1}{s} \right) \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-5" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &amp;= \frac{1}{m (1 + s m)} \\
+\mathcal{I}_{m, s} (m, s) &amp;= 0 \\
+\mathcal{I}_{s, s} (m, s) &amp;\approx \frac{2}{s^3} \ln(1 + s m) -
+\frac{m}{s^2 + s^3 m} + \frac{2}{s^3} \psi_0 \left( \frac{1}{s} \right)
++ \frac{1}{s^4} \psi_1 \left( \frac{1}{s} \right) \\
+&amp; \qquad - \frac{2}{s^3} \psi_0 \left( m + \frac{1}{s} \right) -
+\frac{1}{s^4} \psi_1 \left( m + \frac{1}{s} \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="probabilistic-parametrization-2" class="section level3">
+<h3>Probabilistic Parametrization</h3>
+<div id="parameters-4" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Probability parameter <span class="math inline">\(p \in (0,
+1)\)</span></li>
+<li>Size parameter <span class="math inline">\(r \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-7" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\mathrm{P} [Y = y | p, r] = \frac{\Gamma(y + r)}{\Gamma(y + 1)
+\Gamma(r)} (1 - p)^y p^r
+\]</span></p>
+</div>
+<div id="moments-6" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= \frac{r (1 - p)}{p} \\
+\mathrm{var}[Y] &amp;= \frac{r (1 - p)}{p^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-7" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{p} (y; p, r) &amp;= \frac{p r + p  y - r}{p (p - 1)} \\
+\nabla_{r} (y; p, r) &amp;= \ln(p) - \psi_0(r) + \psi_0(y + r) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-6" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{p, p} (p, r) &amp;= \frac{r}{p^2 (1 - p)} \\
+\mathcal{I}_{p, r} (p, r) &amp;= -\frac{1}{p} \\
+\mathcal{I}_{r, r} (p, r) &amp;\approx \psi_1(r) - \psi_1 \left(r +
+\frac{r (1 - p)}{p} \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="note-1" class="section level3">
+<h3>Note</h3>
+<ul>
+<li>The Fisher information for the dispersion or size parameter, <span class="math inline">\(\mathcal{I}_{s, s} (m, s)\)</span> or <span class="math inline">\(\mathcal{I}_{r, r} (p, r)\)</span>, is not
+available in a closed form. To speed up calculations, we use a rough
+approximation by replacing <span class="math inline">\(y\)</span> with
+its expected value.</li>
+</ul>
+</div>
+<div id="further-reading-2" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li><p>Cameron, A. C. and Trivedi, P. K. (1986). Econometric Models
+Based on Count Data: Comparisons and Applications of Some Estimators and
+Tests. <em>Journal of Applied Econometrics</em>, <strong>1</strong>(1),
+29–53. doi: <a href="https://doi.org/10.1002/jae.3950010104">10.1002/jae.3950010104</a>.</p></li>
+<li><p>Cameron, A. C. and Trivedi, P. K. (2013). <em>Regression Analysis
+of Count Data</em>. Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9781139013567">10.1017/cbo9781139013567</a>.</p></li>
+<li><p>Hilbe, J. M. (2011). <em>Negative Binomial Regression</em>.
+Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9780511973420">10.1017/cbo9780511973420</a>.</p></li>
+</ul>
+</div>
+</div>
+<div id="poisson-distribution" class="section level2">
+<h2>Poisson Distribution</h2>
+<div id="mean-parametrization-2" class="section level3">
+<h3>Mean Parametrization</h3>
+<div id="parameter-3" class="section level4">
+<h4>Parameter</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-8" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\mathrm{P} [Y = y | m] = \frac{m^y}{y!} \exp(-m)
+\]</span></p>
+</div>
+<div id="moments-7" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m \\
+\mathrm{var}[Y] &amp;= m \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-8" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\nabla_{m} (y; m) = \frac{y - m}{m}
+\]</span></p>
+</div>
+<div id="fisher-information-7" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\mathcal{I}_{m, m} (m) = \frac{1}{m}
+\]</span></p>
+</div>
+</div>
+<div id="further-reading-3" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li><p>Cameron, A. C. and Trivedi, P. K. (2013). <em>Regression Analysis
+of Count Data</em>. Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9781139013567">10.1017/cbo9781139013567</a>.</p></li>
+<li><p>Davis, R. A., Dunsmuir, W. T. M., and Street, S. B. (2003).
+Observation-Driven Models for Poisson Counts. <em>Biometrika</em>,
+<strong>90</strong>(4), 777–790. doi: <a href="https://doi.org/10.1093/biomet/90.4.777">10.1093/biomet/90.4.777</a>.</p></li>
+<li><p>Hilbe, J. M. (2011). <em>Negative Binomial Regression</em>.
+Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9780511973420">10.1017/cbo9780511973420</a>.</p></li>
+</ul>
+</div>
+</div>
+<div id="zero-inflated-geometric-distribution" class="section level2">
+<h2>Zero-Inflated Geometric Distribution</h2>
+<div id="parameters-5" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in (0,
+\infty)\)</span></li>
+<li>Zero inflation parameter <span class="math inline">\(p \in (0,
+1)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-9" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{P} [Y = y | m, p] &amp;= \begin{cases}
+p + (1 - p)  \left( \frac{1}{1 + m} \right) &amp; \text{ for } y = 0 \\
+(1 - p) \left( \frac{1}{1 + m} \right) \left( \frac{m}{1 + m}
+\right)^{y} &amp; \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="moments-8" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m (1 - p) \\
+\mathrm{var}[Y] &amp;= m(1 - p) (1 + p m + m) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-9" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, p) &amp;= \begin{cases}
+\frac{p - 1}{(1 + m) (1 + p m)} &amp; \text{ for } y = 0 \\
+\frac{y - m}{m (1 + m) } &amp; \text{ for } y \geq 1 \\
+\end{cases} \\
+\nabla_{p} (y; m, p) &amp;= \begin{cases}
+\frac{m}{1 + p m} &amp; \text{ for } y = 0 \\
+\frac{1}{p - 1} &amp; \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-8" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, p) &amp;= \frac{(1 - p) (1 + m + p m^2)}{m (1 +
+m) (1 + p m)} \\
+\mathcal{I}_{m, p} (m, p) &amp;= - \frac{1}{ (1 + m) ( 1 + p m) } \\
+\mathcal{I}_{p, p} (m, p) &amp;= \frac{m}{(1 - p) ( 1 + p m)} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="further-reading-4" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li><p>Blasques, F., Holý, V., and Tomanová, P. (2022). Zero-Inflated
+Autoregressive Conditional Duration Model for Discrete Trade Durations
+with Excessive Zeros. Working Paper. arXiv: <a href="https://arxiv.org/abs/1812.07318">1812.07318</a>.</p></li>
+<li><p>Cameron, A. C. and Trivedi, P. K. (2013). <em>Regression Analysis
+of Count Data</em>. Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9781139013567">10.1017/cbo9781139013567</a>.</p></li>
+<li><p>Greene, W. H. (1994). Accounting for Excess Zeros and Sample
+Selection in Poisson and Negative Binomial Regression Models. <em>NYU
+Stern School of Business Research Paper Series</em>, EC-94-10. SSRN: <a href="https://www.ssrn.com/abstract=1293115">1293115</a>.</p></li>
+<li><p>Hilbe, J. M. (2011). <em>Negative Binomial Regression</em>.
+Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9780511973420">10.1017/cbo9780511973420</a>.</p></li>
+<li><p>Lambert, D. (1992). Zero-Inflated Poisson Regression, with an
+Application to Defects in Manufacturing. <em>Technometrics</em>,
+<strong>34</strong>(1), 1–14. doi: <a href="https://doi.org/10.2307/1269547">10.2307/1269547</a>.</p></li>
+</ul>
+</div>
+</div>
+<div id="zero-inflated-negative-binomial-distribution" class="section level2">
+<h2>Zero-Inflated Negative Binomial Distribution</h2>
+<div id="nb2-parametrization-1" class="section level3">
+<h3>NB2 Parametrization</h3>
+<div id="parameters-6" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in (0,
+\infty)\)</span></li>
+<li>Dispersion parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+<li>Zero inflation parameter <span class="math inline">\(p \in (0,
+1)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-10" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{P} [Y = y | m, s, p] &amp;= \begin{cases}
+p + (1 - p)  \left( \frac{1}{1 + s m} \right)^{s^{-1}} &amp; \text{ for
+} y = 0 \\
+(1 - p) \frac{\Gamma (y + s^{-1})}{\Gamma (y + 1) \Gamma (s^{-1})}
+\left( \frac{1}{1 + s m} \right)^{s^{-1}} \left( \frac{s m}{1 + s m}
+\right)^{y} &amp; \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="moments-9" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m (1 - p) \\
+\mathrm{var}[Y] &amp;= m(1 - p) (1 + p m + s m) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-10" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s, p) &amp;= \begin{cases}
+\frac{p - 1}{(1 + s m) \left( 1 + p (1 + s m)^{s^{-1}} - p \right)}
+&amp; \text{ for } y = 0 \\
+\frac{y - m}{m (1 + s m) } &amp; \text{ for } y \geq 1 \\
+\end{cases} \\
+\nabla_{s} (y; m, s, p) &amp;= \begin{cases}
+\frac{(1 - p) \left( (1 +  s m) \ln(1 + s m) -s m \right) }{  s^2 (1 + s
+m) \left( 1 + p (1 + s m)^{s^{-1}}- p \right) } &amp; \text{ for } y = 0
+\\
+\frac{ s (y - m) + (1 + s m) \left( \ln(1 + s m) + \psi_0 \left( s^{-1}
+\right) - \psi_0 \left( y + s^{-1} \right) \right) }{s^2 (1 + s m)}
+&amp; \text{ for } y \geq 1 \\
+\end{cases} \\
+\nabla_{p} (y; m, s, p) &amp;= \begin{cases}
+\frac{(1 + s m)^{s^{-1}} - 1}{1 + p (1 + s m)^{s^{-1}}- p} &amp; \text{
+for } y = 0 \\
+\frac{1}{p - 1} &amp; \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-9" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s, p) &amp;= \frac{p(p - 1)}{(1 + s m)^2 \left( 1
++  p (1 + s m)^{s^{-1}} - p \right)} + \frac{1 -p}{m(1 + s m)} \\
+\mathcal{I}_{m, s} (m, s, p) &amp;= \frac{\left( p - p^2 \right) \left(
+(1 + s m) \ln(1 + s m) - s m \right) }{s^2 (1 + s m)^2 \left( 1 + p (1 +
+s m)^{s^{-1}} -p \right)} \\
+\mathcal{I}_{m, p} (m, s, p) &amp;= \frac{-1}{ (1 + s m) \left( 1 + p (1
++ s m)^{s^{-1}} - p \right) }\\
+\mathcal{I}_{s, s} (m, s, p) &amp;\approx \frac{2}{s^3} \ln (1 + s m) -
+\frac{2 m^2 p s + m^2 s + m p + m}{m^2 s^4 + 2 m s^3 + s^2} \\
+&amp; \qquad + \frac{2 s^2 m^2 + 4 s m + 2}{m^2 s^5 + 2 m s^4 + s^3}
+\left( \psi_0 \left( s^{-1} \right) - \psi_0 \left( s^{-1} + m (1 - p)
+\right) \right) \\
+&amp; \qquad + \frac{s^2 m^2 + 2 s m + 1}{m^2 s^6 + 2 m s^5 + s^4}
+\left( \psi_1 \left( s^{-1} \right) - \psi_1 \left( s^{-1} + m (1 - p)
+\right) \right) \\
+\mathcal{I}_{s, p} (m, s, p) &amp;= \frac{(1 + s m) \ln(1 + s m) - s
+m}{s^2 (1 + s m) \left( 1 + p (1 + s m)^{s^{-1}} - p \right)} \\
+\mathcal{I}_{p, p} (m, s, p) &amp;= \frac{1 - (1 + s m)^{s^{-1}}}{(p -
+1) \left( 1 + p (1 + s m)^{s^{-1}} - p \right)}
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="note-2" class="section level3">
+<h3>Note</h3>
+<ul>
+<li>The Fisher information for the dispersion parameter, <span class="math inline">\(\mathcal{I}_{s, s} (m, s, p)\)</span>, is not
+available in a closed form. To speed up calculations, we use an
+approximation by replacing <span class="math inline">\(y\)</span> with
+its expected value.</li>
+</ul>
+</div>
+<div id="further-reading-5" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li><p>Blasques, F., Holý, V., and Tomanová, P. (2022). Zero-Inflated
+Autoregressive Conditional Duration Model for Discrete Trade Durations
+with Excessive Zeros. Working Paper. arXiv: <a href="https://arxiv.org/abs/1812.07318">1812.07318</a>.</p></li>
+<li><p>Cameron, A. C. and Trivedi, P. K. (2013). <em>Regression Analysis
+of Count Data</em>. Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9781139013567">10.1017/cbo9781139013567</a>.</p></li>
+<li><p>Greene, W. H. (1994). Accounting for Excess Zeros and Sample
+Selection in Poisson and Negative Binomial Regression Models. <em>NYU
+Stern School of Business Research Paper Series</em>, EC-94-10. SSRN: <a href="https://www.ssrn.com/abstract=1293115">1293115</a>.</p></li>
+<li><p>Hilbe, J. M. (2011). <em>Negative Binomial Regression</em>.
+Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9780511973420">10.1017/cbo9780511973420</a>.</p></li>
+<li><p>Lambert, D. (1992). Zero-Inflated Poisson Regression, with an
+Application to Defects in Manufacturing. <em>Technometrics</em>,
+<strong>34</strong>(1), 1–14. doi: <a href="https://doi.org/10.2307/1269547">10.2307/1269547</a>.</p></li>
+</ul>
+</div>
+</div>
+<div id="zero-inflated-poisson-distribution" class="section level2">
+<h2>Zero-Inflated Poisson Distribution</h2>
+<div id="mean-parametrization-3" class="section level3">
+<h3>Mean Parametrization</h3>
+<div id="parameters-7" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in (0,
+\infty)\)</span></li>
+<li>Zero inflation parameter <span class="math inline">\(p \in (0,
+1)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-11" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{P} [Y = y | m, p] &amp;= \begin{cases}
+p + (1 - p)  \exp(-m) &amp; \text{ for } y = 0 \\
+(1 - p) \frac{m^y}{y!} \exp(-m) &amp; \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="moments-10" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m (1 - p) \\
+\mathrm{var}[Y] &amp;= m(1 - p) (1 + p m) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-11" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s, p) &amp;= \begin{cases}
+\frac{p - 1}{p \exp(m) - p + 1} &amp; \text{ for } y = 0 \\
+\frac{y - m}{m} &amp; \text{ for } y \geq 1 \\
+\end{cases} \\
+\nabla_{p} (y; m, s, p) &amp;= \begin{cases}
+\frac{\exp(m) - 1}{p \exp(m) - p + 1} &amp; \text{ for } y = 0 \\
+\frac{1}{p - 1} &amp; \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-10" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s, p) &amp;= \frac{p (p - 1)}{p \exp(m) - p + 1}
+- \frac{p - 1}{m} \\
+\mathcal{I}_{m, p} (m, s, p) &amp;= - \frac{1}{p \exp(m) - p + 1} \\
+\mathcal{I}_{p, p} (m, s, p) &amp;= \frac{\exp(m) - 1}{(1 - p) (p
+\exp(m) - p + 1)} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="note-3" class="section level3">
+<h3>Note</h3>
+<ul>
+<li>The Fisher information for the dispersion parameter, <span class="math inline">\(\mathcal{I}_{s, s} (m, s, p)\)</span>, is not
+available in a closed form. To speed up calculations, we use an
+approximation by replacing <span class="math inline">\(y\)</span> with
+its expected value.</li>
+</ul>
+</div>
+<div id="further-reading-6" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li><p>Blasques, F., Holý, V., and Tomanová, P. (2022). Zero-Inflated
+Autoregressive Conditional Duration Model for Discrete Trade Durations
+with Excessive Zeros. Working Paper. arXiv: <a href="https://arxiv.org/abs/1812.07318">1812.07318</a>.</p></li>
+<li><p>Cameron, A. C. and Trivedi, P. K. (2013). <em>Regression Analysis
+of Count Data</em>. Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9781139013567">10.1017/cbo9781139013567</a>.</p></li>
+<li><p>Greene, W. H. (1994). Accounting for Excess Zeros and Sample
+Selection in Poisson and Negative Binomial Regression Models. <em>NYU
+Stern School of Business Research Paper Series</em>, EC-94-10. SSRN: <a href="https://www.ssrn.com/abstract=1293115">1293115</a>.</p></li>
+<li><p>Hilbe, J. M. (2011). <em>Negative Binomial Regression</em>.
+Second Edition. Cambridge University Press. doi: <a href="https://doi.org/10.1017/cbo9780511973420">10.1017/cbo9780511973420</a>.</p></li>
+<li><p>Lambert, D. (1992). Zero-Inflated Poisson Regression, with an
+Application to Defects in Manufacturing. <em>Technometrics</em>,
+<strong>34</strong>(1), 1–14. doi: <a href="https://doi.org/10.2307/1269547">10.2307/1269547</a>.</p></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="integer-data" class="section level1">
+<h1>Integer Data</h1>
+<div id="skellam-distribution" class="section level2">
+<h2>Skellam Distribution</h2>
+<div id="difference-parametrization" class="section level3">
+<h3>Difference Parametrization</h3>
+<div id="parameters-8" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>First rate parameter <span class="math inline">\(r_1 \in (0,
+\infty)\)</span></li>
+<li>Second rate parameter <span class="math inline">\(r_2 \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-12" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{P} [Y = y | r_1, r_2] &amp;= \exp(-r_1 - r_2) \left(
+\frac{r_1}{r_2} \right)^{\frac{y}{2}} I_y \left( 2 \sqrt{r_1  r_2}
+\right)
+\end{aligned}
+\]</span></p>
+</div>
+<div id="moments-11" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= r_1 - r_2 \\
+\mathrm{var}[Y] &amp;= r_1 + r_2 \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-12" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{r_1} (y; r_1, r_2) &amp;= \sqrt{\frac{r_2}{r_1}} \frac{I_{y-1}
+\left( 2 \sqrt{r_1 r_2} \right)}{I_y \left( 2 \sqrt{r_1 r_2} \right) } -
+1 \\
+\nabla_{r_2} (y; r_1, r_2) &amp;= \sqrt{\frac{r_1}{r_2}} \frac{I_{y-1}
+\left( 2 \sqrt{r_1 r_2} \right)}{I_y \left( 2 \sqrt{r_1 r_2} \right) }
+-\frac{y}{r_2} - 1 \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-11" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{r_1, r_1} (r_1, r_2) &amp;\approx  \frac{r_2}{r_1} \left(
+\frac{I_{r_1 - r_2 - 1} \left(2 \sqrt{r_1 r_2} \right) }{I_{r_1 - r_2}
+\left(2 \sqrt{r_1 r_2} \right) } \right)^2 - 2 \sqrt{\frac{r_2}{r_1}}
+\frac{I_{r_1 - r_2 - 1} \left(2 \sqrt{r_1 r_2} \right) }{I_{r_1 - r_2}
+\left(2 \sqrt{r_1 r_2} \right) } + 1 \\
+\mathcal{I}_{r_1, r_2} (r_1, r_2) &amp;\approx  \left( \frac{I_{r_1 -
+r_2 - 1} \left(2 \sqrt{r_1 r_2} \right) }{I_{r_1 - r_2} \left(2
+\sqrt{r_1 r_2} \right) } \right)^2 - 2 \sqrt{\frac{r_1}{r_2}}
+\frac{I_{r_1 - r_2 - 1} \left(2 \sqrt{r_1 r_2} \right) }{I_{r_1 - r_2}
+\left(2 \sqrt{r_1 r_2} \right) } + \frac{r_1}{r_2} \\
+\mathcal{I}_{r_2, r_2} (r_1, r_2) &amp;\approx \frac{r_1}{r_2} \left(
+\frac{I_{r_1 - r_2 - 1} \left(2 \sqrt{r_1 r_2} \right) }{I_{r_1 - r_2}
+\left(2 \sqrt{r_1 r_2} \right) } \right)^2 - 2 \left( \frac{r_1}{r_2}
+\right)^{\frac{3}{2}} \frac{I_{r_1 - r_2 - 1} \left(2 \sqrt{r_1 r_2}
+\right) }{I_{r_1 - r_2} \left(2 \sqrt{r_1 r_2} \right) } + \left(
+\frac{r_1}{r_2} \right)^2 \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="mean-dispersion-parametrization" class="section level3">
+<h3>Mean-Dispersion Parametrization</h3>
+<div id="parameters-9" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in
+\mathbb{R}\)</span></li>
+<li>Dispersion parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-13" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\mathrm{P} [Y = y | m, s] = \exp(-|m| - s) \left( \frac{|m| + m + s}{|m|
+- m + s} \right)^{\frac{y}{2}} I_y \left( \sqrt{s^2 + 2 |m| s} \right)
+\]</span></p>
+</div>
+<div id="moments-12" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m \\
+\mathrm{var}[Y] &amp;= |m| + s \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-13" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s) &amp;= \frac{y}{2|m| + s} + \frac{\mathrm{sgn}(m)
+s}{2 \sqrt{s^2 + 2 |m| s}} \frac{ I_{y-1} \left( \sqrt{s^2 + 2 |m| s}
+\right) + I_{y+1} \left( \sqrt{s^2 + 2 |m| s} \right) }{ I_y \left(
+\sqrt{s^2 + 2 |m| s} \right) } - \mathrm{sgn}(m) \\
+\nabla_{s} (y; m, s) &amp;= - \frac{m y}{s^2 + 2 |m| s} + \frac{|m| +
+s}{2 \sqrt{s^2 + 2 |m| s}} \frac{ I_{y-1} \left( \sqrt{s^2 + 2 |m| s}
+\right) + I_{y+1} \left( \sqrt{s^2 + 2 |m| s} \right) }{ I_y \left(
+\sqrt{s^2 + 2 |m| s} \right) } - 1 \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-12" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &amp;\approx \frac{s^2}{4 \left( s^2 + 2|m|s
+\right)} \left( \frac{2 (|m| + s)}{\sqrt{s^2 + 2 |m| s}} - \frac{
+I_{m-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{m+1} \left( \sqrt{s^2 +
+2 |m| s} \right) }{ I_m \left( \sqrt{s^2 + 2 |m| s} \right)} \right)^2
+\\
+\mathcal{I}_{m, s} (m, s) &amp;\approx \frac{\mathrm{sgn}(m) (|m| + s)
+s}{4 \left( s^2 + 2|m|s \right)} \left( \frac{2 (|m| + s)}{\sqrt{s^2 + 2
+|m| s}} - \frac{ I_{m-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{m+1}
+\left( \sqrt{s^2 + 2 |m| s} \right) }{ I_m \left( \sqrt{s^2 + 2 |m| s}
+\right)} \right)^2 \\
+\mathcal{I}_{s, s} (m, s) &amp;\approx \frac{(|m| + s)^2}{4 \left( s^2 +
+2|m|s \right)} \left( \frac{2 (|m| + s)}{\sqrt{s^2 + 2 |m| s}} - \frac{
+I_{m-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{m+1} \left( \sqrt{s^2 +
+2 |m| s} \right) }{ I_m \left( \sqrt{s^2 + 2 |m| s} \right)} \right)^2
+\\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="mean-variance-parametrization" class="section level3">
+<h3>Mean-Variance Parametrization</h3>
+<div id="parameters-10" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in
+\mathbb{R}\)</span></li>
+<li>Variance parameter <span class="math inline">\(s \in (|m|,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-14" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\mathrm{P} [Y = y | m, s] = \exp(-s) \left( \frac{s + m}{s - m}
+\right)^{\frac{y}{2}} I_y \left( \sqrt{s^2 - m^2} \right)
+\]</span></p>
+</div>
+<div id="moments-13" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m \\
+\mathrm{var}[Y] &amp;= s \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-14" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s) &amp;= \frac{s y}{s^2 - m^2} - \frac{m}{2 \sqrt{s^2
+- m^2}} \frac{ I_{y-1} \left( \sqrt{s^2 - m^2} \right) + I_{y+1} \left(
+\sqrt{s^2 - m^2} \right) }{ I_y \left( \sqrt{s^2 - m^2} \right) } \\
+\nabla_{s} (y; m, s) &amp;= -\frac{m y}{s^2 - m^2} + \frac{s}{2
+\sqrt{s^2 - m^2}} \frac{ I_{y-1} \left( \sqrt{s^2 - m^2} \right) +
+I_{y+1} \left( \sqrt{s^2 - m^2} \right) }{ I_y \left( \sqrt{s^2 - m^2}
+\right) } - 1\\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-13" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &amp;\approx \frac{m^2}{4 \left( s^2 - m^2
+\right)} \left( \frac{2 s}{\sqrt{s^2 - m^2}} - \frac{ I_{m-1} \left(
+\sqrt{s^2 - m^2} \right) + I_{m+1} \left( \sqrt{s^2 - m^2} \right) }{
+I_m \left( \sqrt{s^2 - m^2} \right) } \right)^2 \\
+\mathcal{I}_{m, s} (m, s) &amp;\approx - \frac{m s}{4 \left( s^2 - m^2
+\right)} \left( \frac{2 s}{\sqrt{s^2 - m^2}} - \frac{ I_{m-1} \left(
+\sqrt{s^2 - m^2} \right) + I_{m+1} \left( \sqrt{s^2 - m^2} \right) }{
+I_m \left( \sqrt{s^2 - m^2} \right) } \right)^2 \\
+\mathcal{I}_{s, s} (m, s) &amp;\approx \frac{s^2}{4 \left( s^2 - m^2
+\right)} \left( \frac{2 s}{\sqrt{s^2 - m^2}} - \frac{ I_{m-1} \left(
+\sqrt{s^2 - m^2} \right) + I_{m+1} \left( \sqrt{s^2 - m^2} \right) }{
+I_m \left( \sqrt{s^2 - m^2} \right) } \right)^2 \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="note-4" class="section level3">
+<h3>Note</h3>
+<ul>
+<li>The computation of the Fisher information is quite intricate and we
+resort to an approximation by replacing <span class="math inline">\(y\)</span> with its expected value.</li>
+</ul>
+</div>
+<div id="further-reading-7" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li><p>Alzaid, A. A. and Omair, M. A. (2010). On the Poisson Difference
+Distribution Inference and Applications. <em>Bulletin of the Malaysian
+Mathematical Sciences Society</em>, <strong>33</strong>(1), 17–45.
+EuDML: <a href="https://eudml.org/doc/244475">244475</a>.</p></li>
+<li><p>Karlis, D. and Ntzoufras, I. (2009). Bayesian Modelling of
+Football Outcomes: Using the Skellam’s Distribution for the Goal
+Difference. <em>IMA Journal of Management Mathematics</em>,
+<strong>20</strong>(2), 133–145. doi: <a href="https://doi.org/10.1093/imaman/dpn026">10.1093/imaman/dpn026</a>.</p></li>
+<li><p>Koopman, S. J. and Lit, R. (2019). Forecasting Football Match
+Results in National League Competitions Using Score-Driven Time Series
+Models. <em>International Journal of Forecasting</em>,
+<strong>35</strong>(2), 797–809. doi: <a href="https://doi.org/10.1016/j.ijforecast.2018.10.011">10.1016/j.ijforecast.2018.10.011</a>.</p></li>
+<li><p>Koopman, S. J., Lit, R., Lucas, A., and Opschoor, A. (2018).
+Dynamic Discrete Copula Models for High-Frequency Stock Price Changes.
+<em>Journal of Applied Econometrics</em>, <strong>33</strong>(7),
+966–985. doi: <a href="https://doi.org/10.1002/jae.2645">10.1002/jae.2645</a>.</p></li>
+<li><p>Skellam, J. G. (1946). The Frequency Distribution of the
+Difference Between Two Poisson Variates Belonging to Different
+Populations. <em>Journal of the Royal Statistical Society</em>,
+<strong>109</strong>(3), 296. doi: <a href="https://doi.org/10.2307/2981372">10.2307/2981372</a>.</p></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="duration-data" class="section level1">
+<h1>Duration Data</h1>
+<div id="exponential-distribution" class="section level2">
+<h2>Exponential Distribution</h2>
+<div id="rate-parametrization" class="section level3">
+<h3>Rate Parametrization</h3>
+<div id="parameter-4" class="section level4">
+<h4>Parameter</h4>
+<ul>
+<li>Rate parameter <span class="math inline">\(r \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | r) = r \exp \left( -r y \right)
+\]</span></p>
+</div>
+<div id="moments-14" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= \frac{1}{r} \\
+\mathrm{var}[Y] &amp;= \frac{1}{r^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-15" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{r} (y; r) &amp;= \frac{1}{r} - y \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-14" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{r, r} (r) &amp;= \frac{1}{r^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="scale-parametrization" class="section level3">
+<h3>Scale Parametrization</h3>
+<div id="parameter-5" class="section level4">
+<h4>Parameter</h4>
+<ul>
+<li>Scale parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-1" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | s) =  \frac{1}{s} \exp \left( - \frac{y}{s} \right)
+\]</span></p>
+</div>
+<div id="moments-15" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= s \\
+\mathrm{var}[Y] &amp;= s^2 \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-16" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{s} (y; s) &amp;= \frac{y - s}{s^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-15" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{s, s} (s) &amp;= \frac{1}{s^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="further-reading-8" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li>Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing
+Systems: Autoregressive Conditional Duration Approach. <em>Central
+European Journal of Operations Research</em>, <strong>29</strong>(3),
+859–874. doi: <a href="https://doi.org/10.1007/s10100-021-00744-7">10.1007/s10100-021-00744-7</a>.</li>
+</ul>
+</div>
+</div>
+<div id="gamma-distribution" class="section level2">
+<h2>Gamma Distribution</h2>
+<div id="rate-parametrization-1" class="section level3">
+<h3>Rate Parametrization</h3>
+<div id="parameters-11" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Rate parameter <span class="math inline">\(r \in (0,
+\infty)\)</span></li>
+<li>Shape parameter <span class="math inline">\(a \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-2" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | r, a) =  \frac{r}{\Gamma(a)} (r y)^{a - 1} \exp \left( -r y
+\right)
+\]</span></p>
+</div>
+<div id="moments-16" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= \frac{a}{r} \\
+\mathrm{var}[Y] &amp;= \frac{a}{r^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-17" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{r} (y; r, a) &amp;= \frac{a - r y}{r} \\
+\nabla_{a} (y; r, a) &amp;= \ln(r y) - \psi_0(a) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-16" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{r, r} (r, a) &amp;= \frac{a}{r^2} \\
+\mathcal{I}_{r, a} (r, a) &amp;= - \frac{1}{r} \\
+\mathcal{I}_{a, a} (r, a) &amp;= \psi_1(a) \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="scale-parametrization-1" class="section level3">
+<h3>Scale Parametrization</h3>
+<div id="parameters-12" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Scale parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+<li>Shape parameter <span class="math inline">\(a \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-3" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | s, a) =  \frac{1}{\Gamma(a)} \frac{1}{s} \left( \frac{y}{s}
+\right)^{a - 1} \exp \left( - \frac{y}{s} \right)
+\]</span></p>
+</div>
+<div id="moments-17" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= a s \\
+\mathrm{var}[Y] &amp;= a s^2 \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-18" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{s} (y; s, a) &amp;= \frac{y - a s}{s^2} \\
+\nabla_{a} (y; s, a) &amp;= \ln \left( \frac{y}{s} \right) - \psi_0(a)
+\\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-17" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{s, s} (s, a) &amp;= \frac{a}{s^2} \\
+\mathcal{I}_{s, a} (s, a) &amp;= \frac{1}{s} \\
+\mathcal{I}_{a, a} (s, a) &amp;= \psi_1(a) \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="further-reading-9" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li>Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing
+Systems: Autoregressive Conditional Duration Approach. <em>Central
+European Journal of Operations Research</em>, <strong>29</strong>(3),
+859–874. doi: <a href="https://doi.org/10.1007/s10100-021-00744-7">10.1007/s10100-021-00744-7</a>.</li>
+</ul>
+</div>
+</div>
+<div id="generalized-gamma-distribution" class="section level2">
+<h2>Generalized Gamma Distribution</h2>
+<div id="rate-parametrization-2" class="section level3">
+<h3>Rate Parametrization</h3>
+<div id="parameters-13" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Rate parameter <span class="math inline">\(r \in (0,
+\infty)\)</span></li>
+<li>First shape parameter <span class="math inline">\(a \in (0,
+\infty)\)</span></li>
+<li>Second shape parameter <span class="math inline">\(b \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-4" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | r, a, b) =  \frac{r b}{\Gamma(a)} (r y)^{a b - 1} \exp \left( -(r
+y)^b \right)
+\]</span></p>
+</div>
+<div id="moments-18" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= \frac{1}{r} \frac{\Gamma \left(a + b^{-1}
+\right)}{\Gamma \left( a \right) } \\
+\mathrm{var}[Y] &amp;= \frac{1}{r^2} \left( \frac{\Gamma \left(a + 2
+b^{-1} \right)}{\Gamma \left( a \right) } -  \left( \frac{\Gamma \left(a
++ b^{-1} \right)}{\Gamma \left( a \right) } \right)^2 \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-19" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{r} (y; r, a, b) &amp;= \frac{b}{r} \left( a - (r y)^b \right) \\
+\nabla_{a} (y; r, a, b) &amp;= b \ln(r y) - \psi_0(a) \\
+\nabla_{b} (y; r, a, b) &amp;= \left( a - (r y)^b \right) \ln (r y) +
+\frac{1}{b} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-18" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{r, r} (r, a, b) &amp;= \frac{a b^2}{r^2} \\
+\mathcal{I}_{r, a} (r, a, b) &amp;= - \frac{b}{r} \\
+\mathcal{I}_{r, b} (r, a, b) &amp;= \frac{a \psi_0(a) + 1}{r} \\
+\mathcal{I}_{a, a} (r, a, b) &amp;= \psi_1(a) \\
+\mathcal{I}_{a, b} (r, a, b) &amp;= - \frac{\psi_0(a)}{b} \\
+\mathcal{I}_{b, b} (r, a, b) &amp;= \frac{a \psi_0(a)^2 + 2 \psi_0(a) +
+a \psi_1(a) + 1}{b^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="scale-parametrization-2" class="section level3">
+<h3>Scale Parametrization</h3>
+<div id="parameters-14" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Scale parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+<li>First shape parameter <span class="math inline">\(a \in (0,
+\infty)\)</span></li>
+<li>Second shape parameter <span class="math inline">\(b \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-5" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | s, a, b) =  \frac{1}{\Gamma(a)} \frac{b}{s} \left( \frac{y}{s}
+\right)^{a b - 1} \exp \left( - \left( \frac{y}{s} \right)^b \right)
+\]</span></p>
+</div>
+<div id="moments-19" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= s \frac{\Gamma \left(a + b^{-1} \right)}{\Gamma
+\left( a \right) } \\
+\mathrm{var}[Y] &amp;= s^2 \left( \frac{\Gamma \left(a + 2 b^{-1}
+\right)}{\Gamma \left( a \right) } -  \left( \frac{\Gamma \left(a +
+b^{-1} \right)}{\Gamma \left( a \right) } \right)^2 \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-20" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{s} (y; s, a, b) &amp;= \frac{b}{s} \left( \left( \frac{y}{s}
+\right)^b - a \right) \\
+\nabla_{a} (y; s, a, b) &amp;= b \ln \left( \frac{y}{s} \right) -
+\psi_0(a) \\
+\nabla_{b} (y; s, a, b) &amp;= \left( a - \left( \frac{y}{s} \right)^b
+\right) \ln \left( \frac{y}{s} \right) + \frac{1}{b} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-19" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{s, s} (s, a, b) &amp;= \frac{a b^2}{s^2} \\
+\mathcal{I}_{s, a} (s, a, b) &amp;= \frac{b}{s} \\
+\mathcal{I}_{s, b} (s, a, b) &amp;= - \frac{a \psi_0(a) + 1}{s} \\
+\mathcal{I}_{a, a} (s, a, b) &amp;= \psi_1(a) \\
+\mathcal{I}_{a, b} (s, a, b) &amp;= - \frac{\psi_0(a)}{b} \\
+\mathcal{I}_{b, b} (s, a, b) &amp;= \frac{a \psi_0(a)^2 + 2 \psi_0(a) +
+a \psi_1(a) + 1}{b^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="further-reading-10" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li><p>Park, T. R. (2014). Derivation of the Fisher Information Matrix
+for 4-Parameter Generalized Gamma Distribution Using Mathematica.
+<em>Journal of the Chosun Natural Science</em>, <strong>7</strong>(2),
+138–144. doi: <a href="https://doi.org/10.13160/ricns.2014.7.2.138">10.13160/ricns.2014.7.2.138</a>.</p></li>
+<li><p>Stacy, E. W. (1962). A Generalization of the Gamma Distribution.
+<em>The Annals of Mathematical Statistics</em>, <strong>33</strong>(3),
+1187–1192. doi: <a href="https://doi.org/10.1214/aoms/1177704481">10.1214/aoms/1177704481</a>.</p></li>
+<li><p>Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in
+Queueing Systems: Autoregressive Conditional Duration Approach.
+<em>Central European Journal of Operations Research</em>,
+<strong>29</strong>(3), 859–874. doi: <a href="https://doi.org/10.1007/s10100-021-00744-7">10.1007/s10100-021-00744-7</a>.</p></li>
+</ul>
+</div>
+</div>
+<div id="weibull-distribution" class="section level2">
+<h2>Weibull Distribution</h2>
+<div id="rate-parametrization-3" class="section level3">
+<h3>Rate Parametrization</h3>
+<div id="parameters-15" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Rate parameter <span class="math inline">\(r \in (0,
+\infty)\)</span></li>
+<li>Shape parameter <span class="math inline">\(b \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-6" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | r, b) =  r b (r y)^{b - 1} \exp \left( -(r y)^b \right)
+\]</span></p>
+</div>
+<div id="moments-20" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= \frac{1}{r} \Gamma \left(1 + b^{-1} \right) \\
+\mathrm{var}[Y] &amp;= \frac{1}{r^2} \left( \Gamma \left(1 + 2 b^{-1}
+\right) -  \Gamma \left(1 + b^{-1} \right)^2 \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-21" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{r} (y; r, b) &amp;= \frac{b}{r} \left( 1 - (r y)^b \right) \\
+\nabla_{b} (y; r, b) &amp;= \left( 1 - (r y)^b \right) \ln (r y) +
+\frac{1}{b} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-20" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{r, r} (r, b) &amp;= \frac{b^2}{r^2} \\
+\mathcal{I}_{r, b} (r, b) &amp;= \frac{\psi_0(1) + 1}{r} \\
+\mathcal{I}_{b, b} (r, b) &amp;= \frac{\psi_0(1)^2 + 2 \psi_0(1) +
+\psi_1(1) + 1}{b^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="scale-parametrization-3" class="section level3">
+<h3>Scale Parametrization</h3>
+<div id="parameters-16" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Scale parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+<li>Shape parameter <span class="math inline">\(b \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-7" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | s, b) =  \frac{b}{s} \left( \frac{y}{s} \right)^{b - 1} \exp
+\left( - \left( \frac{y}{s} \right)^b \right)
+\]</span></p>
+</div>
+<div id="moments-21" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= s \Gamma \left(1 + b^{-1} \right) \\
+\mathrm{var}[Y] &amp;= s^2 \left( \Gamma \left(a + 2 b^{-1} \right)
+-  \Gamma \left(1 + b^{-1} \right)^2 \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-22" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{s} (y; s, b) &amp;= \frac{b}{s} \left( \left( \frac{y}{s}
+\right)^b - 1 \right) \\
+\nabla_{b} (y; s, b) &amp;= \left( 1 - \left( \frac{y}{s} \right)^b
+\right) \ln \left( \frac{y}{s} \right) + \frac{1}{b} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-21" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{s, s} (s, b) &amp;= \frac{b^2}{s^2} \\
+\mathcal{I}_{s, b} (s, b) &amp;= - \frac{\psi_0(1) + 1}{s} \\
+\mathcal{I}_{b, b} (s, b) &amp;= \frac{\psi_0(1)^2 + 2 \psi_0(1) +
+\psi_1(1) + 1}{b^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="further-reading-11" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li>Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing
+Systems: Autoregressive Conditional Duration Approach. <em>Central
+European Journal of Operations Research</em>, <strong>29</strong>(3),
+859–874. doi: <a href="https://doi.org/10.1007/s10100-021-00744-7">10.1007/s10100-021-00744-7</a>.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="real-data" class="section level1">
+<h1>Real Data</h1>
+<div id="normal-distribution" class="section level2">
+<h2>Normal Distribution</h2>
+<div id="mean-variance-parametrization-1" class="section level3">
+<h3>Mean-Variance Parametrization</h3>
+<div id="parameters-17" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in
+\mathbb{R}\)</span></li>
+<li>Variance parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-8" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | m, s) = \frac{1}{\sqrt{2 \pi s}} \exp \left( -\frac{(y - m)^2}{2
+s} \right)
+\]</span></p>
+</div>
+<div id="moments-22" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m \\
+\mathrm{var}[Y] &amp;= s \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-23" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s) &amp;= \frac{y - m}{s} \\
+\nabla_{s} (y; m, s) &amp;= \frac{(y - m)^2 - s}{2 s^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-22" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &amp;= \frac{1}{s} \\
+\mathcal{I}_{m, s} (m, s) &amp;= 0 \\
+\mathcal{I}_{s, s} (m, s) &amp;= \frac{1}{2 s^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+</div>
+<div id="students-t-distribution" class="section level2">
+<h2>Student’s t Distribution</h2>
+<div id="mean-variance-parametrization-2" class="section level3">
+<h3>Mean-Variance Parametrization</h3>
+<div id="parameters-18" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in
+\mathbb{R}\)</span></li>
+<li>Variance parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+<li>Degrees of freedom parameter <span class="math inline">\(v \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-9" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | m, s, v) = \frac{\Gamma \left( \frac{v + 1}{2} \right)}{\Gamma
+\left( \frac{v}{2} \right) \sqrt{\pi s v}} \left( 1 + \frac{(y - m)^2}{s
+v} \right)^{-\frac{v + 1}{2}}
+\]</span></p>
+</div>
+<div id="moments-23" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m, &amp; \quad \text{for } v &amp;&gt; 1 \\
+\mathrm{var}[Y] &amp;= \frac{v}{v - 2} s, &amp; \quad \text{for } v
+&amp;&gt; 2 \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-24" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s, v) &amp;= \frac{(v + 1) (y - m) }{(y - m)^2 + s v}
+\\
+\nabla_{s} (y; m, s, v) &amp;= \frac{v}{2s} \frac{(y - m)^2 - s}{(y -
+m)^2 + s v} \\
+\nabla_{v} (y; m, s, v) &amp;= \frac{1}{2} \frac{(y - m)^2 - s}{(y -
+m)^2 + s v} - \frac{1}{2} \ln \left(1 + \frac{1}{v} \frac{(y - m)^2}{s}
+\right) - \frac{1}{2} \psi_0 \left( \frac{v}{2} \right) + \frac{1}{2}
+\psi_0 \left( \frac{v + 1}{2} \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-23" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s, v) &amp;= \frac{v + 1}{s (v + 3)} \\
+\mathcal{I}_{m, s} (m, s, v) &amp;= 0 \\
+\mathcal{I}_{m, v} (m, s, v) &amp;= 0 \\
+\mathcal{I}_{s, s} (m, s, v) &amp;= \frac{v}{2 s^2 (v + 3)} \\
+\mathcal{I}_{s, v} (m, s, v) &amp;= \frac{-1}{s (v + 1) (v + 3)} \\
+\mathcal{I}_{v, v} (m, s, v) &amp;= - \frac{1}{2} \frac{v + 5}{v (v + 1)
+(v + 3)} + \frac{1}{4} \psi_1 \left( \frac{v}{2} \right) - \frac{1}{4}
+\psi_1 \left( \frac{v + 1}{2} \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="further-reading-12" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li><p>Blazsek, S. and Villatoro, M. (2015). Is Beta-t-EGARCH(1,1)
+Superior to GARCH(1,1)? <em>Applied Economics</em>,
+<strong>47</strong>(17), 1764–1774. doi: <a href="https://doi.org/10.1080/00036846.2014.1000536">10.1080/00036846.2014.1000536</a>.</p></li>
+<li><p>Harvey, A. C. and Chakravarty, T. (2008). Beta-t-(E)GARCH.
+<em>Cambridge Working Papers in Economics</em>, CWPE 0840. doi: <a href="https://doi.org/10.17863/cam.5286">10.17863/cam.5286</a>.</p></li>
+<li><p>Harvey, A. C. and Lange, R. J. (2018). Modeling the Interactions
+Between Volatility and Returns using EGARCH-M. <em>Journal of Time
+Series Analysis</em>, <strong>39</strong>(6), 909–919. doi: <a href="https://doi.org/10.1111/jtsa.12419">10.1111/jtsa.12419</a>.</p></li>
+<li><p>Lange, K. L., Little, R. J. A., and Taylor, J. M. G. (1989).
+Robust Statistical Modeling Using the t Distribution. <em>Journal of the
+American Statistical Association</em>, <strong>84</strong>(408),
+881–896. doi: <a href="https://doi.org/10.1080/01621459.1989.10478852">10.1080/01621459.1989.10478852</a>.</p></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="multivariate-real-data" class="section level1">
+<h1>Multivariate Real Data</h1>
+<div id="multivariate-normal-distribution" class="section level2">
+<h2>Multivariate Normal Distribution</h2>
+<div id="mean-variance-parametrization-3" class="section level3">
+<h3>Mean-Variance Parametrization</h3>
+<div id="parameters-19" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameters <span class="math inline">\(m_i \in \mathbb{R}, i =
+1, \ldots, n\)</span></li>
+<li>Variance parameters <span class="math inline">\(s_i \in (0, \infty),
+i = 1, \ldots, n\)</span></li>
+<li>Covariance parameters <span class="math inline">\(c_{ij} \in
+\mathbb{R}, i = 2, \ldots, n, j = 1, \ldots, i\)</span></li>
+</ul>
+</div>
+<div id="vector-and-matrix-notation" class="section level4">
+<h4>Vector and Matrix Notation</h4>
+<ul>
+<li>Mean vector <span class="math inline">\(\boldsymbol{m}\)</span> of
+length <span class="math inline">\(n\)</span></li>
+<li>Variance-covariance matrix <span class="math inline">\(\boldsymbol{K}\)</span> of size <span class="math inline">\(n \times n\)</span></li>
+</ul>
+</div>
+<div id="density-function-10" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}) = \frac{1}{\sqrt{(2
+\pi)^n | \boldsymbol{K}|}} \exp \left( - \frac{1}{2} (\boldsymbol{y} -
+\boldsymbol{m})&#39; \boldsymbol{K}^{-1} (\boldsymbol{y} -
+\boldsymbol{m}) \right)
+\]</span></p>
+</div>
+<div id="moments-24" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[\boldsymbol{Y}] &amp;= \boldsymbol{m} \\
+\mathrm{var}[\boldsymbol{Y}] &amp;= \boldsymbol{K} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-25" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{\boldsymbol{m}} (\boldsymbol{y}; \boldsymbol{m}, \boldsymbol{K})
+&amp;= \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right)
+\\
+\nabla_{\mathrm{vec}(\boldsymbol{K})} (\boldsymbol{y}; \boldsymbol{m},
+\boldsymbol{K}) &amp;= \mathrm{vec} \left( \frac{1}{2}
+\boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right)
+\left(\boldsymbol{y} - \boldsymbol{m} \right)&#39; \boldsymbol{K}^{-1} -
+\frac{1}{2} \boldsymbol{K}^{-1} \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-24" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{\boldsymbol{m}, \boldsymbol{m}} (\boldsymbol{m},
+\boldsymbol{K}) &amp;= \boldsymbol{K}^{-1} \\
+\mathcal{I}_{\boldsymbol{m}, \mathrm{vec}(\boldsymbol{K})}
+(\boldsymbol{m}, \boldsymbol{K}) &amp;= \boldsymbol{0} \\
+\mathcal{I}_{\mathrm{vec}(\boldsymbol{K}), \mathrm{vec}(\boldsymbol{K})}
+(\boldsymbol{m}, \boldsymbol{K}) &amp;= \frac{1}{4} \boldsymbol{K}^{-1}
+\otimes \boldsymbol{K}^{-1} + \frac{1}{4}
+\mathrm{vec}\left(\boldsymbol{K}^{-1} \right)
+\mathrm{vec}\left(\boldsymbol{K}^{-1} \right)&#39; \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+</div>
+<div id="multivariate-students-t-distribution" class="section level2">
+<h2>Multivariate Student’s t Distribution</h2>
+<div id="mean-variance-parametrization-4" class="section level3">
+<h3>Mean-Variance Parametrization</h3>
+<div id="parameters-20" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameters <span class="math inline">\(m_i \in \mathbb{R}, i =
+1, \ldots, n\)</span></li>
+<li>Variance parameters <span class="math inline">\(s_i \in (0, \infty),
+i = 1, \ldots, n\)</span></li>
+<li>Covariance parameters <span class="math inline">\(c_{ij} \in
+\mathbb{R}, i = 2, \ldots, n, j = 1, \ldots, i\)</span></li>
+<li>Degrees of freedom parameter <span class="math inline">\(v \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="vector-and-matrix-notation-1" class="section level4">
+<h4>Vector and Matrix Notation</h4>
+<ul>
+<li>Mean vector <span class="math inline">\(\boldsymbol{m}\)</span> of
+length <span class="math inline">\(n\)</span></li>
+<li>Variance-covariance matrix <span class="math inline">\(\boldsymbol{K}\)</span> of size <span class="math inline">\(n \times n\)</span></li>
+</ul>
+</div>
+<div id="density-function-11" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}, v) = \frac{\Gamma
+\left( \frac{v + n}{2} \right)}{\Gamma \left( \frac{v}{2} \right)
+\sqrt{(v \pi)^n | \boldsymbol{K}|}} \left( 1 + \frac{1}{v}
+(\boldsymbol{y} - \boldsymbol{m})&#39; \boldsymbol{K}^{-1}
+(\boldsymbol{y} - \boldsymbol{m}) \right)^{-\frac{v + n}{2}}
+\]</span></p>
+</div>
+<div id="moments-25" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[\boldsymbol{Y}] &amp;= \boldsymbol{m}, &amp; \quad \text{for
+} v &amp;&gt; 1 \\
+\mathrm{var}[\boldsymbol{Y}] &amp;= \frac{v}{v - 2} \boldsymbol{K},
+&amp; \quad \text{for } v &amp;&gt; 2 \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-26" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{\boldsymbol{m}} (\boldsymbol{y}; \boldsymbol{m}, \boldsymbol{K},
+v) &amp;= \frac{v + n}{v + \left(\boldsymbol{y} - \boldsymbol{m}
+\right)&#39; \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m}
+\right)} \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m}
+\right) \\
+\nabla_{\mathrm{vec}(\boldsymbol{K})} (\boldsymbol{y}; \boldsymbol{m},
+\boldsymbol{K}, v) &amp;=
+\mathrm{vec} \left( \frac{1}{2} \frac{v + n}{v + \left(\boldsymbol{y} -
+\boldsymbol{m} \right)&#39; \boldsymbol{K}^{-1} \left(\boldsymbol{y} -
+\boldsymbol{m} \right)} \boldsymbol{K}^{-1} \left(\boldsymbol{y} -
+\boldsymbol{m} \right) \left(\boldsymbol{y} - \boldsymbol{m}
+\right)&#39; \boldsymbol{K}^{-1} - \frac{1}{2} \boldsymbol{K}^{-1}
+\right) \\
+\nabla_{v} (\boldsymbol{y}; \boldsymbol{m}, \boldsymbol{K}, v) &amp;=
+\frac{1}{2} \frac{ \left(\boldsymbol{y} - \boldsymbol{m} \right)&#39;
+\boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right) - n }{
+\left(\boldsymbol{y} - \boldsymbol{m} \right)&#39; \boldsymbol{K}^{-1}
+\left(\boldsymbol{y} - \boldsymbol{m} \right)) + v} - \frac{1}{2} \ln
+\left( 1 + \frac{1}{v} \left(\boldsymbol{y} - \boldsymbol{m}
+\right)&#39; \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m}
+\right) \right) \\
+&amp; \qquad - \frac{1}{2} \psi_0 \left( \frac{v}{2} \right) +
+\frac{1}{2} \psi_0 \left( \frac{v + n}{2} \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-25" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{\boldsymbol{m}, \boldsymbol{m}} (\boldsymbol{m},
+\boldsymbol{K}, v) &amp;= \frac{v + n}{v + n + 2} \boldsymbol{K}^{-1} \\
+\mathcal{I}_{\boldsymbol{m}, \mathrm{vec}(\boldsymbol{K})}
+(\boldsymbol{m}, \boldsymbol{K}, v) &amp;= \boldsymbol{0} \\
+\mathcal{I}_{\boldsymbol{m}, v} (\boldsymbol{m}, \boldsymbol{K}, v)
+&amp;= \boldsymbol{0} \\
+\mathcal{I}_{\mathrm{vec}(\boldsymbol{K}), \mathrm{vec}(\boldsymbol{K})}
+(\boldsymbol{m}, \boldsymbol{K}, v) &amp;=
+\frac{1}{4} \frac{v + n}{v + n + 2} \boldsymbol{K}^{-1} \otimes
+\boldsymbol{K}^{-1} + \frac{1}{4} \frac{v + n - 2}{v + n + 2}
+\mathrm{vec}\left(\boldsymbol{K}^{-1} \right)
+\mathrm{vec}\left(\boldsymbol{K}^{-1} \right)&#39; \\
+\mathcal{I}_{\mathrm{vec}(\boldsymbol{K}), v} (\boldsymbol{m},
+\boldsymbol{K}, v) &amp;= - \frac{1}{(v + n +2)(v + n)}
+\mathrm{vec}\left(\boldsymbol{K}^{-1} \right) \\
+\mathcal{I}_{v, v} (\boldsymbol{m}, \boldsymbol{K}, v) &amp;= ) -
+\frac{1}{2} \frac{n (v + n + 4)}{v (v + n + 2)(v + n)} + \frac{1}{4}
+\psi_1 \left( \frac{v}{2} \right) - \frac{1}{4} \psi_1 \left( \frac{v +
+n}{2} \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="further-reading-13" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li><p>Blazsek, S. and Villatoro, M. (2015). Is Beta-t-EGARCH(1,1)
+Superior to GARCH(1,1)? <em>Applied Economics</em>,
+<strong>47</strong>(17), 1764–1774. doi: <a href="https://doi.org/10.1080/00036846.2014.1000536">10.1080/00036846.2014.1000536</a>.</p></li>
+<li><p>Harvey, A. C. and Chakravarty, T. (2008). Beta-t-(E)GARCH.
+<em>Cambridge Working Papers in Economics</em>, CWPE 0840. doi: <a href="https://doi.org/10.17863/cam.5286">10.17863/cam.5286</a>.</p></li>
+<li><p>Harvey, A. C. and Lange, R. J. (2018). Modeling the Interactions
+Between Volatility and Returns using EGARCH-M. <em>Journal of Time
+Series Analysis</em>, <strong>39</strong>(6), 909–919. doi: <a href="https://doi.org/10.1111/jtsa.12419">10.1111/jtsa.12419</a>.</p></li>
+<li><p>Lange, K. L., Little, R. J. A., and Taylor, J. M. G. (1989).
+Robust Statistical Modeling Using the t Distribution. <em>Journal of the
+American Statistical Association</em>, <strong>84</strong>(408),
+881–896. doi: <a href="https://doi.org/10.1080/01621459.1989.10478852">10.1080/01621459.1989.10478852</a>.</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

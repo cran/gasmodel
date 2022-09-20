@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Vladimír Holý &amp; Jan Zouhar" />
+
+<meta name="date" content="2022-08-11" />
+
+<title>Case Study: Ice Hockey Rankings</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Case Study: Ice Hockey Rankings</h1>
+<h4 class="author">Vladimír Holý &amp; Jan Zouhar</h4>
+<h4 class="date">2022-08-11</h4>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>In this vignette, we present the empirical study of Holý and Zouhar
+(2022) which analyzes the results of the Ice Hockey World Championships.
+Our main object of interest is the annual ranking of 16 teams
+participating in the championships. For an in-depth overview of
+statistical toolkit for ranking data, see e.g. Alvo and Yu (2014).
+However, as Yu et al. (2019) point out, the time perspective is often
+overlooked in the ranking literature. This is where the GAS model comes
+into play.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gasmodel)</span></code></pre></div>
+</div>
+<div id="data-preparation" class="section level2">
+<h2>Data Preparation</h2>
+<p>Our analyzed data are supplied in the
+<code>ice_hockey_championships</code> dataset. We restrict ourselves to
+years 1998–2019 just as Holý and Zouhar (2022). In 1998, the number of
+teams in the tournament increased from 12 to 16. In 2020, the
+championship was cancelled due to Covid-19 pandemic. We create two
+variables – the final ranking of 16 participating teams in each year
+<code>y</code> and the dummy variable indicating which country (or
+countries) hosted the championship in each year <code>x</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(ice_hockey_championships)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>t <span class="ot">&lt;-</span> <span class="dv">22</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">ncol</span>(ice_hockey_championships<span class="sc">$</span>host)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> ice_hockey_championships<span class="sc">$</span>rankings[<span class="dv">1</span><span class="sc">:</span>t, ]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span>n, <span class="cf">function</span>(i) { ice_hockey_championships<span class="sc">$</span>host[<span class="dv">1</span><span class="sc">:</span>t, i] }), <span class="fu">colnames</span>(y))</span></code></pre></div>
+<p>We look at some basic statistics. In our sample, nine countries have
+participated each year:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>participate <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.finite</span>(y))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(participate)[participate <span class="sc">==</span> t]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;CAN&quot; &quot;CHE&quot; &quot;CZE&quot; &quot;FIN&quot; &quot;LVA&quot; &quot;RUS&quot; &quot;SVK&quot; &quot;SWE&quot; &quot;USA&quot;</span></span></code></pre></div>
+<p>The following countries hosted the championships:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>host <span class="ot">&lt;-</span> <span class="fu">sapply</span>(x, <span class="at">FUN =</span> sum)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>host[host <span class="sc">&gt;</span> 0L]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; AUT BLR CAN CHE CZE DEU FIN FRA LVA NOR RUS SVK SWE </span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   1   1   1   2   2   3   3   1   1   1   3   2   3</span></span></code></pre></div>
+<p>The following countries won the gold metal:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gold <span class="ot">&lt;-</span> <span class="fu">colSums</span>(y <span class="sc">==</span> 1L)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>gold[gold <span class="sc">&gt;</span> 0L]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; CAN CZE FIN RUS SVK SWE </span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   5   5   2   4   1   5</span></span></code></pre></div>
+</div>
+<div id="model-estimation" class="section level2">
+<h2>Model Estimation</h2>
+<p>The <code>gasmodel</code> package provides a single distribution on
+rankings – the Plackett–Luce distribution:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">distr</span>(<span class="at">filter_type =</span> <span class="st">&quot;ranking&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      distr_title param_title distr param    type   dim orthog default</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17 Plackett-Luce       Worth pluce worth ranking multi  FALSE    TRUE</span></span></code></pre></div>
+<p>It is a convenient and simple probability distribution on rankings
+utilizing a worth parameter for each item to be ranked. It originates
+from Luce’s choice axiom and is also related to the Thurstone’s theory
+of comparative judgment, see Luce (1977) and Yellott (1977). For more
+details, see Plackett (1975), Stern (1990), and Critchlow et
+al. (1991).</p>
+<p>We consider three different models in total. First, we estimate the
+static model:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>est_static <span class="ot">&lt;-</span> <span class="fu">gas</span>(<span class="at">y =</span> y, <span class="at">x =</span> x, <span class="at">distr =</span> <span class="st">&quot;pluce&quot;</span>, <span class="at">p =</span> <span class="dv">0</span>, <span class="at">q =</span> <span class="dv">0</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">coef_fix_special =</span> <span class="fu">c</span>(<span class="st">&quot;zero_sum_intercept&quot;</span>, <span class="st">&quot;panel_structure&quot;</span>))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>est_static</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; GAS Model: Plackett-Luce Distribution / Worth Parametrization / Unit Scaling </span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Coefficients: </span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                     Estimate Std. Error  Z-Test  Pr(&gt;|Z|)    </span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth1)_omega  -0.886065   0.279820 -3.1665 0.0015426 ** </span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth1)_beta1   0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth2)_omega   0.108524   0.260858  0.4160 0.6773910    </span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth2)_beta1   0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth3)_omega   3.716810   0.296214 12.5477 &lt; 2.2e-16 ***</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth3)_beta1   0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth4)_omega   1.759760   0.258402  6.8102 9.749e-12 ***</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth4)_beta1   0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth5)_omega   3.405212   0.292305 11.6495 &lt; 2.2e-16 ***</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth5)_beta1   0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth6)_omega   0.310967   0.267086  1.1643 0.2443037    </span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth6)_beta1   0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth7)_omega  -0.174836   0.267298 -0.6541 0.5130557    </span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth7)_beta1   0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth8)_omega   3.664354   0.296329 12.3658 &lt; 2.2e-16 ***</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth8)_beta1   0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth9)_omega  -0.508977   0.271489 -1.8748 0.0608254 .  </span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth9)_beta1   0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth10)_omega -3.885615   0.965475 -4.0246 5.708e-05 ***</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth10)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth11)_omega -3.201107   0.688220 -4.6513 3.299e-06 ***</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth11)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth12)_omega -1.098306   0.295764 -3.7134 0.0002045 ***</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth12)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth13)_omega -1.939966   0.382723 -5.0689 4.002e-07 ***</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth13)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth14)_omega -1.781260   0.361049 -4.9336 8.074e-07 ***</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth14)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth15)_omega -3.907463   0.965400 -4.0475 5.177e-05 ***</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth15)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth16)_omega  0.821959   0.247794  3.3171 0.0009096 ***</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth16)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth17)_omega -0.074269   0.269070 -0.2760 0.7825318    </span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth17)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth18)_omega -3.897461   0.965457 -4.0369 5.416e-05 ***</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth18)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth19)_omega  3.165045   0.300729 10.5246 &lt; 2.2e-16 ***</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth19)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth20)_omega  1.548835   0.263385  5.8805 4.090e-09 ***</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth20)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth21)_omega -1.638001   0.342807 -4.7782 1.769e-06 ***</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth21)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth22)_omega  3.837546   0.300147 12.7855 &lt; 2.2e-16 ***</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth22)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth23)_omega -1.523773   0.345577 -4.4094 1.037e-05 ***</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth23)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth24)_omega  2.178086   0.277265  7.8556 3.979e-15 ***</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth24)_beta1  0.170733   0.262163  0.6512 0.5148870    </span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Log-Likelihood: -625.7998, AIC: 1299.6, BIC: 1325.785</span></span></code></pre></div>
+<p>Second, we estimate the standard mean-reverting GAS model of order
+one:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>est_gas <span class="ot">&lt;-</span> <span class="fu">gas</span>(<span class="at">y =</span> y, <span class="at">x =</span> x, <span class="at">distr =</span> <span class="st">&quot;pluce&quot;</span>,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">coef_fix_special =</span> <span class="fu">c</span>(<span class="st">&quot;zero_sum_intercept&quot;</span>, <span class="st">&quot;panel_structure&quot;</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">coef_start =</span> <span class="fu">as.vector</span>(<span class="fu">rbind</span>(est_static<span class="sc">$</span>fit<span class="sc">$</span>par_unc <span class="sc">/</span> <span class="dv">2</span>, <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>)))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>est_gas</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; GAS Model: Plackett-Luce Distribution / Worth Parametrization / Unit Scaling </span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Coefficients: </span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                      Estimate Std. Error  Z-Test  Pr(&gt;|Z|)    </span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth1)_omega   -0.411094   0.240601 -1.7086 0.0875232 .  </span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth1)_beta1    0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth1)_alpha1   0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth1)_phi1     0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth2)_omega    0.125523   0.196261  0.6396 0.5224518    </span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth2)_beta1    0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth2)_alpha1   0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth2)_phi1     0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth3)_omega    1.835425   0.612024  2.9989 0.0027092 ** </span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth3)_beta1    0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth3)_alpha1   0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth3)_phi1     0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth4)_omega    0.826797   0.307822  2.6860 0.0072322 ** </span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth4)_beta1    0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth4)_alpha1   0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth4)_phi1     0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth5)_omega    1.711820   0.555883  3.0795 0.0020738 ** </span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth5)_beta1    0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth5)_alpha1   0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth5)_phi1     0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth6)_omega    0.138403   0.207641  0.6665 0.5050601    </span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth6)_beta1    0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth6)_alpha1   0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth6)_phi1     0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth7)_omega   -0.036155   0.188575 -0.1917 0.8479553    </span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth7)_beta1    0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth7)_alpha1   0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth7)_phi1     0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth8)_omega    1.825416   0.590961  3.0889 0.0020090 ** </span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth8)_beta1    0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth8)_alpha1   0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth8)_phi1     0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth9)_omega   -0.199921   0.204617 -0.9771 0.3285437    </span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth9)_beta1    0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth9)_alpha1   0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth9)_phi1     0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth10)_omega  -1.933670   0.767879 -2.5182 0.0117958 *  </span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth10)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth10)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth10)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth11)_omega  -1.620691   0.610275 -2.6557 0.0079150 ** </span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth11)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth11)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth11)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth12)_omega  -0.504331   0.269737 -1.8697 0.0615238 .  </span></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth12)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth12)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth12)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth13)_omega  -0.985013   0.383383 -2.5693 0.0101913 *  </span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth13)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth13)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth13)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth14)_omega  -0.904307   0.355985 -2.5403 0.0110759 *  </span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth14)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth14)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth14)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth15)_omega  -1.955842   0.773200 -2.5295 0.0114211 *  </span></span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth15)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth15)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth15)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth16)_omega   0.425713   0.226028  1.8835 0.0596388 .  </span></span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth16)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth16)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth16)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth17)_omega   0.016516   0.181370  0.0911 0.9274426    </span></span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth17)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth17)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth17)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth18)_omega  -1.950521   0.770869 -2.5303 0.0113968 *  </span></span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth18)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth18)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth18)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth19)_omega   1.603105   0.547669  2.9271 0.0034209 ** </span></span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth19)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth19)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth19)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth20)_omega   0.815066   0.296970  2.7446 0.0060583 ** </span></span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth20)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth20)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth20)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth21)_omega  -0.865332   0.338699 -2.5549 0.0106228 *  </span></span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth21)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth21)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth21)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth22)_omega   1.803007   0.603897  2.9856 0.0028300 ** </span></span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth22)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth22)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth22)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth23)_omega  -0.662936   0.301776 -2.1968 0.0280358 *  </span></span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth23)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth23)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth23)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth24)_omega   0.903025   0.350262  2.5781 0.0099334 ** </span></span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth24)_beta1   0.227438   0.257598  0.8829 0.3772815    </span></span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth24)_alpha1  0.391943   0.082695  4.7396 2.141e-06 ***</span></span>
+<span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth24)_phi1    0.506248   0.148399  3.4114 0.0006463 ***</span></span>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Log-Likelihood: -611.1953, AIC: 1274.391, BIC: 1302.758</span></span></code></pre></div>
+<p>Third, we estimate the random walk model:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>est_walk <span class="ot">&lt;-</span> <span class="fu">gas</span>(<span class="at">y =</span> y, <span class="at">x =</span> <span class="fu">lapply</span>(x, cumsum), <span class="at">distr =</span> <span class="st">&quot;pluce&quot;</span>, <span class="at">spec =</span> <span class="st">&quot;reg_err&quot;</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">coef_fix_special =</span> <span class="fu">c</span>(<span class="st">&quot;zero_sum_intercept&quot;</span>, <span class="st">&quot;panel_structure&quot;</span>, <span class="st">&quot;random_walk&quot;</span>),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">coef_start =</span> <span class="fu">as.vector</span>(<span class="fu">rbind</span>(est_static<span class="sc">$</span>fit<span class="sc">$</span>par_unc, <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="dv">1</span>)))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>est_walk</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; GAS Model: Plackett-Luce Distribution / Worth Parametrization / Unit Scaling </span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Coefficients: </span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                      Estimate Std. Error  Z-Test  Pr(&gt;|Z|)    </span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth1)_omega    0.143020   0.721154  0.1983 0.8427945    </span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth1)_beta1    0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth1)_alpha1   0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth1)_phi1     1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth2)_omega    0.474332   0.968582  0.4897 0.6243335    </span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth2)_beta1    0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth2)_alpha1   0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth2)_phi1     1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth3)_omega    2.862096   0.695910  4.1127 3.910e-05 ***</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth3)_beta1    0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth3)_alpha1   0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth3)_phi1     1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth4)_omega    1.673849   0.808717  2.0698 0.0384750 *  </span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth4)_beta1    0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth4)_alpha1   0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth4)_phi1     1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth5)_omega    3.592891   0.773873  4.6427 3.438e-06 ***</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth5)_beta1    0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth5)_alpha1   0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth5)_phi1     1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth6)_omega   -0.657911   0.709827 -0.9269 0.3539989    </span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth6)_beta1    0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth6)_alpha1   0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth6)_phi1     1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth7)_omega   -0.811607   0.648131 -1.2522 0.2104874    </span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth7)_beta1    0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth7)_alpha1   0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth7)_phi1     1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth8)_omega    3.608168   0.826422  4.3660 1.265e-05 ***</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth8)_beta1    0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth8)_alpha1   0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth8)_phi1     1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth9)_omega   -0.469121   0.886355 -0.5293 0.5966181    </span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth9)_beta1    0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth9)_alpha1   0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth9)_phi1     1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth10)_omega  -3.856949   1.114702 -3.4601 0.0005400 ***</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth10)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth10)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth10)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth11)_omega  -3.198759   0.902690 -3.5436 0.0003947 ***</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth11)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth11)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth11)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth12)_omega   0.189150   0.885648  0.2136 0.8308803    </span></span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth12)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth12)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth12)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth13)_omega  -0.458330   0.860890 -0.5324 0.5944556    </span></span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth13)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth13)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth13)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth14)_omega  -1.624154   0.871612 -1.8634 0.0624073 .  </span></span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth14)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth14)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth14)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth15)_omega  -3.872201   1.114874 -3.4732 0.0005143 ***</span></span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth15)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth15)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth15)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth16)_omega   0.786687   0.773040  1.0177 0.3088425    </span></span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth16)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth16)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth16)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth17)_omega  -0.656643   0.701983 -0.9354 0.3495762    </span></span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth17)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth17)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth17)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth18)_omega  -3.873149   1.148695 -3.3718 0.0007468 ***</span></span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth18)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth18)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth18)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth19)_omega   1.843343   0.797089  2.3126 0.0207451 *  </span></span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth19)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth19)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth19)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth20)_omega   2.154757   0.738903  2.9162 0.0035437 ** </span></span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth20)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth20)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth20)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth21)_omega  -1.629159   0.775014 -2.1021 0.0355443 *  </span></span>
+<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth21)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth21)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth21)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth22)_omega   3.204975   0.753831  4.2516 2.123e-05 ***</span></span>
+<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth22)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth22)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth22)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth23)_omega  -0.395006   0.674087 -0.5860 0.5578847    </span></span>
+<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth23)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth23)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth23)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth24)_omega   0.969720   0.672139  1.4427 0.1490947    </span></span>
+<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth24)_beta1   0.098733   0.188063  0.5250 0.5995825    </span></span>
+<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth24)_alpha1  0.343001   0.057619  5.9529 2.635e-09 ***</span></span>
+<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; log(worth24)_phi1    1.000000   0.000000     Inf &lt; 2.2e-16 ***</span></span>
+<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb9-108"><a href="#cb9-108" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-109"><a href="#cb9-109" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Log-Likelihood: -625.4253, AIC: 1300.851, BIC: 1328.127</span></span></code></pre></div>
+<p>The random walk model should be approached with caution as it is not
+stationary.</p>
+<p>We compare the models using the Akaike information criterion
+(AIC):</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(est_static, est_gas, est_walk)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            df      AIC</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; est_static 24 1299.600</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; est_gas    26 1274.391</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; est_walk   25 1300.851</span></span></code></pre></div>
+<p>In terms of AIC, the mean-reverting model outperformed the remaining
+two by a wide margin. In all three models, coefficient <span class="math inline">\(\alpha_1\)</span> representing the home advantage
+is positive but not significant.</p>
+</div>
+<div id="who-is-the-best" class="section level2">
+<h2>Who Is the Best?</h2>
+<p>Our models allows us to construct the ‘ultimate’ (or long-run)
+ranking. Both the static and mean-reverting models confirm the dominance
+of the Big Six. Indeed, the rankings in both models agree in all but the
+first three places; the long-term strength estimates for these three
+teams are very close to one another, though, making the eventual ranking
+less clear cut.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">team =</span> <span class="fu">colnames</span>(y)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gas_strength =</span> est_gas<span class="sc">$</span>fit<span class="sc">$</span>par_unc) <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gas_rank =</span> <span class="fu">rank</span>(<span class="sc">-</span>gas_strength)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">static_strength =</span> est_static<span class="sc">$</span>fit<span class="sc">$</span>par_unc) <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">static_rank =</span> <span class="fu">rank</span>(<span class="sc">-</span>static_strength)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(gas_rank)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 24 × 5</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    team  gas_strength gas_rank static_strength static_rank</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;        &lt;dbl&gt;    &lt;dbl&gt;           &lt;dbl&gt;       &lt;dbl&gt;</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1 CAN         3.72          1          3.72             2</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2 FIN         3.70          2          3.66             3</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3 SWE         3.65          3          3.84             1</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4 CZE         3.47          4          3.41             4</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5 RUS         3.25          5          3.17             5</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6 USA         1.83          6          2.18             6</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7 CHE         1.67          7          1.76             7</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8 SVK         1.65          8          1.55             8</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9 LVA         0.862         9          0.822            9</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 DEU         0.280        10          0.311           10</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11 BLR         0.254        11          0.109           11</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12 NOR         0.0335       12         -0.0743          12</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13 DNK        -0.0732       13         -0.175           13</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14 FRA        -0.405        14         -0.509           14</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15 AUT        -0.833        15         -0.886           15</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16 ITA        -1.02         16         -1.10            16</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17 UKR        -1.34         17         -1.52            17</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18 SVN        -1.75         18         -1.64            18</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 19 KAZ        -1.83         19         -1.78            19</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 20 JPN        -1.99         20         -1.94            20</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21 HUN        -3.28         21         -3.20            21</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 22 GBR        -3.92         22         -3.89            22</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 23 POL        -3.95         23         -3.90            23</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 24 KOR        -3.96         24         -3.91            24</span></span></code></pre></div>
+<p>We can also take a look at the progression of the worth parameters of
+the individual teams over the years:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">1998</span><span class="sc">:</span><span class="dv">2019</span>, <span class="at">y =</span> est_gas<span class="sc">$</span>fit<span class="sc">$</span>par_tv[, <span class="dv">3</span>])) <span class="sc">+</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Strength of the Canada Team&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Year&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Worth Parameter&quot;</span>) <span class="sc">+</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> est_gas<span class="sc">$</span>fit<span class="sc">$</span>par_unc[<span class="dv">3</span>], <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>) <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">&quot;#D52B1E&quot;</span>) <span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">1998</span>, <span class="at">to =</span> <span class="dv">2019</span>, <span class="at">by =</span> <span class="dv">3</span>)) <span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAEgCAIAAABaSrE+AAAACXBIWXMAAAsSAAALEgHS3X78AAAgAElEQVR4nOydd2BTVfvHT5Kb3XQlLW2h0EIX0AKFllGQbRmyVIYoKCjqK+oriD9BfV2IC5QhiPqCiq+gyBQBwYKArLJkFbonbaE7zc5N7vj9cWuMaZpmnIym5/NXcnPuc765uffJveec53lYNE0DBAKBQADA9rYABAKB8BWQQ0QgEIgWkENEIBCIFpBDRCAQiBa87BDlcvnixYt79OgRFBQ0ZsyYb775xmNdNzY2slgskiQd3XHfvn3du3ffvn07dMsAgJs3bz7wwAORkZGhoaGZmZlXrlxxwohtli5d+tprr7Xb7P7772e1IjU1FboeBMJ38LJDfOKJJ4qLi7dt21ZaWvr666+/++67W7ZsYT5KT0+/efMm9B5dN7t27dqVK1fOmzcPuuVLly4NGTIkLS0tKyvr5MmTycnJ48ePLysrc8Wm0+zataumpqampubpp5+eMmUK8/r48eNeEYNAeAbMi30bDIYjR46cO3du8ODBAID777//rbfe+uqrr55++mkAQE1NjdFoNG9P07TRaOTxeK502tqsozQ2NsbGxkK3TNP0Cy+8sHz58nfeeYfZsnbt2hs3bmzZsuWDDz5w2qzThISEMC/EYrFAIOjSpYvnNSAQnob2KnFxcU8++aRCobDYPmrUKDabLZVKf/7555qaGplMdvjw4ejo6LNnzxYWFmZmZgYFBQ0fPnznzp00TTc0NAQHB2/evDk8PDwgIODRRx81GAw0TZ87dy41NTU0NPTJJ5+cNGnSzp07zc02NDQAAPbt29e7d++AgIC5c+cye5mTnZ09dOjQgICAvn377tq1i6bpadOmcTic0NDQHTt2tCW4LcutlZtTWloKAKivrzff2NTUVFtbS9P00aNHBw4cKBKJunbt+sEHH9j41q1b0jR94MCBvn37BgcHz549+8knn1yxYkVbLVuzZMmSmTNnmt5a/RZW5QUFBS1fvjwwMDAqKmrr1q0bNmyIjo5OTEzcsmVLmycEAuFVvOwQjx8/npiYyOPxxowZ8/7775eWlpo+6tat25UrV2iarqmpEQgECxYsqK2t1ev1PXr0eOedd+rq6o4dO9alS5eTJ082NDSw2eyHH35YLpffuHFDIpHs3LmzqakpODj4u+++q62tfeONNwAAzNVrMsu4rdmzZzc3N9+8eVMoFO7Zs8dcG3NJr127tq6ubv/+/WKx+PLlyzRNJyUlnTp1qvV3sW3ZqnLz3Q8fPiyVSq0eJZVKJRQKN23aVFtbe+TIEQzDioqKrH5rqy1v3brF4/G2bdtWW1u7YcMGFou1YsUKqy2t9m7uEK1+i7bkAQD+9a9/aTSajz/+mMViPfXUU2q1es2aNQKBgCRJO88QBMKTeNkh0jRNEMSFCxfef//9QYMGCQSCNWvWMNvNHSIAgLlc9+/fHx0dTRAE0+b111+fO3cuc+0VFxczG6dPn75p06atW7fed999pi6kUqlVh2jaa/LkyV9++aW5sK+//nrIkCGmt08//fRLL71E2+0QLSxbVW6++8GDB2UymdVDZDAY8vPzaZomSfLq1atisfjChQtWv7XVlitWrDC/xRs2bNiKFSustrTau7lDtPotbMirqqqiafrevXsAgJKSEpqm6+vrAQBqtdpqXwiEd/HmGGJlZWVhYeG4ceOGDBkyZMiQ119/ffPmzS+++OITTzwRFhZm0bh79+4AgNLS0rq6um7dupm2jxgxgnnRtWtX5gWXywUAVFRUxMTEMFs4HE50dLRVDYxZAEDrocmqqqr4+HjT2/j4+OzsbPu/nYVlG8oZ+vTp09DQ0NDQIJPJTBt37Nhx5MiR77///tChQzNmzODxeAkJCRj2969m8a0xDGvdsrq6OjEx0bRLSkpKWy3bxeq3sGGK+S6MNkYq8xqB8E286RCLiopmzZpVXV0tFAqZLQ888MDzzz9PWwuv5nA4AIDIyMhevXrdvn2b2VhRUWFqzGKxzNtHRUWdPn2aeU1RVHV1tVUNbHab8+xdu3Y9cuSI6W1paanJ+9iDhWUbyhliYmJSUlLWr1+/atUq08atW7cmJCT8+uuva9asuXTpEuNkzZ27xbe22rJbt26FhYWmNhUVFaGhoTZs2sDqt3DOFALhg3hz2c3IkSO7d+8+ffr08+fPV1dXX7ly5Zlnnpk8eXJ4eDjTQKlUWuwyceLEurq6zz77rLGx8fTp04MGDbp+/bpV4w8//HBOTs7OnTvlcvl7772nUChMvqO1WatMnz49Ly9v06ZNcrn80KFD27dvnz9/vu1dbFhuVzmbzf7yyy8//vjj119/PScn59q1a88888zly5dfffXV5uZmDMMwDNPpdGvXrq2qqtJoNFZ7sdpy3rx5Bw4c2L59u1wu37Zt28mTJ9tq2e4xsfotnDOFQPgg3nSIGIadO3cuPj5+0aJFcXFxs2bNSkpK2rFjB/Pp7Nmzp0+fvn//fvNdQkJCjh49unv37h49eixYsODdd9+dMWOGVeNhYWG//PLLBx98kJiYyOFw+vTpExoa2pZZq8hksqNHj27fvj06OnrFihVff/01szyoLWxbtkd5RkbGmTNnLly4MHr06MzMzIqKitOnT/fq1WvWrFmjR49OSkpKSUmhaXrp0qWzZs3S6XSte7HaMjY29qeffvrwww9jY2MPHjy4fPnytlpatdnut3DOFALhg7CsPp/6AZWVladPn37ssccAABRFhYeHnz59uk+fPt7WhUAgfBdvjiG6FQ6H89RTTwmFwvHjx3/55ZeRkZHIGyIQCNv4bXKHqKioXbt2rVq1qm/fvqdPn969e7e3FSEQCF/Hbx+ZEQgEwlH89g4RgUAgHAU5RAQCgWgBOUQEAoFoATlEBAKBaMGby240Go2jaaVpmrYIVnMaZAqZMjcFWsVBOm3KB1VBxJ9U8fl8Pp9vvsWbs8z/93//l5yc7NAuOp2Oz+fbCEC2H4PB4GKuWRM6nY7H4zHR1i4CUZVer+dyuVBUGY1GDMOgXAM4jnM4HDtzSXREVQRBsNlsKKcojuNsNhtKOgyIqgwGA4vFgqKKuR+CdeEAaylabEBRlE6nW7x4sflGb94hdu/e/YknnnBoF7lcLpFIoJy4Go1GLBa7bgcA0NzcLBaLoZwiEFUpFAqhUAjFvWq1WqFQCMX1KJXK1n/LzgHx31GlUnG5XIFA4LopiP9DKpUKwzBT6hNXgOjx1Wo1m80WiUSum4LoW5nweYeuHYqivvzyS4uNaAwRgUAgWkAOEYFAIFpADhGBQCBagDCmoFKpJBIJ81qr1W7YsMFgMAQFBT333HMqlWrZsmVMfsOlS5dGRUW53h0CgUC4CVcd4smTJ69du/byyy8zb48dO9avX78HHnjgxx9/PHPmTNeuXSdPnjxnzhyXdSIQCITbcemRuba29o8//jDfkpSUlJGRAQAICAjgcrm1tbV3797dtGnTqVOnXOkIgUAgPIDzd4gURW3btm3+/PkHDhwwbWSKGV25ciU7O/vNN9/Mycnp169f//79N2zYIJVKmfJGR48evXr1KtNerVY72qlWq4Wy0oIgCEd7bwtmQROO466bgqiKJEm9Xs+sz3IRgiAoinLdDvhLldFodN0UQRAEQUBZDMR8QYIgXDdFkqTRaISliiRJR4MX2lLFYrGgXDjMt4NyPjBGoFw4zBnl0KpqiqJaH1vnHeKePXsyMzNNo4cmtm7dqlar//Of/wiFQlPO/bFjxxYUFDAOMTg4mKnWVFNT4+hyLRaLxeFwoPyuJElCWSzGwGazoViDqIq5AKBYoyiKzWZDuciNRqOjqmijkWVtqRpFURwOB5brgXWsaJqGtQTaZ1Uxl6HrphhgXTiOmmKxWK1PHucdolarPXToEI7j1dXVR44cmTRpEgDg3LlzHA5nyZIlTJsdO3b069cvJSWloqLCVNJz6NChQ4cOBQBs3LjR0UWner2ez+dDWV9KURSUJa8AABzH+Xw+lPWlEFUxQS9QFmbTNA1rYbbRaOTxePYvzKbU6sLxQ7tv/kaUNrT1p7AWZhME4YMLswmC8MGF2SRJstlsKKogLsxmbjYdUsX8zVtsdP4ALViwAABQV1e3ffv2SZMmFRYWZmVlYRhWUFDwxhtvAAAmTZo0bty4zZs379q1SyaTMWOLCIRD4GXFgKIqly6O/fFnXrfu3paD8HNc/ccIDw9nppgTEhISEhJaN1i5cqWLXSA6M3hJkWjwMGFyv8rFC2N/+JkdYDlEg0BABC3MRvg0eGkxv2dc2HNLBEl9q5Y9DygIMwwIRFsgh4jwaQylxfxe8YDFinpvNalU1K772NuKEP4McogIn4a5QwQAsPiC6M+2KA4fkO/50duiEH4LcogI34U2GAxVlbzYXsxbLCy8+6attZ+8r71ywbvCEP4KcogI3wUvL8GkUk5gkGmLoE9K1LsfVy5dbKi640VhCH8FOUSE72L463nZnMAJD4TMnFv5/JMUpJAeBMIEcogI3wW35hABAOH/foUfl1j/7goAKaAQgWBADhHhu+Alxbye8VY+YLG6fvApUXOvftNaj4tC+DPIISJ8l7buEAEALL6gy+qNiv0/KQ797GFVCD8GOUSEr0KRhjtlbTlEAAAWGRW17st7q/6ju3HNk7oQfgxyiAgfxVBVyebxsbBwG21EAwZFvv5u5ZJnjDV3PSYM4ccgh4jwUfCSIl7bt4cmgqY9HPTAjMoXF1E6rQdUIfwb5BARPoqNAUQLurz8GrdL5N3XlgJH8oMiEK1BDhHho7REMdsDm93148/wivL6L9a7WRTCz0EOEeGj2H+HCABgi8XdN30t3/m98sgvblWF8G+QQ0T4KHhZiT1jiCa4Xbt1W//V3Xdf1+Vcd58qhH+DHCLCFyHqamijgRfV1aG9RAPTI5a/Vfnvp4m6GjcJQ/g3EGosIBDQwUuK+TE9AdvhyiTBD87WF+aXPjIteOpDQVNm8OOT3CEP4QAUdee5BbyY2ODpMwV9Urytph286RAJgtBoNA7tQtO0TqeDVU3R0d7bgqIoWAU/IaqCWPDTaDQ6VODRBiRJ4jjebsFPVX4uu3us7UPBVOlsXfpK8vzLvOGjNEcPlj0+C+sSKZ48TZw5mRPWxbYpq0UpnQB6cVQoBT+hlyG1/3zQnjqur6xgdY0uf+ZxjlQa8MAM8YQpHFmYSRWsCwcA4NC1A7kMqetgGCYWix3axWAwCIVCKMXDNBqNo723hdFoFAgEUIqHQVRFEIRAIIBSdU+r1cKqukeSJJ/Pb7fqnrKyQpzY2/ah0Ol0bVXdE48YFTpiFP3WB+rzp5W/Hb47e4ogsXfghAeCpjzICQ5p3Z6iKB+sukdRlA9W3WMqmopEIjvb1/2wLXzR4uCH5oD/rNRczJbv+aH6q89EA9ODpz7EHz2eIxDCunAAAA5dO0wZW4uNaAwR0QJNEk0//o9obPC2EAAAMJQV8//KC+s0LB5PMnp81w/XxR/PDpo+U3n8aNH4YVXLnledOk7DuHFGtIv2+p/GqjtBD8wAAAA2RzxsRLdPNyccvyAZPb5x+zcVE++r++Btn4q8RA4R0YLq96z6z9YUTxpZ8/6bxrvV3hXj0JqbduEEBoXMnBuzbVevgycESX3q1n9cOCb93qo3tdf/RGu53Urjt1+FPraA9c8HAk5IaOhjC3vuOtx16w62UFD50tMlU8c2bN1srL3nLZ0mkENEtND0w3fhS1f02p8F2JySB++vfm0pXlrsFSWkoplsbub1iIVumRsZJXv6+V4/H4vZtgsLDa1e/u+i+zPq1n1E3CmH3hfCUFGmyT4bMnteWw14cYmypa8lnLgU8fpKvKSoZOq48vkPy3f/4MUoTOQQEQAAgBcX6vNvB02Zwe3aLeK1d+IOnuAEh5TNnVa1bLE+P9fTYkqLudHdWTBGP9uCH5cQtnhp/JHTUe+tIRrqaxbM1pzIcl93nZPG77YGz5hpddD2H7DZ4mEjWkY2HpjevH9X4Zj0+s+9k+kSOUQEAAA07fw+ePrDbFHLmDQWHhGx/K34o2d5MT0rnnykdumz2mtXPCbGauUAt8DmiIeNiHr/U/GkacbyEk/02Gkg5Y2KQ/tDH19k/y6cwKCQRx6P/eHn2O/3NnzzJSlvcp+8tkAOEQEojUZxaF/IrMcstnNCQsNffCX+eLZwyPDqV54vn/+w6tRxDwy64SVF9kYxQ4IdEko2NXqyR7+n6cf/Bdw3htetuxP78uOTRKlpqj9+h66qXZBDRIDmA3uEyf35cQlWP2WLxIGPPB535EzQtIdrVr1ZOnOS4pe9gIKwZK8t4M6o2ANHKiUafGJ63T+gcX3Tj99LHbk9tEAyJlN18hhESXaCHCICyHfvCJ37hO02LB4vZNajcUfPSJ94umHL5yUPTVT8spcm21lf7Rx4qV2ZECHCCZWhO0SINP+8m98rTtg/1WkLgfdP1Jw77fnZFeQQOzuaS9mUUhkwepw9jVkYFjTt4V4HjoU9+2Ljti0lD4xRnz4BVw+l0xpr7vFjXF2E6BDsUCnVhO4QIUFRjd9/I33iaVdsYOERvJ69NNlnYYmyE+QQOzvynf8Lmf0Yi+NIDAObEzhpWs+9R0LnLaz/YgNcPYayUm54BBtSuI6dcEKlREO9J3v0Y5hHXckou/5ibSAZk6ny+NQ/coidGqKuVn3mVPDMuc7szGIFPTBDn3+b0usgSvL8ACIAgCOVUWoVjeMe7tcvafz2K+mCZ4DLcdOSsZmqU8fdNCzTFsghdmrku7ZLxt6PSWXO7c4JCeV1667LuQFREl5azPPsFDMAgCUQsoUiAg0juowu57rhTnnw1AddNyVI7M0JkOiu/em6KftBDrHzQhOEfN9PIe1Np9hGmJqmu3YZliQAAF5S6Pk7RAAARyojGtFTs6s0bN0c+thCFh9CmgwAQMCY+z0814wcYudFdexXLCRUNGCQK0ZEqWlw12x7blX2P+GESn0ksUXHxVB1R3PhbMhsywWtTiMZm6k8fgSWNXtADrHz0vTj/1y8PQQAiFLTdNevAhg5+wAANEEYKiu84hDZoVISOUTXaPz2v8HTZ3JCQmEZFA9Kp7RavCgflsF2QQ6xk4IXF+JFBUEPTHfRDq9HLIvLxUuKoKgy3ClnB0ggXlH2g0nD0COzK5CKZsXh/aHznoRplM2RjByr/N1zc83IIXZSmn7YFjRjFltob5rPNmGxhAMGwXpqxu0vPQobFKziIk07tgVkjOR1j4FrVjLWo4tvIGTQValUEomEeU2S5Lp16zQaTffu3RcuXGjx1vW+EFCgNBrFrwd67jwIxRozjAhl5MhQUuSV52UAAEcqM1SUe6VrP4DGcfmu7dEbtkC3LB4+snrFEmPNXW5EFHTjrXH1DvHkyZNbtvx9FC5cuBATE/P22283NDRUVVVZvHWxLwQsmn/eJeo3kBfTE4o1YWqa9iqciWa81GsOEZOGoUkVp2k+sJvXI9aVWL22YAuE4qHDVSc8NNfskkOsra39448/zLcUFxcnJycDAJKTk4uLiy3eutIXAho0Ld/5fcjcx2HZE/ZJIRrqoFT+9MoiRAZ2qJREY4jOQdNN2791MVbPBpKxmaqTHnpqdv6RmaKobdu2zZ8//8CBA6aNarWaqT4jFArVarXFW6bN+vXrf/nlFwDAfffd19jo2FJYmqYVCoXTmi1M6fV6KKYAAEqlEooduKpUKlXrjYYrFwmtxpDc3/6DzxQ7tNGAm9in9swfgtHj7bFmNBpNJ8M/oCi8rFQbIsXtE0bTtFYLLfifFIqMDfWOnpCtoWkaSjUuxhSO4xC/IxSYenvm5wN+5iRhNBpSUl0/elah+g/SvPdGfXkZWxJoW5VD1w5FUa1rUjrvEPfs2ZOZmWkaPWQQi8XM76fT6cRiscVbps2CBQtmzZoFANi9e3dwcLBDnSqVSrFYDKWkmVartb9ymG2USqVIJIJS0gyiKpVKZbUWYPXh/SFz5geHSu03pdPpBAKBjeucSBtCFeUHz5jZrim1Ws3j8azWAjRWV7HYbGl8IrDPoej1eh6PB6W0pkaj4Ud1bVApg0QiFzN14ziOYRiUU1Sj0XA4HCi1AA0GA4fDgXXhsFgs81qAd/b8IFvwTHCow2sDmIqm7V84wcHq5P7YzWuBbS+KYBy0QxUKmVKLFhudv4a1Wu2hQ4dwHK+urj5y5MikSZMAAPHx8Xl5eUlJSXl5ebNnz+bxeOZvmR2Dg4MZP+jcL8Rms6H8rrDsAACYircdQpWx5q72/Jmodz5yqBfGjg2HKBqY3vDlZ/bYtHGsdBVl/NheHLv/Vxg7UBwii8XCxAFsoYhWyDHXBu8ZVVB+RLjnFSxTFqp0t24Y75SHzpjJctw4U5fZHlWBYydo/jgeMu0hG6oAAA59Qavns/Mn04IFC958881///vfKSkpkyZNKiws3LRp09ChQ+/cubNmzRqZTNatWzeLt073hYCF/KcdkvsnYY7cHtqDaMAgff5tSutAmfDWeD4NogWYVIbmVRyl8esvQuY+AStWry0k4zLVZ055IPuGq0954eHhL7/8MgAgISEhISEBAPDSSy+ZPuVwOOZvEd6FNhqb9+2M/mwrdMuc4BBedA/d7Rxx+lCnjXglz405HKkMJQFzCGN1pfr86ci3PnB3R7zoHtyu3TQXzweMHOPWjtDC7E6E8rfDWFi4O9ZGACbLg2uLb7y4CJEBk4Wh6D2HaNz236CpD3smssgzc83IIXYi5Dv/F/qYu5bHu57lAS8v9VaYCgOK3nMIUtHcfHCf9PGnPNNdS8gKpKj5tkAOsbOgL8jDS4sDJ011k31Rapr2+hWni08RjQ2URs2NdqZIGywwmQxF79lP0w/fBQy7D3qsXlsI+6SwuDxdznW39oIcYmeh6YdtwQ/NZgscWJfgELwesWwe3+ksD3hpMa9HrGOVDGCDJlXshzYY5D99L13wjOe6ZLEkY8a7O64ZOcROAalSKo8cDJn5qBv7YLGELjw1G7wXtGeCIw1Dkyp20nxgDy+6h7D/QE92KhmbqTx+1K1dIIfYKWjev0s0KB1W8HJbiFLTtFeddIhen2IGLZMqyCHaAU03ff+1R28PAQAAiNKHkfImQ3mp+7pADrETQNPyXe1XXnYdV+ZV8NJi7y5CBOiR2W60p0/QJCkZc7+H+2VhWMB9o5W//+a+LpBD9H/U50/TBjxgxCh3dyTok0I01Btr7zmxL15SxO+VAF2SQ2BSGalS0gaDd2X4PsoftkmfWOR6XT0ncHdtUuQQ/R/5j/8LfeRxwIYTEWgDFpcr7Juiu37V0R0ptZpoqOf1iHGDKAdgi8RsgZBAFettgufmGMpKg6e3H7fuDgJGjtHn5xL1dW6yjxyin2O8W625eD74wdme6c65p2a8tIgX1c19M+D2g56a20VzcJ9kxkx3x+q1BVskFqcPVZ067i77brKL8BHku7YHZk72WJUSYWqazhmH6P0BRAaOVIaCVWxjyM0RpKZ5UYBk7P3uC1lBDtGfoQ2G5n0/QcwF2y6igen6glxHszz4whQzAyZDebNtQRuNxrISXlJfL2qQjJuouZhNaVzKJNIWyCH6M+pjv2IRkcLk/h7rkRMYxOseo7t106G9DN6rLWUBJpURDe4an/ID9IV5nBCpV8oimsCkMkFib/XZU+4wjhyiP6PYtcN9wctt4cRTs2/dIaLovbbR387hJvXxtgogGeOup2bkEP0WY2G+sbIiaKK7gpfbwtF5FRrHDVWVvNhe7pNkP2hSxTb6vFu8RB9wiOMmqE79TrcqAOA6yCH6Leq9P0qmPczi8z3cryg1TXv9T/uzkuAVpZhUygkMcqsqO+FIUbCKLfS5t/g+cIfI7xmHycK0Vy5Ct2zFIRqNxk8//RR6TwgPg/95MWD8RM/3y+sew+bx9MUFdrY3+MzzMkB3iDahjUZ9UT7XB+4QgdvSI1pJLsLlcs+fP//www/HxMRA788ckiQdrTBH07TBYCAIwvXeCYKAVd+OUUWSTma+MgeWKlKlpOrqQPcYKNYYVfYXk+P1S1VeygbdY1t/xJQ6Y2qkMWgK87EesU7oZEqmQSlxZ/rtyACJsb7OlYNmNBopioJS6YVRBesXJEnSxQvHkJ/LDgoBwSGwzlKCIFgslnMXDn/E6NrlLwUvfY0pScZ8NUer7lGtnmOsZ1uSSCSDBg1KT083FdXbvXu3E6Jtw2azW1e9sg1TowtKrRyCIBztvS10Oh2GYVCq7sFSRZSVcLpF8wIkcKwRBJfLtd/1iAem4znXudaip3Ec53A45qqI8jLhoMFO6CRJEsMwKK6HKUrH5XI5EZGUWoXRtNO19yiKgnWKGgwGJ64Rq9A07XrpK01hnrBvCpvNZrFYsK4du6ruWYObmlZHU1RJIb93MvjLITqkyur/lnUpCxcuXLjQ7bOTdhbcsgBi8TAfrLoHS5WhqIAbnwS3FqD9DjFg0JDmn7632nXrY2UoKwmdM8/pMwFW1b2WanmSQLZASCubsS6Rzpny46p7hvxcYZ8UiKrsr7pnBQ5HMnq85tRxUXJ/4O6qe6NGjSouLt6+fXtaWppYLB41yu15ARBw0RfkcuO8litB0DeFbGy0K8sDRRrulPnOGCIAgBMqRVkRraLPzRH0TfG2ir+RjM1UnTgG16Z1h/jWW2/t3r37zJkzLBbr5Zdffvvtt+H2inA3eEEeNy7RW72zMExgX5YHQ+UdNo+PhYV7QJWdoFJTVqEJQl+UL+zjQw5RPHSEofqOoeoORJvWHeKuXbv27NkTHR0tEomysrK+/fZbiF0i3A5F4iVFvHivOURg92pE34liNoGi96yCFxdyJIE+9dfF4vECho+Cmw3MukPEcdz416JHHMcFAu9ktkA4B15exhII2LIwL2qwM17Fd2JUTGCoOrM19Lk5wr79vK3CEuhPzdYd4gsvvDBhwoSysrJPP/10xIgRL774IsQuEe4GL8gVeHv1rFph1YUAACAASURBVCg1zZ4sD74TxWwCLUW0ii73lk8NIDIEjBqny7lGyhthGbTuEJctW/bRRx89+uijRqNx27ZtyCF2LPQFeQJvr55tyfKQc8N2Mx+9Q0QOsRX63BxB72Rvq7CEIwkUpaap/jgBy6B1h/j888+PHTt25cqVK1asGDRo0IIFC2D1h/AA+oJcQWJvb6sAooHp7Qwj0jReVuJrY4gcWTiJEt5YQJF4Yb7Q9+4QAVNU4CS0p2bLdYirVq3asWPHnTt3TpxocbokSQYF+UScKcJO9AV54UtW4N6WIUxNU/76i40Gxroa2mjgRXX1mCR7QHeIrdEXF7LFYiw8wttCrCAZm1m37qNgnZYtFLluzfIOcenSpWfPnp0yZcrZv8jOzr5w4YLrPSE8AylvIpsafeE5VJSapr3xJ6DaDMwylBbzY3t5oNiLQyCH2Br9bd9agWgONzKK17OX/lI2FGuWDlEsFkul0p9++unnn39esWKFQCAoKyuDFdGB8AD6gjx+z3gWpMgqV+B1j2ELhPriwrYa4KXF/J6+NaMCAMCkYaRSgWrvmaPPu+VTKxAtkIzJ1J05CcUUWpjtb+gLcvk+MIDIIOw/0MbiG7zE5xYhAgDYYjFbICTgTVz6AbrbvjijYkIyNlN7+gRNQsj5ghZm+xu+MMVsQpRqa17FB6eYGTihUhSs8jcUiRfm++wjMwBAkNibEyAx3Lzuuim0MNvfwAvzBIlJ3lbRgu14FUOZjzpETCZDhQRM4KUlLIGQGxHlbSG2CHzyXwBGLmS0MNuvoAkCLyni+8wdoo0sD2SznGxu5nWP8bio9sGkYQTKm/0Xuts3fXPBjTkBUx7kwxjltJ7+a9myZampqadOnWIWZg8aNMj1nhAeAC8t4gSHYKFSbwtpgYVhguR+umt/cidOsfgILy3mRnd3Ou2gW8FkYSh6z4Q+95bAh2dU4GL9DlGv12s0ml69ekVGRt66deu7777zsCyEc+C+NIDI0NZTM+57QXsm0Mobc/S5OYI+vjujAhfrd4jTpk3jcDjJyZ3lKPgNPhKjYo4oNa1u09rW232qlIoFmFSGl5d5W4VvQFH6gjxfXnMDF+sOsby8vLCwzeVjDHK5fN26dVwuNyIiYtGiRUz62T179ly8eBEAoFarBw8ePHXq1GXLloWHhwMAli5dGhXl0+OyfoC+IC/4wdneVvEPhAMG4YV5lFbDFonNt+OlxUEPTPeWKtug2nsm8LISFo/H9bFoIvdh3SFOmDDhv//979y5c3l/DfHwW83gZGVlTZgwYfjw4atXry4pKYmLiwMAzJw5c+bMmQCA9evXT5w4sb6+fvLkyXPmzHHnV0D8jQ8+MnMCg3g9YnU5N8RDMsy346VFPrgIkQFlADOhz83pPLeHoC2HKBAIXnjhhffee8+0pbKy0qJNZmamWCxWKBQajUYq/ccofmFhoUAgiIyMLCgouHv37qZNm5KTk0ePHs18mp+fX1VVBQDAcRzHHYu4hVjfjiRJR3tvC5qmmVprrptyRRVZX0eqVXRkFGOhdX07pyEIAsdxp+vb8fulKi9lYwMGmVRRep2xpgZEdnPlJ2BqtkGpukdRFPMdW94GBhGNDc5pIwiCpmmIVfegnKVGo5EkSScuHHXODW5SH3MNJElSFAVFFfMLwrpwgIPHiqKo1leHdYf4ww8/VFdXh4XZyjAaEhKC4/iaNWswDBOJ/hFWfeDAgUWLFgEARCJRv379+vfvv2HDBqlUmpKSAgC4fv366dOnAQBRUVHOlSGFVXkSirMAAFAU5Quq9LduYrFxuJEARgJALdnq4rHi9O2ny/qV+a0Zh6gvyueEhRk4HOBCNUuKopgqRU5bMMFc5CZ/QYslpFKhU6mciIBkfCvEkwGKv6Aoyrk/D93tmwGzHjO/TpmjBOXacVpVa5xQZf6Lm7DuEENDQ9v9M2loaJBKpatWrdq5c+fFixdHjhzJbFepVDiOh4SEAAAGDx7MbBw7dmxBQQHjEB955JFHHnkEALBx40ZH8+jI5fKAgAAoBT81Go1YLG6/nR00NzeLxWIohRldUWWsqhD3STYdUoVCIRQKeTDWtWi1WqFQ6PSJK8y4r3T9R0GSAMDmKJVKPp+vr6sRxiW6mEVJp9Px+Xwo92IqlYrL5f4dgBAUVMMXBFAEFiRz1JRer+dyuVDC/1UqFYZhQqHQdVNM9VeHLxyKuldcIE0fwjX7pdRqNZvNtrgHcg7mNgLWhQMAcOjaYQrGWmy0foBkMllSUtLIkSNNv+v+/fst2uzduzcjIyMlJcWihPmff/7Zv39/5vWOHTv69euXkpJSUVERH++jayz8Bn1BnmjAQG+rsAKvewxbKNIXFZpmwH0zitkcjlRGNNT7ZsIrj4FXlLE4GDeqm7eFeA7rDnHVqlXt7jl9+vQNGzZwuVyJRDJ//vzCwsKsrKwXXnjhypUrplmUcePGbd68edeuXTKZLCMjw7ZBhIvgBbmhcx7ztgrriPoP1F27/LdDLC0KGDHaq4raAUXvAVPWLxiPtB0F6w5x2LBhRUVFzMCBwWB4+eWXz5w5Y9EmIiLiww8/NL1NSEhISEgAALzyyivmbVauXAlRbvO7r3HmzAscNgKiTf+AxnFDRTk/3leimC0QpqZpr10JeeRx5q2hrIQ//ynvSrINit4DAOjzb/lykht3YN0hPvvss6dPn66urh48ePC1a9cef/xxd/R948aNjz/+mHl9//33DxzY8rhXVFS0b98+5jWXy3355ZdNu5RXVl7+YlPZ6XMAgBEjRgwfPpzZXlVVtWPHDlOzV155xfSwv2fPnpKSEuZ1WlrauHHjmNeNjY2bNm0y7fL8888HBAQwrw8fPnzr1i3mdd++fadMaQk7U6vVn3/+uWmXp556SiaTAQA0u7ZfCQn/s7RlKW+vXr2YtUcAAJIkP/nkE9Mujz76aHR0NPP6/Pnzpr+ZqKio+fPnm5qtW7fO8Fc+voceesg02nD16tVjx1qypYeGhj799NOmXXZ8/EFvgeCTL78CAEyaNKlfv5YCaXl5eb/80pK2WigU/vvf/zbtsm3bttraWub1mDFjTAO+ZWVlu3btYl6zWKxXX33VtMvOnTsrKiqY10OHDh01ahTzuqamxjyc6aWXXjKNxx04cCA/Pz+koXbQmRM5R49mZGTQBGG4U66XhW3869cHADz77LPBwcHM699+++369ZbMJYmJiTNmzGBe4zi+fv160y6zZ8/u0aMH8/r06dPZ2S0pQrt37z537lxTs9WrV5vG2mfPnh0bG8u8vnTp0smTLUn0AgMDFy5caNpl48aNcZVV2n17iwvLpk6d2qdPy0qmnJycX3/9lXktkUgWL15s2mXr1q2NjY0AAIIgJkyYkJaWxmy3cTJv3769urqaeW31ZMZxnM1mr1ixwjTU1dbJ3NDQ8PXXX5sstz6ZCYJgs9kpKSmmk1mj0Zif/08++aRpEvXEiROXL18GAGRkHdbdNzbzrzbMyWwa+HPiZH7wwQeZ2yYAwLVr144cOQIA4HA4FifzF198oVQqmdd2nszbt2+vq6tjRsxHjx49ZMgQZnt5eflPP/1karZ8+XLT6127dt25Y1nT2bpDPHToUGVl5euvv/7oo48KBII333zTajMXUSqVpaWlzGuFQmHartFoTNst1j/W8oWcqjulwiAAgHkgjV6vN+0C/jnZVFNTY/rIdDEAAAwGg/ku5pNIdXV1po+YVeWmNua7MD+z9toVxcZP6InTS5UtM3HmI7s0TZvvYj5bJ5fLzT8yp6yszLSAgBktZjA/YubbAQB4YX4NX8R8qlKpTNvVarVpF9NFwlBVVWVaTZWammrartPpTLtYTKTcu3fP9JHpzAYA4Dhu/l3MJ0Zra2tLS0s5ND1Uq1WUlYCMDGNlBVsSSAUEmu9iyq4EAGhoaDB9ZPKSjFnzXczXWDQ1NZk+shikLysrM+nRarWm7QqFwrSLxYKKiooKiR7nqu+VikrVarVpu0qlMu3CTBuaqKysrKmpAQCQJGl+Mmu1WtMuFhNcd+/eNX3Ut29f03bTyWw0GlksVlsnc0xMjGm70Wg0PzLmSwvq6+tLS0uZ6fiIiL+HRK2ezAyNjY2lpaUsADIb6gqwvy9A5mRmVGEYptPpTB81NzebrFlM9ZaXl5tOe/Pjr1Qqy8rKAABsNtviZK6srGT+XZhmpu3mJ7PF/El1dXV1dTXzzzFgwADTdtsns5VVLrQ1evTowaR1+O9//0vTdP/+/a02c5HPPvvM0V3uHTlYPHMylN7VajUEKxRV+si0wmnjK5Y8C8GaC6ruffB27YY15luam5txHIchitZoNMyiLVcoe2KW4sgvCoWi4ddfyh6f6boqrVbLLExxHaVSqdPpzLc0/vBd5SsvOGFKp9MxSxGhqNJqtVBM6fV6ZlGq/eDlpflDk+lWv7tKpdJoNFBU4ThuMBigmFKr1Y5eOyRJfv755xYbrS9ZmD59+owZM0aNGrVhw4ZXX301MjLSajPPw+2VYCgttlGmw8MoDu0nVcrg11fqrlwCkFY1OofeB2ox28aU5cHow2kdTGCyzh69p7t9U9AnuVPNqIC2st2sX7/+/fffj4mJ2bx5s0Qi+eKLLzwsqy3YsjC2SGS4U+FtIQAAQOP6us/WRLz6JjchicUCeHGB96TQeGG+r6V1sOBvh1he4rNpHUyghDedKuuXCSsO0Wg0rl27lllLOHLkyDfffNN8tMLr8HvF6wvzva0CAAAavv6S1z0mYORYwGIJBqZrINX9cgLjvbu00ciL7uEtAfYgTE3DC/Nprdbge7WYW4Mcoj43R9hpsn6ZsOIQuVzu+fPny8vLPS7GLnjxiXiR9x0iUVfT+L8tEStaym+J0od60SHqC3L5CYkARsyG++BIAnkxPQ23bxgryjvCHWIYqWimzaZ6Ohc0rc+73QnvEK3PMkskkkGDBqWnp0skEmbL7t27PajKFvz4JO25P7ytAtSuXx00ebpp3Z9wcEbjprWAIr1SZdinCkvZQJSapj12BLBY3C6+MirdFuyAADZfQMobO2ewiqGygqYpH3/mcAfWHeLChQvNl2X5FPy4RPm3X3lXgz43R33yWK9Df5eC5cX0ZAkE+vw8r+QWxovyxelDPd+vo4hS05pXvsHvGdchhuo5UmnHit7TXDjX8PXmrh+sw8LC229tE33uLUFSso8/c7gD61/4vvvui4iICA4ODg4OFolE//nPfzwsywa8uHhDdRWl1bTf1G3UrH5PumgxJv1H5L948DBvPTXrC/J8p7CUDYSpabReh8X09LYQu8BkYR0leo+oq6l65YWq/3uRVDTLd+9of4f20Ofd8v3CUu7AukN89tlnp02bNnz48KVLl2ZmZppiSHwBtkjM69oNL24nobf7UGb9arx3VzrvSYvtovRhmkvnPa+H0mkNdyoEvhq0Zw4vugdHFub7MyoMHSJ6jyaJpu3fFE8bz+Jy4345HrHiHfnuH1wf+tTdvtkJBxBBWw7x0KFDt2/fXrx48dq1a7Ozs+/evethWbbhJyR5a6KZNhjq1n3UZekKVqsU4uIhGdqrl2gSQv5Bh8ALC3hdu7H/GYXis4inzxJ2hKd70BEmmjWXL5Q+PElx+EDMNz92/XAdJyRUNDAdC5Wqfj/qkt2WGZVON8UM2nKITMBc3759L1++nJSUVFRU5FlV7SCIT8SLvLPor2n7N5xQaeCEB1p/xIvuwQkM0t/O8bAkfcFtH1+BaE7gU88Jkvt7W4Vd+LJDJBrqq19bWrXk2ZCZc2N37DO/mwuZ+0TTj/9zxbihupI2Gvk9Yttv6nd0sEgVBn58El6Y5/l+SXljw9bNEa+909acgDjdC8OI+vyOMYDY4eBIw0jfc4jMM3LJ1LEAgLhDJ0LnPWmxsCFoygy8uFCfe8vpLvS3cwR9OuOMCuhwkSoMgsTeXnlkrtu4NmD0eGHbNziiwcO0nneIvld61D/ApDKioc7bKv6B9urlsllTmg/s6f7ld10/XMcJkbZuwxYIg6fPdGVqRZ93q1MVljLH0iHW1NQsXrx4/PjxW7dubWpq8sFIFQAAr3sPSq8n6mo92SleWqz49efwF1+x0UY8JEN79bJHV/PSNF5S2CEWIXY4MFmY7zwyk83ymg/fqXxxUfBDs3v+dFDY39Y8Z8jcxxWHD5CKZuf60t3uRJXpLbB0iI8//nh1dfXjjz9++/btf/3rX17R1D5sDr9XvN6z8Sq1H6+UPr6IG2mrtDQ3IgqThelyrntMlaGygsVid56yuZ7EV8YQKUrxy97iqWNJpaLXQSvPyK3hRfcQpaYpftnrXIf6/M4Yo8JguTD70qVLFRUVQUFBI0eONNWNchMEQVjkQWsXmqZ1Oh2bzcZ6xqlu3WQNSHO6d6PRaH/vunOndYX5Ie9/anUXiqL0ej2TUY43aLD87B+0s7dsDqkCAGhvXsfiEjRmaeZMkCTJJH1yTomFKhpSLh+mziqUWoAEQcCqukcQROsabLRQTCqa1QoFy5HaTARBwKq6RxAEnnfr7qcf0AY8bPVGfr9UHADcvtND+ODshvUf82fMZoYCmQNlT0Eu4m41pdcTYeFEGx21ztLoNIwq81SMTsOc5w5dO3ZV3RMKhUwttNjYWChnrQ0wDHO0wpzBYBAKhRiG6Xv31RfkuVI2z/76djRJ1Gz6pMuSVyUy63VZjUajQCBg8pISGSOb9/7otDBHq+5pK0rFvfta3YUgCIFA4AtV98whSZLP5/NbLVpyAohV9yiK+kfVPQaxmMXjC3AdFuRAsArEqnuK7d8qt30V/sKy0LnzHQ0JFWdObl73EX3zasDwUcCRqnvKilJhUh+xJLCtBjRN+03VvdY/k+XJxORNZDB/7aJc6AgSPDfRLN/1A1soCp76kD2NxYOHaW9cpWGU8bYHfUEePwHNqLgLL5aaoklCteObiM+2hD62wJkAeTY7dM48uePrbzpn1i8Tlg6xtrYW+wvz114RZwN+Qm+8tJh28z0sAIBUKes3r+vyf/+xcxUCFhbOjeyqvXHV3cIY9Pm3Bb37tt8O4RSY1GvzKprzZ1kBEr4LazaDZ87VXMo2Vlc6tJf+9s3OGbTHYOUO0SpeEWcDTCrjBEgMFWXu7qjhiw3i9KGitCH27yIeMlzrkRg+UqUkamt9P/t0xwWTyrwVvac4uE88aaorFjiBQYGZk+W7HFt/o0N3iB0UfkKSuxMjGior5Ht/DF+yvP2mZngsywNekMfrEcMWCD3QV+cEk8qIBi84REqnVZ06Lp4wxUU7oY8tlO/daf8AjvHeXVqn5cV2jOwb7qAjO8T4JH2hewP4atesCpkzn9c9xqG9xIOH6m7doHRWZn7h0lGS3HRcvLUUUZn1q6BPMifS1dVUgt59ed1jFEcP2tlen5sjSOrD4vjcEJnH6MAO0d3zKprLF7TX/gx75gVHd+SESHk9Ypn6IW4Fxai4G29F7ykO7gua8iAUU6FzH2/a8a2djXW5OYJOPIAI2nKIFEUdP378JzM8LMse+PGJblybTVG1a1aFv7iMHSBxYm/x4AwPxPDhHSRRdsfFK2OIRF2t7vpVqwlEnCBwwhSitkZ/64Y9jfW5OYLenTRGhcH6vfEjjzxSVVU1aNAg05Y5c+Z4SpK9COITiZoaSq12R+ar5p9307g++GEnv7V48LCGr90cAE6ReEkRukN0K14JVlEc/jlg5BiOJBCoVK5bY/F4wQ/NUezaIbYZ7cegz7vd5eXXXO+042LdIebk5OTleSGdjEOw+AJut2h9cYFowKD2WzsCpdXUbfwkatUnTg+miAYP0//fC25y1gx4eRlLIMDCu7jJPgJ4aVJFcXB/2AsvQzQYMnteydSxxLLXbZ8txtp7pErJi+0Y6XvdhPVH5v79+5eVuX1Fi+sIEpJwN6S9adiyWdA7mVni7xwcSSC/V7z26iWIqizAfb4yvR+AycJJRbMHlrua0BfkGWvvBYwYDdEmNzJKOGyE8ud26sTpb+cIkvo4FKfof1h++VmzZgEAmpub4+Pjhw0bFhHRErTkO1X3zOHHw195Y6y91/Tjttjt+120Ix6Sobl0PmDkWCiqWtNRKu11aNgBASwen2xq9NiduOLgvsBJ01gwAi7NCZr1WP17r4cves5G0EtnzvplwtIhLlmyhHnxzjvveFqL4/ATkpq2fwPXZtP3XwdNmsaPS3DRjnhwRt2mT6FIsoq+MC/Q5XVqiHbBZDKiod5DDpEiFb/+Er0O/uizcPAwFl+gOvW7ZGxmW230ubck4yZA77pjYfnIPHz48OHDh//www/DzdiyZYtXxLWLID4RL8gDUANpNOfPSsZCOC1Eg4bgRQVks9x1U1bR5+cKklDQntvxZPSe5uJ5Np8v7JcK3zSLFTxnnu3SArrcHEHffvC77lBYOsRVq1b17t1727Ztvf8iISHh9u3bXhHXLrzoHjRBGGvvwTJINDXi5SWiQemum2KLxYKkvto/3TKMSDbLSXkTv4OUr+vQeHLlTfPB/UFTH3RT0erAaTN1OdfxshKrnxJ1taRSgcJALR3i0qVLz549O2XKlLN/kZ2dfeHCBa+Iax82mx+XgMOLV9FcOCvsN5Atcj6rmDniIRluiuHT5+fyY+NYMPImIWzjsZU3lF6n+v1o0OTpbrLPFouDJk+X7/ze6qe63BxBQu9OPqMCWjtEsVgcGBg4ePBgqRlQkru5CbjLszUXzomHDodlTeS2oGZ9QS4frUD0CBypzDPBKqrfs/hxibwYN8YRhz62oPnAbspaFtVOnvXLhJVlN1wu9/z58+Xl5R4X4wwCqCkeNBfPBQwbAcuaaGC6oaLUHfcXaIrZY3isXL3i4L7gqXDC9dqC3ytekJSsOGxlBYU+N0fYWeuomGP9DlkikQwaNCg9PV0iaQlca73sRi6Xr1u3jsvlRkRELFq0iEmn3NDQsGzZsvDwcADA0qVLu3Tpsm7dOo1G071794ULF7rjC/Djk+R74UQWGirKyGY5xHFltkAo7NtPe+UirDAsE3hBrp0JaxEugsnCPLA2m2hq1F652PXDde7uKHTu4/Wb14XMesxipFKXmxP2PMzV4B0U6w5x4cKF7fqvrKysCRMmDB8+fPXq1SUlJXFxcQCA+vr6yZMnm+L8zp07FxMTM3PmzDVr1lRVVXXr1g2uegCAICHJUFZMG42uD6hpLpwVD86AO4zCDCPCdYg0QeClxeiR2TN4ZgxRefhnccZ9nJBQd3ckGT+hdvV72j8vmaf4JBobSHmT60vN/ADrkSqjRo3S6XRHjhw5fPiwVqsdNcpKzEZmZmZ6erpCodBoNFJpS33Y2trau3fvbtq06dSpUwCA4uLi5ORkAEBycnJxcbE7vgAnJJQTHGIotz535hBwBxAZRIMzoCeLxUuLOMEhWKiVmrwI6HjGITbDS29jGxYHC54512L9jf72TUFCbzRHB9q6Q3z33Xf37t374IMPcjic5cuXX758+a233rJoExISguP4mjVrMAwzVZwRiUT9+vXr37//hg0bpFKpWq1mPhIKhWq1mmnz888/M9PWEolE5WD4OkVRWq3WotoR1jO++eYNUYRjyeOYQmvmptWXL4gW/stRSSZVVqsd0T3jDXerm0uLOWF2rey1VGUN7Y1rWK+EdnWSJKnT6XAY1V0g1tUhCIKmaSiF1kiSZCrAQVHFWGv9ES0Qks1ypVxu56MDSZJM7ST7ezeWl+IV5WBgusVvajQaSZKEUuuNoigWi8Wo4k6a1vDwRPNzUnHtT05Ckp1nPnPMoZwPzKkOpUwYc5TavXYsem+/6h7D999/f/PmTcaXvfLKK6mpqa0dYkNDg1QqXbVq1c6dOy9evMjULB08eDDz6dixYwsKCsRisVarBQDodDpTQayYmBhGd3FxsaMFt4xGI4ZhFkeQn5BIljlsiim0ZnqL591iYZgoPtGJVWAEQWAYZn0unssVJPcjbl4XTLQrqsRClfXuSgoFib3bb0YQdhZaaxeapjEMg1V1D5YqAABcVdYPaXAIi8fnqFWcsHA7rXE4HIcuclXWYUnmZF6rRHO2VDkIQRBsNptRxY2IFI0apzu0P+SZF1s6KsoXZoy0syPGt8JSxWKxoCxiYVyKQ6qYL2Kxsc3z0tS0rRNu7969GRkZKSkper3e1GbHjh39+vVLSUmpqKiIj48HAOTl5SUlJeXl5c2ePZtpM2DAgAEDBgAANm7caFn4sT10Oh2Px7O4nMS9k5W/HXbUFEmS5ruo/7wUMOw+gdCZdPx6vZ7H47X1YwQMHWG4dlkwY6YTqqxClBQFPzi73WY4jvN4PChlSCmKEggEUFyPwWDgcrlQypDSNA2rDKnRaLRShvQvMKmUo1YJorvbac2xMqQ0rck63PX9ta17Z/7+HT2xrWJRhjRs3sKqZYsjnlvCPCYb8m53WbzEzo4Y3wpFFcQypMy9nkOqKIpqffJYd4jz5s3LyMiYNWsWTdN79+6dO3du6zbTp0/fsGEDl8uVSCTz588vLCzMysqaOXPm5s2bd+3aJZPJMjIyKIratGnTmjVrunTp4o4ZFQZBfFL9RlejhjUXz7lpEEc8JOPuG8sgGkR5YT2MW1feaK5cBDQtGgghOMp+RAPTsbBw1e9HAydOJeWNRFMDPy7RkwJ8FkuHWFtb26VLl3feeWfIkCEnT54EAKxatWry5Mmt94yIiPjwww9NbxMSEhISEgAAK1euNG3kcDgvvfSSW4SbwY9LIBrqSJWS03Z1bdvQOK69eiVq1SdwhTEIUwYQDfXGu9XcKFdLZAAAiPo6Uq3ixcS6bgphJ27Niqg4uC9oykN2FrmFSMjseU0//i9w4lTdrRx+fCL0/DodFMufISoqKjk5+cUXX9Tr9StWrFi9erVVb+hTsHg8XnQPVxIjaq9d4XXtxu0SCVGVCRaXKxwwSHMZTsiKviCXH5fYmcsAeR73NxePBwAAGI9JREFUlZqicVx17EjQ5GnuMG6boCkz8OJCfe4tfV4OyvplwtIhNjU1rV27ViqVfvHFFz179hw4cOCyZcsOHz7sFXH2w0/o7Uq8iuYi/AU35ogHD4NVYkVfkIfKBngY90XvqU4d53WP8coCQLZAGDx9pnz3Dt3tHAGKUfkLS4cYFBSUmZn5zjvvZGVlVVRUPPjgg998883UqS4VzPYA/PhEV0qSarLPioe40yEOydBAWo2IFyKH6GncN4aoOLQ/yM3hejYImTNPcfiA7sbVTl5YyhwrIxc3b95cvXr12LFje/funZ+f/9lnn9XU1HhemUO4EtFMqpT6glxR+lC4kswR9E0hVUpDZYXrpvT5qHKAp3HT2mxS0azJPhs40Wt3G7wesaLUNLJZLkhAf7EtWA5FRUZGUhT13HPPffTRR2lpaVDWNHgAfkKSvigf0LQTqwg1F88LeidzAoPcIYyBxcFEAwdrL2Xzonu4YofGcUNFGT8+CZYwhD24ySEqfv1FNHgoJguDbtl+Quc/SWnULBiroPwDS3+3ZMmS5OTkb7/9dtOmTT/88IPv3xsy8LpGAwCMd6ud2Fdz4ZwYXoabthAPhvDUjJcUYmHhnKBgKJIQduKm/A4Qq9E7TcCI0THb93lXg09h6RCXL1/++++/5+XlzZ07988//xw/fvyAAQNeffVVr4hzABaL3yveucSImgtnxUM94BAh5EZEWb+8AiYLI5vlcGvvGe6U46VFNiqcILyC9SdiPp8fGRkZFxfHxJz4/iwzAEDg1ESz8d5douaeyI4a3i4iSOpD43hbCdztRJ+P8sJ6AXaAhMXjkfImiDYVB/cFjp/EFjgTGYVwH5YO8b333ps4cWJISMjDDz98/fr1adOm5eXl+WxNFXP48UlOTDRrLpwVDRrsiVWpbLYofaiLmW/QHaK3gL42W/HrL15/Xka0xnJSpbCwcM6cOV999VWPHi4N/3seQUKi/Cfr9SJsoLlw1q0rEM1hnppD5sx32gJac+Mt4K680V67Qum04sFuXNiAcA5Lh/j99w77FB+BH59kKC+jDQYHbvdoWnMpW7rgWXfq+hvx4GH1X250biocAGC8d5c2Gl2cp0Y4B9yJZsXB/UFTHrRRMx7hLTrGqhp74AQFc6QyvNSBNLR4cQFtNHrsnosfl8hiAbzYyQXk+oJcfkKi54NeEQBqsAptNCqzDru7fArCOfzq6nJ0ebaaCVDxmIthsUTpQ52ea0ZJbrwIxHL16tMnuF0i0GJS38SvHCI/IUnvSIoHd9QMsI0ri2/0BbloANFbYFIZ0VAHxZTi4L4gVCDMV/ErhyhISMKL7H0gpUlCe/WSB5ZkmyManKG9lA0oZ9Kv6wvy+OgO0UvASnhDKhWqM6cCJ/l6coBOi185RH58kr4wz87Ghls3OUHBvG72pkGGAj+2F0so1OfbK9IEpdMaqyoFKIunl4A1qaL87bBoYLqbEs0hXMe/HGLPOFLeRDbL7Wmsv5wdkDHS3ZJaI3ZqGBEvLOBGdWUHBLhDEqJdMFkY0QDBIXqgGj3CFbycZ5SmaSd2aXMvDOP1iNUV5ovtSF2ju5Qtm7fQCQEOq/onovRhqhNZoU8ssmHK/C2l1WguZSv27xIk9nZUrf2qPGMHrjX6L1w3BdpTxQ6Vkgo5RRjbTc1rQ5WxukqfnxswboL9mjvisXLIDnDKCdg26EpjbzpEgiD0er1DuzAVLG0UZuT2StDk3uKkDLBth9JqDHm3sAGDHBVg3RpFGQwGOwszcvoP1H6ySqdRW720Wo4JReJ5t3UXzukuncdv3eD2jBMNGS6e8qBDaimKMhqNDhVmbAtGFaz6dkajEco1wJwGsFQBAGwdXi6PxeVq793jtJechjnmVtNENf+8WzRyjIHNAfb9jiRJ0jQN5RRl6qxCqWjKlMqDooo57FAqmjJfzdELpPXV4U2HiGGY0MEqd3q9ns/n2yhiKUrqbSwvades6tJ5bmwvcSSEIicAABzH+Xy+ncXDhPGJtYFBrNJiYb9Ui4+Ihnr1+TPq7DPq0ydYGCZKGxIy9SHJJ5uw8AgnVBkMBlhV92iaFgqFUFyP0Wjk8XhQqu4BAGBV3SMIwkbVPQYsVIpp1O3W3mPKyFmtunf3t0Ndlr9l/znPlLd19BqxikXVPVcgSZLNZkNRBbHqHuPaHFLlQNW9jgs/obfq1PF2m2kvnhekeS1wSpw+THMpm3GIlEajuXRek31Gff4MUXOPPzAt6L4xsqee80paeYQNMFk40VAHgJMT/bpbN0iV0sOrGhCO4m8OURCfhBcVAoqyvdxanX026IWXPabKAtHgYfKd3wOSVJ8/rbt5jR+fGJAxMvLN90WpaVqjUSwWe0sYwgYuTjQrs34NvH8Sqg7m4/jbz8ONjAJstqG60kbML9HYYLhTxnd/yq+2CBh2X+O3Xxmq7oTMmRe9/ktOiPTvz4xGb6lC2MbF6D3V779Fvvk+RD0Id+BvDhGwWIL4RLww34ZD1GSfFfVLZQtFntRlDhbepdfPx7zVO8I5XInew4vyyWa5KH0IXEkI6PjVOkQGfkJvvc14Fc3Fcx5IkY3wMzCpzOkMYMrjv0nG3I+el30fP3SIgoRE2ykekENEOIErY4iq349Kxk2AqwfhDvzQIfLjk/C2UzwYyktJpUKQnOJJSQg/wOlSU8bqKkNFOZpf7hD4oUMUJCQZ7lTQuPUlmpoLZ8WDM9DDC8JRnI7eUx4/EnDfaFQ+pUPghw6RHSDBwsPxEuuZYjUXzomHeDTlF8I/4EhlpEJOkw4He6h+/00ybqI7JCGg44cOEdhIe0ORmssX0MMLwgk4kkAWl0s2OVZ7j2hs0N2+GXDfaPeIQkDGPx2iILG31cSIutxbLD6f3zPO85IQfgAWKnV0XkV1IkucPowTGOQmSQi4+KdD5McnWk2drck+GzDsPs/rQfgHTtTeU/3+G5pf7kD4p0MUxFsvrqK56OmaAQh/AnMwWIVSqzSXsyWjx7tPEgIu/ukQebG9SEUz0dRovpHGce21P0WDh3lLFaKjw3GwXL3qjxPCvv2wsHD3SULAxT8dIgvD+LFxFsOI2quXeN2iUfZ2hNNgsnCHxhDReuwOh386RAAAPyER/+dEs+YCClBBuIRD0Xs0jqvP/YEcYsfCfx1ivGVJUs8XHUX4GQ5F76nPn+ZF9/BwFTOEizgfsCGXy9etW8flciMiIhYtWsSkU9ZqtRs2bDAYDEFBQc8995xKpVq2bFl4eDgAYOnSpVFRUdCEt4cgobfq2BHTW1Kp0BfZVWsFgWgLTCazP1gFrcfuiDjvELOysiZMmDB8+PDVq1eXlJTExcUBAI4dO9avX78HHnjgxx9/PHPmTNeuXSdPnjxnzhx4gu2Fn5CoLyoAFAnYHACA5sI5Qe9kdoDE80oQfgNHanc4M0Wq/vg95pudblaEgIzzDjEzM1MsFisUCo1GI5W2pDhNSkpi7gcDAgK4XG5tbe3du3c3bdqUnJw8evRopo1erzcYDMDZ2l127oWFR7CFQvxOBa9HLABAc+FcwLARFjv6YCU5gFT5sCkmeq/d2ns0TasvX+RIAnlxCS7KQ1X3nDDoSmPnHWJISAiO42vWrMEwTCRqSbaamJgIALhy5Up2dvabb76Zk5PTr1+//v37b9iwQSqVpqSkAADWr1+/Z88eAMDkyZMbGxttdGEVhUJhZ0t2j9iGq1f4AYEAAOW5PwJffdOiO51O52jvbaFUKmGZgqjKCC//tlarhWXKYDCo1WoopjQaDRQ7AAAcx+2yhmENpaXsUKntVupfD2DDRzlxercG4pGHCMSzFCIOqWLKUlpupZ2lvr6eoiiapn/88cc//vjDtH3Lli3r1q3TaDTmjU+cOLF7924LC5999pmjnTY1NTFFLO3h3qr/1H2+lqZpw93qvEGJFI6bf6pWqx3tvS3kcrnBYIBiCqKq5uZm/J9f2Wk0Gg3zW7uOQqHQ6/VQTGm1WqZQp+solUqdTmdPy8JxQ3V5t2000Ol0hNFYOG6o9vpV11VptVoXjTDo9Xr7LxzbqFQqi6vbaXAch3jhOHrtkCT5+eefW2x0fpZ57969t27dAgCYV+w9d+4ch8NZsmQJc8+4Y8eOnJwcAEBFRUVkpKcXAJoSI2qyz4jSh7BgFOREdHIwWfvRe/rbN2nCKEzp7xlJCIg4/8g8ffr0DRs2cLlciUQyf/78wsLCrKwsDMMKCgreeOMNAMCkSZPGjRu3efPmXbt2yWSyjIwMeLLtQpDYu/G7LaAl5RdagYiAgD3Re+oTWZLxk2zXfUT4Js47xIiIiA8//ND0NiEhISHBSinhlStXOt2Fi/DjEg2VdyitRnPpvPTJf3lLBsKf4NixFFH1+2+Rb7znGT0IuPjznxhbLOZGRimPHKRJUpCQ5G05CH+g3YQ3htJisrFBlIYK7HVI/NkhAgAECUmN278RDxmOnl8QUGh3bbb21DHxqHEsLtdjkhAQ8XM3wY9PwosKAlCKbAQk2r1DVJ/IQvHLHRc/d4iChEQAAAphRsDC9h2i8W41UV4mQn/AHRY/d4jCfgMDRozmdo32thCEn8CRhpFt3yGqTvwmGDqcLRR5UhICIn7uELlRXbt/+Z23VSD8B0wqI5rbrL2nPH40AD0vd2T83CEiEHDhSAJZGEbK5a0/IuVNupwbohGjPS4KAQ3kEBEIR2CxsFDrSxFVJ7LEgwazJYGeF4WABXKICIRjtJU3W/n7Ucl49LzcsUEOEYFwDI5URrbKikhpNNpLFySj7/eKJAQskENEIBwDk4W1fmRWn/5dkNQHC+/iFUkIWCCHiEA4htW12crjv0nGo4IBHR7kEBEIx2i9Nps2GNTnTqGC9H4AcogIhGO0rr2nzj7Di4rmxfT0liQELJBDRCAco3WpKdVxNL/sJyCHiEA4Bib7Z/QeRapO/Y4qjvoHyCEiEI5hEb2n+fMyWyQUJPb2rioEFJzPmO06BEE4WruLKUwDpZicE723BUVROI4ThPX4VoeAq8pgMJAk6bop5oCbKue4AkmSBoOBoijXTTFVk2CpAvYXscS4LAzT1NRwQqUAAPnRQ6Ix95t+NaPRSJIkG0b+TaaElut2AAAEQbDZbFgXDovFgnKWMocd1oUDHK+61/o89KZDxDBMIBA4tIter+fxeBgGQTZFUY723hY4jvN4PC6MnKAQVRkMBi6Xy4NRWotRBcX1GI1GLpfL5/NdN0XTNJ/Ph+J6CIJw6GzEQmUclVIQ1RXQtO7071Eff2a+L5fL5XA4UFRxOBwo5wOO4xwOB8qFQ5Iki8WCospgMLBYLFgXDgDAIVUURbU+ebzpEIFTNx0sFgvKlelc7zZM+bEq1l+4bgr4hSpMKiObGlgsli43hzYYxAMGgb/2RcfKUTtwT3gXG6MxRATCYTh/1d5THf9NMm4iKlDhN6AfEoFwGNNSRNXxI2jBjT+BHCIC4TCYLIxoqDeUlxrr68Tpw7wtBwEN5BARCIfBpDKioV557FfJ6PGowJ4/4eVJFQSiI8IkvDGUlUifft7bWhAwQQ4RgXAYjjQML8yjNJqA4SO9rQUBE/TIjEA4DDOpIh4+EhXY8zOQQ0QgHAaTygAAgajAnt+BHCIC4TCcwCBRalrAqHHeFoKADBpDRCAch8WK+X6vt0Ug4IPuEBEIBKIF5BARCASiBeQQEQgEogXkEBEIBKIF5BARCASiBeQQEQgEogXkEBEIBKIF5BARCASiBW8uzG5oaNi4caNDu8jl8oCAAChFGJgyGq7bAQA0NzeLxWJfU6VQKIRCIZSaKnBV8fl8KBU5mFpOUBLQK5VKPp8PpdILRFUqlQrDMKFQ6FOq1Go1m80WiSAEcTOFUKBUxdFqtQAAh1TRNB0SEmJlawdi2rRpt2/f9rYKSx555JErV654W4UlCxcuPH36tLdVWPLCCy8cPXrU2yos+b//+799+/Z5W4Ulb7/99o4dO7ytwpKPP/74v//9r7dVWLJx48YNGza4bgc9MiMQCEQLHSyWecKECVbucr3N2LFjw8LCvK3CktGjR0dGRnpbhSUZGRn/3979hTTVhwEcf2TT2uZSE9fWMp21OWrYqCmuyLrQEdJFYC2JVlgtU4pZ1F1RQRBUzBSiAiXrIhImkdW6yDXXrFW0qEwX2zIoCBeWmGdz6dZ5L84IOW9v72Yed4znc/eD6fkejzzb2dmf3NzcZFfQlZaWymSyZFfQrVq1asGCBcmuoFOr1dNyvjy9li9fTk7Hd1inTMtvQQihvwCeMiOEUAx7T5kHBgby8vI4HA5BEOfOnQuFQnK53Gg00pahUOjy5cvBYFAikezatWsav/SaJhQKNTU1jY+PZ2Rk1NXVcbncxsbGYDC4ePHimpqaaDQ6eUnbBYaSplYFAKOjo0KhkCVVFovl6dOnAEAQRElJyeTOmayibvPzkP3Xny65VcPDw42NjampqWKxeM+ePcn6b6dVkSTZ2tr6+fNnoVC4f/9+llTRBkWcm+CcOHGCofopI0nS5/OZzeaKigoul9vR0VFYWLhv376urq7c3FybzTZ5+eLFC4FAUFtb63A4srOzs7OzGaqyWq0SicRoNL5//35oaCgQCHC53Pr6+q6urry8vL6+vslLoVA4eRcYSkq0at68eQBgt9vv3r2r1TL45ZkJVZWWlup0Op1O5/f7N23axNyk/n0V7ZC5XK5//+mSXtXZ2bly5crt27fbbDaxWDx//nw2VD158mRiYqK2tjYSiaSlpaWnp7OhijY3MjMz49kEG0+Zw+Fwb29vNBqlloODg0uWLAEAhULh8/loy5ycnA8fPgwPD3/58iXOfZ4apVK5evVqAKBeCOn3+1UqFQCoVCq/309b0naBJVUAEAgEHA4H26oAwOv1zp07l9GrQL+voh2yX0YmvUqn0xUXF4+MjASDQebu+xOtevv2LQA0NzePjY2JxWKWVNEGRZybYONA5PF4VVVVIpGIWi5dutRmsw0ODvb09BAEQVvK5XK/33/mzBkOh8PcHSYAFBYWZmVlPX/+3OVylZSUEARBXWvj8XgEQdCWtF1gSdWPHz/a2toMBgOrqqgfuXXr1tatW5NYRTtkv4xMelVWVhZJkmfPnk1JSWH0Um9CVcFg8N27d9XV1Y8fP3716hVLqmiDIs5NsHEg0lRWVmZmZra3tyuVyvT0dNqyvb19586dp0+fLioq6u7uZrSkpaWlp6fn6NGjPB5PIBBQL44fGxsTCAS0JaMZU66yWCw6nY7RZw+nUAUAo6Oj379/n4EXVP2minbLmTyg8VcNDQ2lpaWdOnVKqVRST7yyoYrP51dUVIhEorKysvgfizFdRRsUcf7+WTAQvV5vUVGRyWQKBoMKhYK2jEaj1BuASJKMRCLMZTx69IjD4TQ0NFB3SnK53OPxAIDH45HL5bQlcxl/UhUKhe7cudPc3Nzb23vv3j2WVAGA2+1esWIFcz3xVNFuPGMHNKGqjo6ON2/eAEA4HGbu2kWiVXK5nJqDAwMDjJ4yJ1RFGxRxboKNF1Uodru9rKyMy+UKBIJr1645nU6ZTKbVamnL/Pz8q1ev2u12giC2bdvG3CVdq9Xa39/vdDofPHgwZ84crVZ7//59p9MpEonWrl0rlUonL2m7wFBSolVqtXrdunUqlSoQCOzYsYMlVQBgsVjKy8szMjKYS/rfKuo2Pw/ZLw9o0qsWLVrU0tLy8OHDSCSi1+un5V3Af161cOFCq9VqtVoBQK/XMzepE6qiDYo4N4EvzEYIoZhZcMqMEEIzAwciQgjF4EBECKEYHIgIIRSDAxGx15EjRzZu3Phz6XA4pFLpt2/fkpiE/m44EBF7nTx5sr+///bt2wAQjUYPHDhw/vz5+N9WPDExwWQd+gvhQETsxefzL126ZDKZwuHwxYsXpVLpli1bzGZzQUGBUqk8fvw4AJAk2dDQIJPJJBLJ3r17SZJ0OBw1NTVVVVVNTU3J3gM0y7D3478QAgCdTrdmzZrDhw/fvHnT6XTa7fYbN2643e7U1NTNmze3trZqNBqfz+fz+UiSVKlUXq8XADo7O91ud35+frLz0SyDAxGxndlsViqVBw8eLCgoaGtr+/r1q16vB4CPHz+6XK7du3dfuHDh+vXrfX19nz59CofDAFBcXIzTEE0BDkTEdjk5OcuWLaPem8Xn8+vr6w8dOgQAoVCIJEmn01lXV2cymaqrq589e0b9yMx8gAX6++BziGg2KS8vv3LlysjISDgc3rBhg8fj6e7urqysNBqNPB7v5cuX4+PjyW5EsxgORDSbaDQao9Go0WgUCsX69es1Go3BYHj9+rVarT527JjBYKAePCI0NfjhDgghFIOPEBFCKAYHIkIIxeBARAihGByICCEUgwMRIYRicCAihFAMDkSEEIr5B1zhyqGze/d1AAAAAElFTkSuQmCC" title="plot of chunk canada" alt="plot of chunk canada" width="75%" style="display: block; margin: auto;" /></p>
+</div>
+<div id="forecasting" class="section level2">
+<h2>Forecasting</h2>
+<p>Finally, we perform one-year-ahead forecasts:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fcst_gas <span class="ot">&lt;-</span> <span class="fu">gas_forecast</span>(est_gas, <span class="at">x_ahead =</span> <span class="dv">0</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">team =</span> <span class="fu">colnames</span>(y)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">forecasted_strength =</span> fcst_gas<span class="sc">$</span>forecast<span class="sc">$</span>par_tv_ahead_mean[<span class="dv">1</span>, ]) <span class="sc">%&gt;%</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">forecasted_gold =</span> <span class="fu">exp</span>(forecasted_strength) <span class="sc">/</span> <span class="fu">sum</span>(<span class="fu">exp</span>(forecasted_strength))) <span class="sc">%&gt;%</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">forecasted_rank =</span> <span class="fu">rank</span>(<span class="sc">-</span>forecasted_strength)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">real_rank =</span> ice_hockey_championships<span class="sc">$</span>rankings[<span class="dv">24</span>, ]) <span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(real_rank)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 24 × 5</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    team  forecasted_strength forecasted_gold forecasted_rank real_rank</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;               &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1 CAN                 3.97        0.234                   2         1</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2 FIN                 3.97        0.235                   1         2</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3 USA                 2.09        0.0356                  6         3</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4 DEU                 0.742       0.00929                10         4</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5 RUS                 3.43        0.137                   3         5</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6 CHE                 1.82        0.0272                  7         6</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7 CZE                 3.41        0.134                   4         7</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8 SVK                 1.58        0.0214                  8         8</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9 SWE                 3.40        0.133                   5         9</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 KAZ                -2.05        0.000569               19        10</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11 LVA                 0.978       0.0117                  9        11</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12 DNK                 0.229       0.00556                11        12</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13 NOR                 0.125       0.00501                12        13</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14 GBR                -3.55        0.000127               22        14</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15 BLR                -0.704       0.00219                14        15</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16 ITA                -0.957       0.00170                16        16</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17 AUT                -0.832       0.00192                15       Inf</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18 FRA                -0.490       0.00271                13       Inf</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 19 HUN                -3.31        0.000162               21       Inf</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 20 JPN                -2.21        0.000486               20       Inf</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21 KOR                -3.81        0.0000982              23       Inf</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 22 POL                -3.99        0.0000821              24       Inf</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 23 SVN                -1.95        0.000631               18       Inf</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 24 UKR                -1.69        0.000813               17       Inf</span></span></code></pre></div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Alvo, M. and Yu, P. L. H. (2014). <em>Statistical Methods for Ranking
+Data</em>. Springer. doi: <a href="https://doi.org/10.1007/978-1-4939-1471-5">10.1007/978-1-4939-1471-5</a>.</p>
+<p>Critchlow, D. E., Fligner, M. A., and Verducci, J. S. (1991).
+Probability Models on Rankings. <em>Journal of Mathematical
+Psychology</em>, <strong>35</strong>(3), 294–318. doi: <a href="https://doi.org/10.1016/0022-2496(91)90050-4">10.1016/0022-2496(91)90050-4</a>.</p>
+<p>Holý, V. and Zouhar, J. (2021). Modelling Time-Varying Rankings with
+Autoregressive and Score-Driven Dynamics. Journal of the Royal
+Statistical Society: Series C (Applied Statistics). doi: <a href="https://doi.org/10.1111/rssc.12584">10.1111/rssc.12584</a>.</p>
+<p>Luce, R. D. (1977). The Choice Axiom after Twenty Years. <em>Journal
+of Mathematical Psychology</em>, <strong>15</strong>(3), 215–233. doi:
+<a href="https://doi.org/10.1016/0022-2496(77)90032-3">10.1016/0022-2496(77)90032-3</a>.</p>
+<p>Plackett, R. L. (1975). The Analysis of Permutations. <em>Journal of
+the Royal Statistical Society: Series C (Applied Statistics)</em>,
+<strong>24</strong>(2), 193–202. doi: <a href="https://doi.org/10.2307/2346567">10.2307/2346567</a>.</p>
+<p>Stern, H. (1990). Models for Distributions on Permutations.
+<em>Journal of the American Statistical Association</em>,
+<strong>85</strong>(410), 558–564. doi: <a href="https://doi.org/10.1080/01621459.1990.10476235">10.1080/01621459.1990.10476235</a>.</p>
+<p>Yellott, J. I. (1977). The Relationship Between Luce’s Choice Axiom,
+Thurstone’s Theory of Comparative Judgment, and the Double Exponential
+Distribution. <em>Journal of Mathematical Psychology</em>,
+<strong>15</strong>(2), 109–144. doi: <a href="https://doi.org/10.1016/0022-2496(77)90026-8">10.1016/0022-2496(77)90026-8</a>.</p>
+<p>Yu, P. L. H., Gu, J., and Xu, H. (2019). Analysis of Ranking Data.
+<em>Wiley Interdisciplinary Reviews: Computational Statistics</em>,
+<strong>11</strong>(6), e1483, 1–26. doi: <a href="https://doi.org/10.1002/wics.1483">10.1002/wics.1483</a>.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

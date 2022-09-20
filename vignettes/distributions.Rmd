@@ -1,0 +1,1365 @@
+---
+title: "Probability Distributions"
+author: "Vladimír Holý"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{Probability Distributions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Binary Data
+
+## Bernoulli Distribution
+
+### Probabilistic Parametrization
+
+#### Parameter
+
+- Probability parameter $p \in (0, 1)$
+
+#### Probability Mass Function
+
+$$
+\begin{aligned}
+\mathrm{P} [Y = y | p] &= \begin{cases}
+1 - p & \text{ for } y = 0 \\
+p & \text{ for } y = 1 \\
+\end{cases} \\
+\end{aligned}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= p \\
+\mathrm{var}[Y] &= p (1 - p) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\nabla_{m} (y; p) = \begin{cases}
+\frac{1}{p - 1} & \text{ for } y = 0 \\
+\frac{1}{p} & \text{ for } y = 1 \\
+\end{cases}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{p, p} (p) &= \frac{1}{p (1 - p)} \\
+\end{aligned}
+$$
+
+# Categorical Data
+
+## Categorical Distribution
+
+### Worth Parametrization
+
+#### Parameters
+
+- Worth parameters $w_i \in (0, \infty), i = 1, \ldots, n$
+
+#### Vector Notation
+
+- Worth vector $\boldsymbol{w}$ of length $n$
+
+#### Probability Mass Function
+
+$$
+\begin{aligned}
+\mathrm{P} [\boldsymbol{Y} = \boldsymbol{y} | \boldsymbol{w}] &= \frac{1}{\sum_{i=1}^n w_i} \prod_{i=1}^n w_i^{y_i}
+\end{aligned}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[\boldsymbol{Y}] &= \frac{1}{\sum_{i=1}^n w_i} \boldsymbol{w} \\
+\mathrm{var}[\boldsymbol{Y}] &= \frac{1}{\sum_{i=1}^n w_i}  \mathrm{diag} (\boldsymbol{w}) - \frac{1}{\left( \sum_{i=1}^n w_i \right)^2} \boldsymbol{w} \boldsymbol{w}' \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\nabla_{\boldsymbol{w}} (\boldsymbol{y}; \boldsymbol{w}) = \boldsymbol{y} \oslash \boldsymbol{w} - \frac{1}{\sum_{i=1}^n w_i} \boldsymbol{1}_n
+$$
+
+#### Fisher Information
+
+$$
+\mathcal{I}_{\boldsymbol{w}, \boldsymbol{w}} (\boldsymbol{w}) = \mathrm{diag} \left( \sum_{i=1}^n w_i \boldsymbol{1}_n  \oslash \boldsymbol{w} \right) - \frac{1}{\left( \sum_{i=1}^n w_i \right)^2} \boldsymbol{1}_{n \times n}
+$$
+
+### Notes
+
+- We treat the categorical distribution as a multivariate distribution. For $n$ categories, observations are in the form of vectors of length $n$ with exactly one element equal to 1 and the others to 0.
+
+- The probability mass function is invariant to the multiplication by a constant of the worth parameters. In the case of the logarithmic transformation, it is invariant to the addition of a constant to the transformed worth parameters. The parameters therefore need to be standardized, e.g. to zero sum in the latter case.
+
+# Ranking Data
+
+## Plackett-Luce Distribution
+
+### Worth Parametrization
+
+#### Parameters
+
+- Worth parameters $w_i \in (0, \infty), i = 1, \ldots, n$
+
+#### Ranking Notation
+
+- Worth parameters by rank $w_{j^{\mathrm{th}}}, j = 1, \ldots, n$
+
+#### Probability Mass Function
+
+$$
+\mathrm{P} [\boldsymbol{Y} = \boldsymbol{y} | w_1, \ldots, w_n] = \prod_{j=1}^n \frac{w_{j^{\mathrm{th}}}}{\sum_{k=j}^n w_{k^{\mathrm{th}}}}
+$$
+
+#### Score
+
+$$
+\nabla_{w_i} (\boldsymbol{y}; w_1, \ldots, w_n) = \frac{1}{w_i} - \sum_{j=1}^{y_i} \frac{1}{\sum_{k = r}^n w_{k^{\mathrm{th}}}}
+$$
+
+### Notes
+
+- The expected value, the variance, and the Fisher information are computed directly from the definitions as sums over all possible rankings. As the number of permutations grows drastically with increasing $n$, we only use this approach for $n \leq 9$. For $n \geq 10$, we randomly sample 1 million rankings. In this case, the computed expected characteristics are subject to random error.
+
+- The probability mass function is invariant to the multiplication by a constant of the worth parameters. In the case of the logarithmic transformation, it is invariant to the addition of a constant to the transformed worth parameters. The parameters therefore need to be standardized, e.g. to zero sum in the latter case.
+
+### Further Reading
+
+- Alvo, M. and Yu, P. L. H. (2014). *Statistical Methods for Ranking Data*. Springer. doi: [10.1007/978-1-4939-1471-5](https://doi.org/10.1007/978-1-4939-1471-5).
+
+- Holý, V. and Zouhar, J. (2021). Modelling Time-Varying Rankings with Autoregressive and Score-Driven Dynamics. arXiv: [2101.04040](https://arxiv.org/abs/2101.04040).
+
+- Luce, R. D. (1977). The Choice Axiom after Twenty Years. *Journal of Mathematical Psychology*, **15**(3), 215–233. doi: [10.1016/0022-2496(77)90032-3](https://doi.org/10.1016/0022-2496(77)90032-3).
+
+- Plackett, R. L. (1975). The Analysis of Permutations. *Journal of the Royal Statistical Society: Series C (Applied Statistics)*, **24**(2), 193–202. doi: [10.2307/2346567](https://doi.org/10.2307/2346567).
+
+# Count Data
+
+## Double Poisson Distribution
+
+### Mean Parametrization
+
+#### Parameters
+
+- Mean parameter $m \in (0, \infty)$
+- Dispersion parameter $s \in (0, \infty)$
+
+#### Probability Mass Function
+
+$$
+\mathrm{P} [Y = y | m, s] \approx \frac{1}{1 + \frac{1 - s}{12 s m} \left(1 + \frac{1}{s m} \right)} \sqrt{s} \frac{y^y}{y!} \left( \frac{m}{y} \right)^{s y} \exp(s y - s m - y)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &\approx m \\
+\mathrm{var}[Y] &\approx \frac{m}{s} \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{m} (y; m, s) &\approx \frac{s}{m} (y - m) \\
+\nabla_{s} (y; m, s) &\approx \frac{1}{2 s} - m \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &\approx \frac{s}{m} \\
+\mathcal{I}_{m, s} (m, s) &\approx 0 \\
+\mathcal{I}_{s, s} (m, s) &\approx \frac{1}{2 s^2} \\
+\end{aligned}
+$$
+
+### Note
+
+- The probability mass function is not available in a closed form. We use the approximation of Efron (1986) for the probability mass function, the mean, the variance, the score, and the Fisher information.
+
+### Further Reading
+
+- Aragon, D. C., Achcar, J. A., and Martinez, E. Z. (2018). Maximum Likelihood and Bayesian Estimators for the Double Poisson Distribution. *Journal of Statistical Theory and Practice*, **12**(4), 886–911. doi: [10.1080/15598608.2018.1489919](https://doi.org/10.1080/15598608.2018.1489919).
+
+- Cameron, A. C. and Trivedi, P. K. (2013). *Regression Analysis of Count Data*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9781139013567](https://doi.org/10.1017/cbo9781139013567).
+
+- Efron, B. (1986). Double Exponential Families and Their Use in Generalized Linear Regression. *Journal of the American Statistical Association*, **81**(395), 709–721. doi: [10.1080/01621459.1986.10478327](https://doi.org/10.1080/01621459.1986.10478327).
+
+- Hilbe, J. M. (2011). *Negative Binomial Regression*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9780511973420](https://doi.org/10.1017/cbo9780511973420).
+
+- Holý, V. and Tomanová, P. (2022). Modeling Price Clustering in High-Frequency Prices. *Quantitative Finance*. doi: [10.1080/14697688.2022.2050285](https://doi.org/10.1080/14697688.2022.2050285).
+
+- Sellers, K. F. and Morris, D. S. (2017). Underdispersion Models: Models That Are “Under the Radar.” *Communications in Statistics - Theory and Methods*, **46**(24), 12075–12086. doi: [10.1080/03610926.2017.1291976](https://doi.org/10.1080/03610926.2017.1291976).
+
+- Zou, Y., Geedipally, S. R., and Lord, D. (2013). Evaluating the Double Poisson Generalized Linear Model. *Accident Analysis and Prevention*, **59**, 497–505. doi: [10.1016/j.aap.2013.07.017](https://doi.org/10.1016/j.aap.2013.07.017).
+
+## Geometric Distribution
+
+### Mean Parametrization
+
+#### Parameter
+
+- Mean parameter $m \in (0, \infty)$
+
+#### Probability Mass Function
+
+$$
+\mathrm{P} [Y = y | m] = \frac{1}{1 + m} \left( \frac{m}{1 + m} \right)^{y}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= m \\
+\mathrm{var}[Y] &= m (1 + m) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\nabla_{m} (y; m) = \frac{y - m}{m (1 + m) }
+$$
+
+#### Fisher Information
+
+$$
+\mathcal{I}_{m, m} (m) = \frac{1}{m (1 + m)}
+$$
+
+### Probabilistic Parametrization
+
+#### Parameter
+
+- Probability parameter $p \in (0, 1)$
+
+#### Probability Mass Function
+
+$$
+\mathrm{P} [Y = y | p] = p (1 - p)^{y}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= \frac{1 - p}{p} \\
+\mathrm{var}[Y] &= \frac{1 - p}{p^2} \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\nabla_{p} (y; p) = \frac{p y + p - 1}{p (p - 1)}
+$$
+
+#### Fisher Information
+
+$$
+\mathcal{I}_{p, p} (p) = \frac{1}{p^2 (1 - p)}
+$$
+
+## Negative Binomial Distribution
+
+### NB2 Parametrization
+
+#### Parameters
+
+- Mean parameter $m \in (0, \infty)$
+- Dispersion parameter $s \in (0, \infty)$
+
+#### Probability Mass Function
+
+$$
+\mathrm{P} [Y = y | m, s] = \frac{\Gamma (y + s^{-1})}{\Gamma (y + 1) \Gamma (s^{-1})} \left( \frac{1}{1 + s m} \right)^{s^{-1}} \left( \frac{s m}{1 + s m} \right)^{y}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= m \\
+\mathrm{var}[Y] &= m (1 + s m) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{m} (y; m, s) &= \frac{y - m}{m (1 + s m) } \\
+\nabla_{s} (y; m, s) &= \frac{ y - m}{s (1 + s m)} + \frac{1}{s^2} \left( \ln(1 + s m) + \psi_0 \left( \frac{1}{s} \right) - \psi_0 \left( y + \frac{1}{s} \right) \right) \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &= \frac{1}{m (1 + s m)} \\
+\mathcal{I}_{m, s} (m, s) &= 0 \\
+\mathcal{I}_{s, s} (m, s) &\approx \frac{2}{s^3} \ln(1 + s m) - \frac{m}{s^2 + s^3 m} + \frac{2}{s^3} \psi_0 \left( \frac{1}{s} \right) + \frac{1}{s^4} \psi_1 \left( \frac{1}{s} \right) \\
+& \qquad - \frac{2}{s^3} \psi_0 \left( m + \frac{1}{s} \right) - \frac{1}{s^4} \psi_1 \left( m + \frac{1}{s} \right) \\
+\end{aligned}
+$$
+
+### Probabilistic Parametrization
+
+#### Parameters
+
+- Probability parameter $p \in (0, 1)$
+- Size parameter $r \in (0, \infty)$
+
+#### Probability Mass Function
+
+$$
+\mathrm{P} [Y = y | p, r] = \frac{\Gamma(y + r)}{\Gamma(y + 1) \Gamma(r)} (1 - p)^y p^r
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= \frac{r (1 - p)}{p} \\
+\mathrm{var}[Y] &= \frac{r (1 - p)}{p^2} \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{p} (y; p, r) &= \frac{p r + p  y - r}{p (p - 1)} \\
+\nabla_{r} (y; p, r) &= \ln(p) - \psi_0(r) + \psi_0(y + r) \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{p, p} (p, r) &= \frac{r}{p^2 (1 - p)} \\
+\mathcal{I}_{p, r} (p, r) &= -\frac{1}{p} \\
+\mathcal{I}_{r, r} (p, r) &\approx \psi_1(r) - \psi_1 \left(r + \frac{r (1 - p)}{p} \right) \\
+\end{aligned}
+$$
+
+### Note
+
+- The Fisher information for the dispersion or size parameter, $\mathcal{I}_{s, s} (m, s)$ or $\mathcal{I}_{r, r} (p, r)$, is not available in a closed form. To speed up calculations, we use a rough approximation by replacing $y$ with its expected value.
+
+### Further Reading
+
+- Cameron, A. C. and Trivedi, P. K. (1986). Econometric Models Based on Count Data: Comparisons and Applications of Some Estimators and Tests. *Journal of Applied Econometrics*, **1**(1), 29–53. doi: [10.1002/jae.3950010104](https://doi.org/10.1002/jae.3950010104).
+
+- Cameron, A. C. and Trivedi, P. K. (2013). *Regression Analysis of Count Data*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9781139013567](https://doi.org/10.1017/cbo9781139013567).
+
+- Hilbe, J. M. (2011). *Negative Binomial Regression*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9780511973420](https://doi.org/10.1017/cbo9780511973420).
+
+## Poisson Distribution
+
+### Mean Parametrization
+
+#### Parameter
+
+- Mean parameter $m \in (0, \infty)$
+
+#### Probability Mass Function
+
+$$
+\mathrm{P} [Y = y | m] = \frac{m^y}{y!} \exp(-m)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= m \\
+\mathrm{var}[Y] &= m \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\nabla_{m} (y; m) = \frac{y - m}{m}
+$$
+
+#### Fisher Information
+
+$$
+\mathcal{I}_{m, m} (m) = \frac{1}{m}
+$$
+
+### Further Reading
+
+- Cameron, A. C. and Trivedi, P. K. (2013). *Regression Analysis of Count Data*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9781139013567](https://doi.org/10.1017/cbo9781139013567).
+
+- Davis, R. A., Dunsmuir, W. T. M., and Street, S. B. (2003). Observation-Driven Models for Poisson Counts. *Biometrika*, **90**(4), 777–790. doi: [10.1093/biomet/90.4.777](https://doi.org/10.1093/biomet/90.4.777).
+
+- Hilbe, J. M. (2011). *Negative Binomial Regression*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9780511973420](https://doi.org/10.1017/cbo9780511973420).
+
+## Zero-Inflated Geometric Distribution
+
+#### Parameters
+
+- Mean parameter $m \in (0, \infty)$
+- Zero inflation parameter $p \in (0, 1)$
+
+#### Probability Mass Function
+
+$$
+\begin{aligned}
+\mathrm{P} [Y = y | m, p] &= \begin{cases}
+p + (1 - p)  \left( \frac{1}{1 + m} \right) & \text{ for } y = 0 \\
+(1 - p) \left( \frac{1}{1 + m} \right) \left( \frac{m}{1 + m} \right)^{y} & \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= m (1 - p) \\
+\mathrm{var}[Y] &= m(1 - p) (1 + p m + m) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{m} (y; m, p) &= \begin{cases}
+\frac{p - 1}{(1 + m) (1 + p m)} & \text{ for } y = 0 \\
+\frac{y - m}{m (1 + m) } & \text{ for } y \geq 1 \\
+\end{cases} \\
+\nabla_{p} (y; m, p) &= \begin{cases}
+\frac{m}{1 + p m} & \text{ for } y = 0 \\
+\frac{1}{p - 1} & \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{m, m} (m, p) &= \frac{(1 - p) (1 + m + p m^2)}{m (1 + m) (1 + p m)} \\
+\mathcal{I}_{m, p} (m, p) &= - \frac{1}{ (1 + m) ( 1 + p m) } \\
+\mathcal{I}_{p, p} (m, p) &= \frac{m}{(1 - p) ( 1 + p m)} \\
+\end{aligned}
+$$
+
+### Further Reading
+
+- Blasques, F., Holý, V., and Tomanová, P. (2022). Zero-Inflated Autoregressive Conditional Duration Model for Discrete Trade Durations with Excessive Zeros. Working Paper. arXiv: [1812.07318](https://arxiv.org/abs/1812.07318).
+
+- Cameron, A. C. and Trivedi, P. K. (2013). *Regression Analysis of Count Data*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9781139013567](https://doi.org/10.1017/cbo9781139013567).
+
+- Greene, W. H. (1994). Accounting for Excess Zeros and Sample Selection in Poisson and Negative Binomial Regression Models. *NYU Stern School of Business Research Paper Series*, EC-94-10. SSRN: [1293115](https://www.ssrn.com/abstract=1293115).
+
+- Hilbe, J. M. (2011). *Negative Binomial Regression*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9780511973420](https://doi.org/10.1017/cbo9780511973420).
+
+- Lambert, D. (1992). Zero-Inflated Poisson Regression, with an Application to Defects in Manufacturing. *Technometrics*, **34**(1), 1–14. doi: [10.2307/1269547](https://doi.org/10.2307/1269547).
+
+## Zero-Inflated Negative Binomial Distribution
+
+### NB2 Parametrization
+
+#### Parameters
+
+- Mean parameter $m \in (0, \infty)$
+- Dispersion parameter $s \in (0, \infty)$
+- Zero inflation parameter $p \in (0, 1)$
+
+#### Probability Mass Function
+
+$$
+\begin{aligned}
+\mathrm{P} [Y = y | m, s, p] &= \begin{cases}
+p + (1 - p)  \left( \frac{1}{1 + s m} \right)^{s^{-1}} & \text{ for } y = 0 \\
+(1 - p) \frac{\Gamma (y + s^{-1})}{\Gamma (y + 1) \Gamma (s^{-1})} \left( \frac{1}{1 + s m} \right)^{s^{-1}} \left( \frac{s m}{1 + s m} \right)^{y} & \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= m (1 - p) \\
+\mathrm{var}[Y] &= m(1 - p) (1 + p m + s m) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{m} (y; m, s, p) &= \begin{cases}
+\frac{p - 1}{(1 + s m) \left( 1 + p (1 + s m)^{s^{-1}} - p \right)} & \text{ for } y = 0 \\
+\frac{y - m}{m (1 + s m) } & \text{ for } y \geq 1 \\
+\end{cases} \\
+\nabla_{s} (y; m, s, p) &= \begin{cases}
+\frac{(1 - p) \left( (1 +  s m) \ln(1 + s m) -s m \right) }{  s^2 (1 + s m) \left( 1 + p (1 + s m)^{s^{-1}}- p \right) } & \text{ for } y = 0 \\
+\frac{ s (y - m) + (1 + s m) \left( \ln(1 + s m) + \psi_0 \left( s^{-1} \right) - \psi_0 \left( y + s^{-1} \right) \right) }{s^2 (1 + s m)} & \text{ for } y \geq 1 \\
+\end{cases} \\
+\nabla_{p} (y; m, s, p) &= \begin{cases}
+\frac{(1 + s m)^{s^{-1}} - 1}{1 + p (1 + s m)^{s^{-1}}- p} & \text{ for } y = 0 \\
+\frac{1}{p - 1} & \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s, p) &= \frac{p(p - 1)}{(1 + s m)^2 \left( 1 +  p (1 + s m)^{s^{-1}} - p \right)} + \frac{1 -p}{m(1 + s m)} \\
+\mathcal{I}_{m, s} (m, s, p) &= \frac{\left( p - p^2 \right) \left( (1 + s m) \ln(1 + s m) - s m \right) }{s^2 (1 + s m)^2 \left( 1 + p (1 + s m)^{s^{-1}} -p \right)} \\
+\mathcal{I}_{m, p} (m, s, p) &= \frac{-1}{ (1 + s m) \left( 1 + p (1 + s m)^{s^{-1}} - p \right) }\\
+\mathcal{I}_{s, s} (m, s, p) &\approx \frac{2}{s^3} \ln (1 + s m) - \frac{2 m^2 p s + m^2 s + m p + m}{m^2 s^4 + 2 m s^3 + s^2} \\
+& \qquad + \frac{2 s^2 m^2 + 4 s m + 2}{m^2 s^5 + 2 m s^4 + s^3} \left( \psi_0 \left( s^{-1} \right) - \psi_0 \left( s^{-1} + m (1 - p) \right) \right) \\
+& \qquad + \frac{s^2 m^2 + 2 s m + 1}{m^2 s^6 + 2 m s^5 + s^4} \left( \psi_1 \left( s^{-1} \right) - \psi_1 \left( s^{-1} + m (1 - p) \right) \right) \\
+\mathcal{I}_{s, p} (m, s, p) &= \frac{(1 + s m) \ln(1 + s m) - s m}{s^2 (1 + s m) \left( 1 + p (1 + s m)^{s^{-1}} - p \right)} \\
+\mathcal{I}_{p, p} (m, s, p) &= \frac{1 - (1 + s m)^{s^{-1}}}{(p - 1) \left( 1 + p (1 + s m)^{s^{-1}} - p \right)}
+\end{aligned}
+$$
+
+### Note
+
+- The Fisher information for the dispersion parameter, $\mathcal{I}_{s, s} (m, s, p)$, is not available in a closed form. To speed up calculations, we use an approximation by replacing $y$ with its expected value.
+
+### Further Reading
+
+- Blasques, F., Holý, V., and Tomanová, P. (2022). Zero-Inflated Autoregressive Conditional Duration Model for Discrete Trade Durations with Excessive Zeros. Working Paper. arXiv: [1812.07318](https://arxiv.org/abs/1812.07318).
+
+- Cameron, A. C. and Trivedi, P. K. (2013). *Regression Analysis of Count Data*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9781139013567](https://doi.org/10.1017/cbo9781139013567).
+
+- Greene, W. H. (1994). Accounting for Excess Zeros and Sample Selection in Poisson and Negative Binomial Regression Models. *NYU Stern School of Business Research Paper Series*, EC-94-10. SSRN: [1293115](https://www.ssrn.com/abstract=1293115).
+
+- Hilbe, J. M. (2011). *Negative Binomial Regression*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9780511973420](https://doi.org/10.1017/cbo9780511973420).
+
+- Lambert, D. (1992). Zero-Inflated Poisson Regression, with an Application to Defects in Manufacturing. *Technometrics*, **34**(1), 1–14. doi: [10.2307/1269547](https://doi.org/10.2307/1269547).
+
+## Zero-Inflated Poisson Distribution
+
+### Mean Parametrization
+
+#### Parameters
+
+- Mean parameter $m \in (0, \infty)$
+- Zero inflation parameter $p \in (0, 1)$
+
+#### Probability Mass Function
+
+$$
+\begin{aligned}
+\mathrm{P} [Y = y | m, p] &= \begin{cases}
+p + (1 - p)  \exp(-m) & \text{ for } y = 0 \\
+(1 - p) \frac{m^y}{y!} \exp(-m) & \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= m (1 - p) \\
+\mathrm{var}[Y] &= m(1 - p) (1 + p m) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{m} (y; m, s, p) &= \begin{cases}
+\frac{p - 1}{p \exp(m) - p + 1} & \text{ for } y = 0 \\
+\frac{y - m}{m} & \text{ for } y \geq 1 \\
+\end{cases} \\
+\nabla_{p} (y; m, s, p) &= \begin{cases}
+\frac{\exp(m) - 1}{p \exp(m) - p + 1} & \text{ for } y = 0 \\
+\frac{1}{p - 1} & \text{ for } y \geq 1 \\
+\end{cases} \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s, p) &= \frac{p (p - 1)}{p \exp(m) - p + 1} - \frac{p - 1}{m} \\
+\mathcal{I}_{m, p} (m, s, p) &= - \frac{1}{p \exp(m) - p + 1} \\
+\mathcal{I}_{p, p} (m, s, p) &= \frac{\exp(m) - 1}{(1 - p) (p \exp(m) - p + 1)} \\
+\end{aligned}
+$$
+
+### Note
+
+- The Fisher information for the dispersion parameter, $\mathcal{I}_{s, s} (m, s, p)$, is not available in a closed form. To speed up calculations, we use an approximation by replacing $y$ with its expected value.
+
+### Further Reading
+
+- Blasques, F., Holý, V., and Tomanová, P. (2022). Zero-Inflated Autoregressive Conditional Duration Model for Discrete Trade Durations with Excessive Zeros. Working Paper. arXiv: [1812.07318](https://arxiv.org/abs/1812.07318).
+
+- Cameron, A. C. and Trivedi, P. K. (2013). *Regression Analysis of Count Data*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9781139013567](https://doi.org/10.1017/cbo9781139013567).
+
+- Greene, W. H. (1994). Accounting for Excess Zeros and Sample Selection in Poisson and Negative Binomial Regression Models. *NYU Stern School of Business Research Paper Series*, EC-94-10. SSRN: [1293115](https://www.ssrn.com/abstract=1293115).
+
+- Hilbe, J. M. (2011). *Negative Binomial Regression*. Second Edition. Cambridge University Press. doi: [10.1017/cbo9780511973420](https://doi.org/10.1017/cbo9780511973420).
+
+- Lambert, D. (1992). Zero-Inflated Poisson Regression, with an Application to Defects in Manufacturing. *Technometrics*, **34**(1), 1–14. doi: [10.2307/1269547](https://doi.org/10.2307/1269547).
+
+# Integer Data
+
+## Skellam Distribution
+
+### Difference Parametrization
+
+#### Parameters
+
+- First rate parameter $r_1 \in (0, \infty)$
+- Second rate parameter $r_2 \in (0, \infty)$
+
+#### Probability Mass Function
+
+$$
+\begin{aligned}
+\mathrm{P} [Y = y | r_1, r_2] &= \exp(-r_1 - r_2) \left( \frac{r_1}{r_2} \right)^{\frac{y}{2}} I_y \left( 2 \sqrt{r_1  r_2} \right)
+\end{aligned}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= r_1 - r_2 \\
+\mathrm{var}[Y] &= r_1 + r_2 \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{r_1} (y; r_1, r_2) &= \sqrt{\frac{r_2}{r_1}} \frac{I_{y-1} \left( 2 \sqrt{r_1 r_2} \right)}{I_y \left( 2 \sqrt{r_1 r_2} \right) } - 1 \\
+\nabla_{r_2} (y; r_1, r_2) &= \sqrt{\frac{r_1}{r_2}} \frac{I_{y-1} \left( 2 \sqrt{r_1 r_2} \right)}{I_y \left( 2 \sqrt{r_1 r_2} \right) } -\frac{y}{r_2} - 1 \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{r_1, r_1} (r_1, r_2) &\approx  \frac{r_2}{r_1} \left( \frac{I_{r_1 - r_2 - 1} \left(2 \sqrt{r_1 r_2} \right) }{I_{r_1 - r_2} \left(2 \sqrt{r_1 r_2} \right) } \right)^2 - 2 \sqrt{\frac{r_2}{r_1}} \frac{I_{r_1 - r_2 - 1} \left(2 \sqrt{r_1 r_2} \right) }{I_{r_1 - r_2} \left(2 \sqrt{r_1 r_2} \right) } + 1 \\
+\mathcal{I}_{r_1, r_2} (r_1, r_2) &\approx  \left( \frac{I_{r_1 - r_2 - 1} \left(2 \sqrt{r_1 r_2} \right) }{I_{r_1 - r_2} \left(2 \sqrt{r_1 r_2} \right) } \right)^2 - 2 \sqrt{\frac{r_1}{r_2}} \frac{I_{r_1 - r_2 - 1} \left(2 \sqrt{r_1 r_2} \right) }{I_{r_1 - r_2} \left(2 \sqrt{r_1 r_2} \right) } + \frac{r_1}{r_2} \\
+\mathcal{I}_{r_2, r_2} (r_1, r_2) &\approx \frac{r_1}{r_2} \left( \frac{I_{r_1 - r_2 - 1} \left(2 \sqrt{r_1 r_2} \right) }{I_{r_1 - r_2} \left(2 \sqrt{r_1 r_2} \right) } \right)^2 - 2 \left( \frac{r_1}{r_2} \right)^{\frac{3}{2}} \frac{I_{r_1 - r_2 - 1} \left(2 \sqrt{r_1 r_2} \right) }{I_{r_1 - r_2} \left(2 \sqrt{r_1 r_2} \right) } + \left( \frac{r_1}{r_2} \right)^2 \\
+\end{aligned}
+$$
+
+### Mean-Dispersion Parametrization
+
+#### Parameters
+
+- Mean parameter $m \in \mathbb{R}$
+- Dispersion parameter $s \in (0, \infty)$
+
+#### Probability Mass Function
+
+$$
+\mathrm{P} [Y = y | m, s] = \exp(-|m| - s) \left( \frac{|m| + m + s}{|m| - m + s} \right)^{\frac{y}{2}} I_y \left( \sqrt{s^2 + 2 |m| s} \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= m \\
+\mathrm{var}[Y] &= |m| + s \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{m} (y; m, s) &= \frac{y}{2|m| + s} + \frac{\mathrm{sgn}(m) s}{2 \sqrt{s^2 + 2 |m| s}} \frac{ I_{y-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{y+1} \left( \sqrt{s^2 + 2 |m| s} \right) }{ I_y \left( \sqrt{s^2 + 2 |m| s} \right) } - \mathrm{sgn}(m) \\
+\nabla_{s} (y; m, s) &= - \frac{m y}{s^2 + 2 |m| s} + \frac{|m| + s}{2 \sqrt{s^2 + 2 |m| s}} \frac{ I_{y-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{y+1} \left( \sqrt{s^2 + 2 |m| s} \right) }{ I_y \left( \sqrt{s^2 + 2 |m| s} \right) } - 1 \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &\approx \frac{s^2}{4 \left( s^2 + 2|m|s \right)} \left( \frac{2 (|m| + s)}{\sqrt{s^2 + 2 |m| s}} - \frac{ I_{m-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{m+1} \left( \sqrt{s^2 + 2 |m| s} \right) }{ I_m \left( \sqrt{s^2 + 2 |m| s} \right)} \right)^2 \\
+\mathcal{I}_{m, s} (m, s) &\approx \frac{\mathrm{sgn}(m) (|m| + s) s}{4 \left( s^2 + 2|m|s \right)} \left( \frac{2 (|m| + s)}{\sqrt{s^2 + 2 |m| s}} - \frac{ I_{m-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{m+1} \left( \sqrt{s^2 + 2 |m| s} \right) }{ I_m \left( \sqrt{s^2 + 2 |m| s} \right)} \right)^2 \\
+\mathcal{I}_{s, s} (m, s) &\approx \frac{(|m| + s)^2}{4 \left( s^2 + 2|m|s \right)} \left( \frac{2 (|m| + s)}{\sqrt{s^2 + 2 |m| s}} - \frac{ I_{m-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{m+1} \left( \sqrt{s^2 + 2 |m| s} \right) }{ I_m \left( \sqrt{s^2 + 2 |m| s} \right)} \right)^2 \\
+\end{aligned}
+$$
+
+### Mean-Variance Parametrization
+
+#### Parameters
+
+- Mean parameter $m \in \mathbb{R}$
+- Variance parameter $s \in (|m|, \infty)$
+
+#### Probability Mass Function
+
+$$
+\mathrm{P} [Y = y | m, s] = \exp(-s) \left( \frac{s + m}{s - m} \right)^{\frac{y}{2}} I_y \left( \sqrt{s^2 - m^2} \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= m \\
+\mathrm{var}[Y] &= s \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{m} (y; m, s) &= \frac{s y}{s^2 - m^2} - \frac{m}{2 \sqrt{s^2 - m^2}} \frac{ I_{y-1} \left( \sqrt{s^2 - m^2} \right) + I_{y+1} \left( \sqrt{s^2 - m^2} \right) }{ I_y \left( \sqrt{s^2 - m^2} \right) } \\
+\nabla_{s} (y; m, s) &= -\frac{m y}{s^2 - m^2} + \frac{s}{2 \sqrt{s^2 - m^2}} \frac{ I_{y-1} \left( \sqrt{s^2 - m^2} \right) + I_{y+1} \left( \sqrt{s^2 - m^2} \right) }{ I_y \left( \sqrt{s^2 - m^2} \right) } - 1\\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &\approx \frac{m^2}{4 \left( s^2 - m^2 \right)} \left( \frac{2 s}{\sqrt{s^2 - m^2}} - \frac{ I_{m-1} \left( \sqrt{s^2 - m^2} \right) + I_{m+1} \left( \sqrt{s^2 - m^2} \right) }{ I_m \left( \sqrt{s^2 - m^2} \right) } \right)^2 \\
+\mathcal{I}_{m, s} (m, s) &\approx - \frac{m s}{4 \left( s^2 - m^2 \right)} \left( \frac{2 s}{\sqrt{s^2 - m^2}} - \frac{ I_{m-1} \left( \sqrt{s^2 - m^2} \right) + I_{m+1} \left( \sqrt{s^2 - m^2} \right) }{ I_m \left( \sqrt{s^2 - m^2} \right) } \right)^2 \\
+\mathcal{I}_{s, s} (m, s) &\approx \frac{s^2}{4 \left( s^2 - m^2 \right)} \left( \frac{2 s}{\sqrt{s^2 - m^2}} - \frac{ I_{m-1} \left( \sqrt{s^2 - m^2} \right) + I_{m+1} \left( \sqrt{s^2 - m^2} \right) }{ I_m \left( \sqrt{s^2 - m^2} \right) } \right)^2 \\
+\end{aligned}
+$$
+
+### Note
+
+- The computation of the Fisher information is quite intricate and we resort to an approximation by replacing $y$ with its expected value.
+
+### Further Reading
+
+- Alzaid, A. A. and Omair, M. A. (2010). On the Poisson Difference Distribution Inference and Applications. *Bulletin of the Malaysian Mathematical Sciences Society*, **33**(1), 17–45. EuDML: [244475](https://eudml.org/doc/244475).
+
+- Karlis, D. and Ntzoufras, I. (2009). Bayesian Modelling of Football Outcomes: Using the Skellam’s Distribution for the Goal Difference. *IMA Journal of Management Mathematics*, **20**(2), 133–145. doi: [10.1093/imaman/dpn026](https://doi.org/10.1093/imaman/dpn026).
+
+- Koopman, S. J. and Lit, R. (2019). Forecasting Football Match Results in National League Competitions Using Score-Driven Time Series Models. *International Journal of Forecasting*, **35**(2), 797–809. doi: [10.1016/j.ijforecast.2018.10.011](https://doi.org/10.1016/j.ijforecast.2018.10.011).
+
+- Koopman, S. J., Lit, R., Lucas, A., and Opschoor, A. (2018). Dynamic Discrete Copula Models for High-Frequency Stock Price Changes. *Journal of Applied Econometrics*, **33**(7), 966–985. doi: [10.1002/jae.2645](https://doi.org/10.1002/jae.2645).
+
+- Skellam, J. G. (1946). The Frequency Distribution of the Difference Between Two Poisson Variates Belonging to Different Populations. *Journal of the Royal Statistical Society*, **109**(3), 296. doi: [10.2307/2981372](https://doi.org/10.2307/2981372).
+
+# Duration Data
+
+## Exponential Distribution
+
+### Rate Parametrization
+
+#### Parameter
+
+- Rate parameter $r \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | r) = r \exp \left( -r y \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= \frac{1}{r} \\
+\mathrm{var}[Y] &= \frac{1}{r^2} \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{r} (y; r) &= \frac{1}{r} - y \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{r, r} (r) &= \frac{1}{r^2} \\
+\end{aligned}
+$$
+
+### Scale Parametrization
+
+#### Parameter
+
+- Scale parameter $s \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | s) =  \frac{1}{s} \exp \left( - \frac{y}{s} \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= s \\
+\mathrm{var}[Y] &= s^2 \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{s} (y; s) &= \frac{y - s}{s^2} \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{s, s} (s) &= \frac{1}{s^2} \\
+\end{aligned}
+$$
+
+### Further Reading
+
+- Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing Systems: Autoregressive Conditional Duration Approach. *Central European Journal of Operations Research*, **29**(3), 859–874. doi: [10.1007/s10100-021-00744-7](https://doi.org/10.1007/s10100-021-00744-7).
+
+## Gamma Distribution
+
+### Rate Parametrization
+
+#### Parameters
+
+- Rate parameter $r \in (0, \infty)$
+- Shape parameter $a \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | r, a) =  \frac{r}{\Gamma(a)} (r y)^{a - 1} \exp \left( -r y \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= \frac{a}{r} \\
+\mathrm{var}[Y] &= \frac{a}{r^2} \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{r} (y; r, a) &= \frac{a - r y}{r} \\
+\nabla_{a} (y; r, a) &= \ln(r y) - \psi_0(a) \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{r, r} (r, a) &= \frac{a}{r^2} \\
+\mathcal{I}_{r, a} (r, a) &= - \frac{1}{r} \\
+\mathcal{I}_{a, a} (r, a) &= \psi_1(a) \\
+\end{aligned}
+$$
+
+### Scale Parametrization
+
+#### Parameters
+
+- Scale parameter $s \in (0, \infty)$
+- Shape parameter $a \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | s, a) =  \frac{1}{\Gamma(a)} \frac{1}{s} \left( \frac{y}{s} \right)^{a - 1} \exp \left( - \frac{y}{s} \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= a s \\
+\mathrm{var}[Y] &= a s^2 \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{s} (y; s, a) &= \frac{y - a s}{s^2} \\
+\nabla_{a} (y; s, a) &= \ln \left( \frac{y}{s} \right) - \psi_0(a) \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{s, s} (s, a) &= \frac{a}{s^2} \\
+\mathcal{I}_{s, a} (s, a) &= \frac{1}{s} \\
+\mathcal{I}_{a, a} (s, a) &= \psi_1(a) \\
+\end{aligned}
+$$
+
+### Further Reading
+
+- Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing Systems: Autoregressive Conditional Duration Approach. *Central European Journal of Operations Research*, **29**(3), 859–874. doi: [10.1007/s10100-021-00744-7](https://doi.org/10.1007/s10100-021-00744-7).
+
+## Generalized Gamma Distribution
+
+### Rate Parametrization
+
+#### Parameters
+
+- Rate parameter $r \in (0, \infty)$
+- First shape parameter $a \in (0, \infty)$
+- Second shape parameter $b \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | r, a, b) =  \frac{r b}{\Gamma(a)} (r y)^{a b - 1} \exp \left( -(r y)^b \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= \frac{1}{r} \frac{\Gamma \left(a + b^{-1} \right)}{\Gamma \left( a \right) } \\
+\mathrm{var}[Y] &= \frac{1}{r^2} \left( \frac{\Gamma \left(a + 2 b^{-1} \right)}{\Gamma \left( a \right) } -  \left( \frac{\Gamma \left(a + b^{-1} \right)}{\Gamma \left( a \right) } \right)^2 \right) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{r} (y; r, a, b) &= \frac{b}{r} \left( a - (r y)^b \right) \\
+\nabla_{a} (y; r, a, b) &= b \ln(r y) - \psi_0(a) \\
+\nabla_{b} (y; r, a, b) &= \left( a - (r y)^b \right) \ln (r y) + \frac{1}{b} \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{r, r} (r, a, b) &= \frac{a b^2}{r^2} \\
+\mathcal{I}_{r, a} (r, a, b) &= - \frac{b}{r} \\
+\mathcal{I}_{r, b} (r, a, b) &= \frac{a \psi_0(a) + 1}{r} \\
+\mathcal{I}_{a, a} (r, a, b) &= \psi_1(a) \\
+\mathcal{I}_{a, b} (r, a, b) &= - \frac{\psi_0(a)}{b} \\
+\mathcal{I}_{b, b} (r, a, b) &= \frac{a \psi_0(a)^2 + 2 \psi_0(a) + a \psi_1(a) + 1}{b^2} \\
+\end{aligned}
+$$
+
+### Scale Parametrization
+
+#### Parameters
+
+- Scale parameter $s \in (0, \infty)$
+- First shape parameter $a \in (0, \infty)$
+- Second shape parameter $b \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | s, a, b) =  \frac{1}{\Gamma(a)} \frac{b}{s} \left( \frac{y}{s} \right)^{a b - 1} \exp \left( - \left( \frac{y}{s} \right)^b \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= s \frac{\Gamma \left(a + b^{-1} \right)}{\Gamma \left( a \right) } \\
+\mathrm{var}[Y] &= s^2 \left( \frac{\Gamma \left(a + 2 b^{-1} \right)}{\Gamma \left( a \right) } -  \left( \frac{\Gamma \left(a + b^{-1} \right)}{\Gamma \left( a \right) } \right)^2 \right) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{s} (y; s, a, b) &= \frac{b}{s} \left( \left( \frac{y}{s} \right)^b - a \right) \\
+\nabla_{a} (y; s, a, b) &= b \ln \left( \frac{y}{s} \right) - \psi_0(a) \\
+\nabla_{b} (y; s, a, b) &= \left( a - \left( \frac{y}{s} \right)^b \right) \ln \left( \frac{y}{s} \right) + \frac{1}{b} \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{s, s} (s, a, b) &= \frac{a b^2}{s^2} \\
+\mathcal{I}_{s, a} (s, a, b) &= \frac{b}{s} \\
+\mathcal{I}_{s, b} (s, a, b) &= - \frac{a \psi_0(a) + 1}{s} \\
+\mathcal{I}_{a, a} (s, a, b) &= \psi_1(a) \\
+\mathcal{I}_{a, b} (s, a, b) &= - \frac{\psi_0(a)}{b} \\
+\mathcal{I}_{b, b} (s, a, b) &= \frac{a \psi_0(a)^2 + 2 \psi_0(a) + a \psi_1(a) + 1}{b^2} \\
+\end{aligned}
+$$
+
+### Further Reading
+
+- Park, T. R. (2014). Derivation of the Fisher Information Matrix for 4-Parameter Generalized Gamma Distribution Using Mathematica. *Journal of the Chosun Natural Science*, **7**(2), 138–144. doi: [10.13160/ricns.2014.7.2.138](https://doi.org/10.13160/ricns.2014.7.2.138).
+
+- Stacy, E. W. (1962). A Generalization of the Gamma Distribution. *The Annals of Mathematical Statistics*, **33**(3), 1187–1192. doi: [10.1214/aoms/1177704481](https://doi.org/10.1214/aoms/1177704481).
+
+- Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing Systems: Autoregressive Conditional Duration Approach. *Central European Journal of Operations Research*, **29**(3), 859–874. doi: [10.1007/s10100-021-00744-7](https://doi.org/10.1007/s10100-021-00744-7).
+
+## Weibull Distribution
+
+### Rate Parametrization
+
+#### Parameters
+
+- Rate parameter $r \in (0, \infty)$
+- Shape parameter $b \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | r, b) =  r b (r y)^{b - 1} \exp \left( -(r y)^b \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= \frac{1}{r} \Gamma \left(1 + b^{-1} \right) \\
+\mathrm{var}[Y] &= \frac{1}{r^2} \left( \Gamma \left(1 + 2 b^{-1} \right) -  \Gamma \left(1 + b^{-1} \right)^2 \right) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{r} (y; r, b) &= \frac{b}{r} \left( 1 - (r y)^b \right) \\
+\nabla_{b} (y; r, b) &= \left( 1 - (r y)^b \right) \ln (r y) + \frac{1}{b} \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{r, r} (r, b) &= \frac{b^2}{r^2} \\
+\mathcal{I}_{r, b} (r, b) &= \frac{\psi_0(1) + 1}{r} \\
+\mathcal{I}_{b, b} (r, b) &= \frac{\psi_0(1)^2 + 2 \psi_0(1) + \psi_1(1) + 1}{b^2} \\
+\end{aligned}
+$$
+
+### Scale Parametrization
+
+#### Parameters
+
+- Scale parameter $s \in (0, \infty)$
+- Shape parameter $b \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | s, b) =  \frac{b}{s} \left( \frac{y}{s} \right)^{b - 1} \exp \left( - \left( \frac{y}{s} \right)^b \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= s \Gamma \left(1 + b^{-1} \right) \\
+\mathrm{var}[Y] &= s^2 \left( \Gamma \left(a + 2 b^{-1} \right) -  \Gamma \left(1 + b^{-1} \right)^2 \right) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{s} (y; s, b) &= \frac{b}{s} \left( \left( \frac{y}{s} \right)^b - 1 \right) \\
+\nabla_{b} (y; s, b) &= \left( 1 - \left( \frac{y}{s} \right)^b \right) \ln \left( \frac{y}{s} \right) + \frac{1}{b} \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{s, s} (s, b) &= \frac{b^2}{s^2} \\
+\mathcal{I}_{s, b} (s, b) &= - \frac{\psi_0(1) + 1}{s} \\
+\mathcal{I}_{b, b} (s, b) &= \frac{\psi_0(1)^2 + 2 \psi_0(1) + \psi_1(1) + 1}{b^2} \\
+\end{aligned}
+$$
+
+### Further Reading
+
+- Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing Systems: Autoregressive Conditional Duration Approach. *Central European Journal of Operations Research*, **29**(3), 859–874. doi: [10.1007/s10100-021-00744-7](https://doi.org/10.1007/s10100-021-00744-7).
+
+# Real Data
+
+## Normal Distribution
+
+### Mean-Variance Parametrization
+
+#### Parameters
+
+- Mean parameter $m \in \mathbb{R}$
+- Variance parameter $s \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | m, s) = \frac{1}{\sqrt{2 \pi s}} \exp \left( -\frac{(y - m)^2}{2 s} \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= m \\
+\mathrm{var}[Y] &= s \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{m} (y; m, s) &= \frac{y - m}{s} \\
+\nabla_{s} (y; m, s) &= \frac{(y - m)^2 - s}{2 s^2} \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &= \frac{1}{s} \\
+\mathcal{I}_{m, s} (m, s) &= 0 \\
+\mathcal{I}_{s, s} (m, s) &= \frac{1}{2 s^2} \\
+\end{aligned}
+$$
+
+## Student's t Distribution
+
+### Mean-Variance Parametrization
+
+#### Parameters
+
+- Mean parameter $m \in \mathbb{R}$
+- Variance parameter $s \in (0, \infty)$
+- Degrees of freedom parameter $v \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | m, s, v) = \frac{\Gamma \left( \frac{v + 1}{2} \right)}{\Gamma \left( \frac{v}{2} \right) \sqrt{\pi s v}} \left( 1 + \frac{(y - m)^2}{s v} \right)^{-\frac{v + 1}{2}}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= m, & \quad \text{for } v &> 1 \\
+\mathrm{var}[Y] &= \frac{v}{v - 2} s, & \quad \text{for } v &> 2 \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{m} (y; m, s, v) &= \frac{(v + 1) (y - m) }{(y - m)^2 + s v} \\
+\nabla_{s} (y; m, s, v) &= \frac{v}{2s} \frac{(y - m)^2 - s}{(y - m)^2 + s v} \\
+\nabla_{v} (y; m, s, v) &= \frac{1}{2} \frac{(y - m)^2 - s}{(y - m)^2 + s v} - \frac{1}{2} \ln \left(1 + \frac{1}{v} \frac{(y - m)^2}{s} \right) - \frac{1}{2} \psi_0 \left( \frac{v}{2} \right) + \frac{1}{2} \psi_0 \left( \frac{v + 1}{2} \right) \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s, v) &= \frac{v + 1}{s (v + 3)} \\
+\mathcal{I}_{m, s} (m, s, v) &= 0 \\
+\mathcal{I}_{m, v} (m, s, v) &= 0 \\
+\mathcal{I}_{s, s} (m, s, v) &= \frac{v}{2 s^2 (v + 3)} \\
+\mathcal{I}_{s, v} (m, s, v) &= \frac{-1}{s (v + 1) (v + 3)} \\
+\mathcal{I}_{v, v} (m, s, v) &= - \frac{1}{2} \frac{v + 5}{v (v + 1) (v + 3)} + \frac{1}{4} \psi_1 \left( \frac{v}{2} \right) - \frac{1}{4} \psi_1 \left( \frac{v + 1}{2} \right) \\
+\end{aligned}
+$$
+
+### Further Reading
+
+- Blazsek, S. and Villatoro, M. (2015). Is Beta-t-EGARCH(1,1) Superior to GARCH(1,1)? *Applied Economics*, **47**(17), 1764–1774. doi: [10.1080/00036846.2014.1000536](https://doi.org/10.1080/00036846.2014.1000536).
+
+- Harvey, A. C. and Chakravarty, T. (2008). Beta-t-(E)GARCH. *Cambridge Working Papers in Economics*, CWPE 0840. doi: [10.17863/cam.5286](https://doi.org/10.17863/cam.5286).
+
+- Harvey, A. C. and Lange, R. J. (2018). Modeling the Interactions Between Volatility and Returns using EGARCH-M. *Journal of Time Series Analysis*, **39**(6), 909–919. doi: [10.1111/jtsa.12419](https://doi.org/10.1111/jtsa.12419).
+
+- Lange, K. L., Little, R. J. A., and Taylor, J. M. G. (1989). Robust Statistical Modeling Using the t Distribution. *Journal of the American Statistical Association*, **84**(408), 881–896. doi: [10.1080/01621459.1989.10478852](https://doi.org/10.1080/01621459.1989.10478852).
+
+# Multivariate Real Data
+
+## Multivariate Normal Distribution
+
+### Mean-Variance Parametrization
+
+#### Parameters
+
+- Mean parameters $m_i \in \mathbb{R}, i = 1, \ldots, n$
+- Variance parameters $s_i \in (0, \infty), i = 1, \ldots, n$
+- Covariance parameters $c_{ij} \in \mathbb{R}, i = 2, \ldots, n, j = 1, \ldots, i$
+
+#### Vector and Matrix Notation
+
+- Mean vector $\boldsymbol{m}$ of length $n$
+- Variance-covariance matrix $\boldsymbol{K}$ of size $n \times n$
+
+#### Density Function
+
+$$
+f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}) = \frac{1}{\sqrt{(2 \pi)^n | \boldsymbol{K}|}} \exp \left( - \frac{1}{2} (\boldsymbol{y} - \boldsymbol{m})' \boldsymbol{K}^{-1} (\boldsymbol{y} - \boldsymbol{m}) \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[\boldsymbol{Y}] &= \boldsymbol{m} \\
+\mathrm{var}[\boldsymbol{Y}] &= \boldsymbol{K} \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{\boldsymbol{m}} (\boldsymbol{y}; \boldsymbol{m}, \boldsymbol{K}) &= \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right) \\
+\nabla_{\mathrm{vec}(\boldsymbol{K})} (\boldsymbol{y}; \boldsymbol{m}, \boldsymbol{K}) &= \mathrm{vec} \left( \frac{1}{2} \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right) \left(\boldsymbol{y} - \boldsymbol{m} \right)' \boldsymbol{K}^{-1} - \frac{1}{2} \boldsymbol{K}^{-1} \right) \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{\boldsymbol{m}, \boldsymbol{m}} (\boldsymbol{m}, \boldsymbol{K}) &= \boldsymbol{K}^{-1} \\
+\mathcal{I}_{\boldsymbol{m}, \mathrm{vec}(\boldsymbol{K})} (\boldsymbol{m}, \boldsymbol{K}) &= \boldsymbol{0} \\
+\mathcal{I}_{\mathrm{vec}(\boldsymbol{K}), \mathrm{vec}(\boldsymbol{K})} (\boldsymbol{m}, \boldsymbol{K}) &= \frac{1}{4} \boldsymbol{K}^{-1} \otimes \boldsymbol{K}^{-1} + \frac{1}{4} \mathrm{vec}\left(\boldsymbol{K}^{-1} \right) \mathrm{vec}\left(\boldsymbol{K}^{-1} \right)' \\
+\end{aligned}
+$$
+
+## Multivariate Student's t Distribution
+
+### Mean-Variance Parametrization
+
+#### Parameters
+
+- Mean parameters $m_i \in \mathbb{R}, i = 1, \ldots, n$
+- Variance parameters $s_i \in (0, \infty), i = 1, \ldots, n$
+- Covariance parameters $c_{ij} \in \mathbb{R}, i = 2, \ldots, n, j = 1, \ldots, i$
+- Degrees of freedom parameter $v \in (0, \infty)$
+
+#### Vector and Matrix Notation
+
+- Mean vector $\boldsymbol{m}$ of length $n$
+- Variance-covariance matrix $\boldsymbol{K}$ of size $n \times n$
+
+#### Density Function
+
+$$
+f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}, v) = \frac{\Gamma \left( \frac{v + n}{2} \right)}{\Gamma \left( \frac{v}{2} \right) \sqrt{(v \pi)^n | \boldsymbol{K}|}} \left( 1 + \frac{1}{v} (\boldsymbol{y} - \boldsymbol{m})' \boldsymbol{K}^{-1} (\boldsymbol{y} - \boldsymbol{m}) \right)^{-\frac{v + n}{2}}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[\boldsymbol{Y}] &= \boldsymbol{m}, & \quad \text{for } v &> 1 \\
+\mathrm{var}[\boldsymbol{Y}] &= \frac{v}{v - 2} \boldsymbol{K}, & \quad \text{for } v &> 2 \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{\boldsymbol{m}} (\boldsymbol{y}; \boldsymbol{m}, \boldsymbol{K}, v) &= \frac{v + n}{v + \left(\boldsymbol{y} - \boldsymbol{m} \right)' \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right)} \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right) \\
+\nabla_{\mathrm{vec}(\boldsymbol{K})} (\boldsymbol{y}; \boldsymbol{m}, \boldsymbol{K}, v) &= 
+\mathrm{vec} \left( \frac{1}{2} \frac{v + n}{v + \left(\boldsymbol{y} - \boldsymbol{m} \right)' \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right)} \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right) \left(\boldsymbol{y} - \boldsymbol{m} \right)' \boldsymbol{K}^{-1} - \frac{1}{2} \boldsymbol{K}^{-1} \right) \\
+\nabla_{v} (\boldsymbol{y}; \boldsymbol{m}, \boldsymbol{K}, v) &= \frac{1}{2} \frac{ \left(\boldsymbol{y} - \boldsymbol{m} \right)' \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right) - n }{ \left(\boldsymbol{y} - \boldsymbol{m} \right)' \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right)) + v} - \frac{1}{2} \ln \left( 1 + \frac{1}{v} \left(\boldsymbol{y} - \boldsymbol{m} \right)' \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right) \right) \\
+& \qquad - \frac{1}{2} \psi_0 \left( \frac{v}{2} \right) + \frac{1}{2} \psi_0 \left( \frac{v + n}{2} \right) \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{\boldsymbol{m}, \boldsymbol{m}} (\boldsymbol{m}, \boldsymbol{K}, v) &= \frac{v + n}{v + n + 2} \boldsymbol{K}^{-1} \\
+\mathcal{I}_{\boldsymbol{m}, \mathrm{vec}(\boldsymbol{K})} (\boldsymbol{m}, \boldsymbol{K}, v) &= \boldsymbol{0} \\
+\mathcal{I}_{\boldsymbol{m}, v} (\boldsymbol{m}, \boldsymbol{K}, v) &= \boldsymbol{0} \\
+\mathcal{I}_{\mathrm{vec}(\boldsymbol{K}), \mathrm{vec}(\boldsymbol{K})} (\boldsymbol{m}, \boldsymbol{K}, v) &= 
+\frac{1}{4} \frac{v + n}{v + n + 2} \boldsymbol{K}^{-1} \otimes \boldsymbol{K}^{-1} + \frac{1}{4} \frac{v + n - 2}{v + n + 2} \mathrm{vec}\left(\boldsymbol{K}^{-1} \right) \mathrm{vec}\left(\boldsymbol{K}^{-1} \right)' \\
+\mathcal{I}_{\mathrm{vec}(\boldsymbol{K}), v} (\boldsymbol{m}, \boldsymbol{K}, v) &= - \frac{1}{(v + n +2)(v + n)} \mathrm{vec}\left(\boldsymbol{K}^{-1} \right) \\
+\mathcal{I}_{v, v} (\boldsymbol{m}, \boldsymbol{K}, v) &= ) - \frac{1}{2} \frac{n (v + n + 4)}{v (v + n + 2)(v + n)} + \frac{1}{4} \psi_1 \left( \frac{v}{2} \right) - \frac{1}{4} \psi_1 \left( \frac{v + n}{2} \right) \\
+\end{aligned}
+$$
+
+### Further Reading
+
+- Blazsek, S. and Villatoro, M. (2015). Is Beta-t-EGARCH(1,1) Superior to GARCH(1,1)? *Applied Economics*, **47**(17), 1764–1774. doi: [10.1080/00036846.2014.1000536](https://doi.org/10.1080/00036846.2014.1000536).
+
+- Harvey, A. C. and Chakravarty, T. (2008). Beta-t-(E)GARCH. *Cambridge Working Papers in Economics*, CWPE 0840. doi: [10.17863/cam.5286](https://doi.org/10.17863/cam.5286).
+
+- Harvey, A. C. and Lange, R. J. (2018). Modeling the Interactions Between Volatility and Returns using EGARCH-M. *Journal of Time Series Analysis*, **39**(6), 909–919. doi: [10.1111/jtsa.12419](https://doi.org/10.1111/jtsa.12419).
+
+- Lange, K. L., Little, R. J. A., and Taylor, J. M. G. (1989). Robust Statistical Modeling Using the t Distribution. *Journal of the American Statistical Association*, **84**(408), 881–896. doi: [10.1080/01621459.1989.10478852](https://doi.org/10.1080/01621459.1989.10478852).
+
