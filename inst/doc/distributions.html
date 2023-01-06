@@ -12,7 +12,7 @@
 
 <meta name="author" content="Vladimír Holý" />
 
-<meta name="date" content="2022-09-19" />
+<meta name="date" content="2023-01-03" />
 
 <title>Probability Distributions</title>
 
@@ -31,13 +31,13 @@ document.addEventListener('DOMContentLoaded', function(e) {
 </script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
 
 
 
@@ -239,7 +239,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Probability Distributions</h1>
 <h4 class="author">Vladimír Holý</h4>
-<h4 class="date">2022-09-19</h4>
+<h4 class="date">2023-01-03</h4>
 
 
 <div id="TOC">
@@ -275,6 +275,8 @@ Distribution</a></li>
 <li><a href="#integer-data" id="toc-integer-data">Integer Data</a>
 <ul>
 <li><a href="#skellam-distribution" id="toc-skellam-distribution">Skellam Distribution</a></li>
+<li><a href="#zero-inflated-skellam-distribution" id="toc-zero-inflated-skellam-distribution">Zero-Inflated Skellam
+Distribution</a></li>
 </ul></li>
 <li><a href="#duration-data" id="toc-duration-data">Duration Data</a>
 <ul>
@@ -461,7 +463,7 @@ w_{k^{\mathrm{th}}}}
 <h4>Score</h4>
 <p><span class="math display">\[
 \nabla_{w_i} (\boldsymbol{y}; w_1, \ldots, w_n) = \frac{1}{w_i} -
-\sum_{j=1}^{y_i} \frac{1}{\sum_{k = r}^n w_{k^{\mathrm{th}}}}
+\sum_{j=1}^{y_i} \frac{1}{\sum_{k = j}^n w_{k^{\mathrm{th}}}}
 \]</span></p>
 </div>
 </div>
@@ -472,9 +474,9 @@ w_{k^{\mathrm{th}}}}
 computed directly from the definitions as sums over all possible
 rankings. As the number of permutations grows drastically with
 increasing <span class="math inline">\(n\)</span>, we only use this
-approach for <span class="math inline">\(n \leq 9\)</span>. For <span class="math inline">\(n \geq 10\)</span>, we randomly sample 1 million
-rankings. In this case, the computed expected characteristics are
-subject to random error.</p></li>
+approach for <span class="math inline">\(n \leq 6\)</span>. For <span class="math inline">\(n \geq 7\)</span>, we randomly sample 1 000
+rankings. We locally set seed so the results are always the
+same.</p></li>
 <li><p>The probability mass function is invariant to the multiplication
 by a constant of the worth parameters. In the case of the logarithmic
 transformation, it is invariant to the addition of a constant to the
@@ -709,11 +711,9 @@ y + \frac{1}{s} \right) \right) \\
 \begin{aligned}
 \mathcal{I}_{m, m} (m, s) &amp;= \frac{1}{m (1 + s m)} \\
 \mathcal{I}_{m, s} (m, s) &amp;= 0 \\
-\mathcal{I}_{s, s} (m, s) &amp;\approx \frac{2}{s^3} \ln(1 + s m) -
-\frac{m}{s^2 + s^3 m} + \frac{2}{s^3} \psi_0 \left( \frac{1}{s} \right)
-+ \frac{1}{s^4} \psi_1 \left( \frac{1}{s} \right) \\
-&amp; \qquad - \frac{2}{s^3} \psi_0 \left( m + \frac{1}{s} \right) -
-\frac{1}{s^4} \psi_1 \left( m + \frac{1}{s} \right) \\
+\mathcal{I}_{s, s} (m, s) &amp;\approx \frac{1}{s^4} \left( \ln(1 + s m)
++ \psi_0 \left( \frac{1}{s} \right) - \psi_0 \left( m + \frac{1}{s}
+\right) \right)^2 \\
 \end{aligned}
 \]</span></p>
 </div>
@@ -760,8 +760,8 @@ y + \frac{1}{s} \right) \right) \\
 \begin{aligned}
 \mathcal{I}_{p, p} (p, r) &amp;= \frac{r}{p^2 (1 - p)} \\
 \mathcal{I}_{p, r} (p, r) &amp;= -\frac{1}{p} \\
-\mathcal{I}_{r, r} (p, r) &amp;\approx \psi_1(r) - \psi_1 \left(r +
-\frac{r (1 - p)}{p} \right) \\
+\mathcal{I}_{r, r} (p, r) &amp;\approx \left( \ln(p) - \psi_0(r) +
+\psi_0 \left( \frac{r}{p} \right) \right)^2 \\
 \end{aligned}
 \]</span></p>
 </div>
@@ -992,14 +992,14 @@ for } y = 0 \\
 s m)^{s^{-1}} -p \right)} \\
 \mathcal{I}_{m, p} (m, s, p) &amp;= \frac{-1}{ (1 + s m) \left( 1 + p (1
 + s m)^{s^{-1}} - p \right) }\\
-\mathcal{I}_{s, s} (m, s, p) &amp;\approx \frac{2}{s^3} \ln (1 + s m) -
-\frac{2 m^2 p s + m^2 s + m p + m}{m^2 s^4 + 2 m s^3 + s^2} \\
-&amp; \qquad + \frac{2 s^2 m^2 + 4 s m + 2}{m^2 s^5 + 2 m s^4 + s^3}
-\left( \psi_0 \left( s^{-1} \right) - \psi_0 \left( s^{-1} + m (1 - p)
-\right) \right) \\
-&amp; \qquad + \frac{s^2 m^2 + 2 s m + 1}{m^2 s^6 + 2 m s^5 + s^4}
-\left( \psi_1 \left( s^{-1} \right) - \psi_1 \left( s^{-1} + m (1 - p)
-\right) \right) \\
+\mathcal{I}_{s, s} (m, s, p) &amp;\approx \frac{1}{s^4} \left( \ln(1 + s
+m) + \psi_0 \left( s^{-1} \right) - \psi_0 \left( y + s^{-1} \right)
+\right)^2 \left( 1 - p - (1 - p)  \left( 1 + s m \right)^{-s^{-1}}
+\right) \\
+&amp; \qquad + \frac{(1 - p)^2 \left( (1 + s m) \ln(1 + s m) - s m
+\right)^2}
+{s^4 (1 + s m)^{2 + s^{-1}} \left( 1 + p (1 + s m)^{s^{-1}} - p \right)}
+\\
 \mathcal{I}_{s, p} (m, s, p) &amp;= \frac{(1 + s m) \ln(1 + s m) - s
 m}{s^2 (1 + s m) \left( 1 + p (1 + s m)^{s^{-1}} - p \right)} \\
 \mathcal{I}_{p, p} (m, s, p) &amp;= \frac{1 - (1 + s m)^{s^{-1}}}{(p -
@@ -1014,7 +1014,7 @@ m}{s^2 (1 + s m) \left( 1 + p (1 + s m)^{s^{-1}} - p \right)} \\
 <li>The Fisher information for the dispersion parameter, <span class="math inline">\(\mathcal{I}_{s, s} (m, s, p)\)</span>, is not
 available in a closed form. To speed up calculations, we use an
 approximation by replacing <span class="math inline">\(y\)</span> with
-its expected value.</li>
+its expected value combined with the zero value.</li>
 </ul>
 </div>
 <div id="further-reading-5" class="section level3">
@@ -1356,6 +1356,396 @@ Populations. <em>Journal of the Royal Statistical Society</em>,
 </ul>
 </div>
 </div>
+<div id="zero-inflated-skellam-distribution" class="section level2">
+<h2>Zero-Inflated Skellam Distribution</h2>
+<div id="difference-parametrization-1" class="section level3">
+<h3>Difference Parametrization</h3>
+<div id="parameters-11" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>First rate parameter <span class="math inline">\(r_1 \in (0,
+\infty)\)</span></li>
+<li>Second rate parameter <span class="math inline">\(r_2 \in (0,
+\infty)\)</span></li>
+<li>Inflation parameter <span class="math inline">\(p \in (0,
+1)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-15" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{P} [Y = y | r_1, r_2, p] &amp;= \begin{cases}
+p + (1 - p) \exp(-r_1 - r_2) I_0 \left( 2 \sqrt{r_1  r_2} \right) &amp;
+\text{ for } y = 0 \\
+(1 - p) \exp(-r_1 - r_2) \left( \frac{r_1}{r_2} \right)^{\frac{y}{2}}
+I_y \left( 2 \sqrt{r_1  r_2} \right) &amp; \text{ for } y \neq 0 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="moments-14" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= (1 - p) (r_1 - r_2) \\
+\mathrm{var}[Y] &amp;= (1 - p) \left( p \left( r_1 - r_2 \right)^2 + r_1
++ r_2 \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-15" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{r_1} (y; r_1, r_2, p) &amp;= \begin{cases}
+\frac{(p - 1) \left( \sqrt{r_1 r_2} I_0 \left( 2 \sqrt{r_1 r_2} \right)
+- r_2 I_1 \left( 2 \sqrt{r_1 r_2} \right) \right)}{\sqrt{r_1 r_2} \left(
+p \exp(r_1 + r_2) + (1 - p) I_0 \left( 2 \sqrt{r_1 r_2} \right) \right)}
+&amp; \text{ for } y = 0 \\
+\sqrt{\frac{r_2}{r_1}} \frac{I_{y-1} \left( 2 \sqrt{r_1 r_2}
+\right)}{I_y \left( 2 \sqrt{r_1 r_2} \right) } - 1 &amp; \text{ for } y
+\neq 0 \\
+\end{cases} \\
+\nabla_{r_2} (y; r_1, r_2, p) &amp;= \begin{cases}
+\frac{(p - 1) \left( \sqrt{r_1 r_2} I_0 \left( 2 \sqrt{r_1 r_2} \right)
+- r_1 I_1 \left( 2 \sqrt{r_1 r_2} \right) \right)}{\sqrt{r_1 r_2} \left(
+p \exp(r_1 + r_2) + (1 - p) I_0 \left( 2 \sqrt{r_1 r_2} \right) \right)}
+&amp; \text{ for } y = 0 \\
+\sqrt{\frac{r_1}{r_2}} \frac{I_{y-1} \left( 2 \sqrt{r_1 r_2}
+\right)}{I_y \left( 2 \sqrt{r_1 r_2} \right) } -\frac{y}{r_2} - 1 &amp;
+\text{ for } y \neq 0 \\
+\end{cases} \\
+\nabla_{p} (y; r_1, r_2, p) &amp;= \begin{cases}
+\frac{\exp(r_1 + r_2) - I_0 \left( 2 \sqrt{r_1 r_2} \right)}{p \exp(r_1
++ r_2) + (1 - p) I_0 \left( 2 \sqrt{r_1 r_2} \right)} &amp; \text{ for }
+y = 0 \\
+\frac{1}{p - 1} &amp; \text{ for } y \neq 0 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-14" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{r_1, r_1} (r_1, r_2, p) &amp;\approx (1 - p) \left( 1 -
+\exp(-r_1 - r_2) I_0 \left( 2 \sqrt{r_1 r_2} \right) \right) \left( 1 -
+\sqrt{\frac{r_2}{r_1}} \frac{I_{r_1 - r_2 -1} \left( 2 \sqrt{r_1 r_2}
+\right)}{I_{r_1 - r_2} \left( 2 \sqrt{r_1 r_2} \right)} \right)^2 \\
+&amp; \qquad + \frac{(1 - p)^2 \exp(-r_1 - r_2) \left( \sqrt{r_1 r_2}
+I_0 \left( 2 \sqrt{r_1 r_2} \right) - r_2 I_1 \left( 2 \sqrt{r_1 r_2}
+\right) \right)^2}{r_1 r_2 \left( p \exp(r_1 + r_2) + (1 - p) I_0 \left(
+2 \sqrt{r_1 r_2} \right) \right)} \\
+\mathcal{I}_{r_1, r_2} (r_1, r_2, p) &amp;\approx (1 - p) \left( 1 -
+\exp(-r_1 - r_2) I_0 \left( 2 \sqrt{r_1 r_2} \right) \right) \left( 1 -
+\sqrt{\frac{r_2}{r_1}} \frac{I_{r_1 - r_2-1} \left( 2 \sqrt{r_1 r_2}
+\right)}{I_{r_1 - r_2} \left( 2 \sqrt{r_1 r_2} \right)} \right) \\
+&amp; \qquad \times \left( \frac{r_1}{r_2} - \sqrt{\frac{r_1}{r_2}}
+\frac{I_{r_1 - r_2 - 1} \left( 2 \sqrt{r_1 r_2} \right)}{I_{r_1 - r_2}
+\left( 2 \sqrt{r_1 r_2} \right)} \right) \\
+&amp; \qquad + \frac{(1 - p)^2 \exp(-r_1 - r_2) \left( \sqrt{r_1 r_2}
+I_0 \left( 2 \sqrt{r_1 r_2} \right) - r_2 I_1 \left( 2 \sqrt{r_1 r_2}
+\right) \right)}{r_1 r_2 \left( p \exp(r_1 + r_2) + (1 - p) I_0 \left( 2
+\sqrt{r_1 r_2} \right) \right)} \\
+&amp; \qquad \times \left( \sqrt{r_1 r_2} I_0 \left( 2 \sqrt{r_1 r_2}
+\right) - r_1 I_1 \left( 2 \sqrt{r_1 r_2} \right) \right) \\
+\mathcal{I}_{r_1, p} (r_1, r_2, p) &amp;= \frac{(p - 1) \left( 1 -
+\exp(-r_1 - r_2 ) I_0 \left( 2 \sqrt{r_1 r_2} \right) \right)}{\sqrt{r_1
+r_2} \left( p \exp(r_1 + r_2) + (1 - p) I_0 \left( 2 \sqrt{r_1 r_2}
+\right) \right)} \\
+&amp; \qquad \times \left( \sqrt{r_1 r_2} I_0 \left( 2 \sqrt{r_1 r_2}
+\right) - r_2 I_1 \left( 2 \sqrt{r_1 r_2} \right) \right) \\
+\mathcal{I}_{r_2, r_2} (r_1, r_2, p) &amp;\approx (1 - p) \left( 1 -
+\exp(-r_1 - r_2) I_0 \left( 2 \sqrt{r_1 r_2} \right) \right) \left(
+\frac{r_1}{r_2} - \sqrt{\frac{r_1}{r_2}} \frac{I_{r_1 - r_2 - 1} \left(
+2 \sqrt{r_1 r_2} \right)}{I_{r_1 - r_2} \left( 2 \sqrt{r_1 r_2} \right)}
+\right)^2 \\
+&amp; \qquad + \frac{(1 - p)^2 \exp(-r_1 - r_2) \left( \sqrt{r_1 r_2}
+I_0 \left( 2 \sqrt{r_1 r_2} \right) - r_1 I_1 \left( 2 \sqrt{r_1 r_2}
+\right) \right)^2}{r_1 r_2 \left( p \exp(r_1 + r_2) + (1 - p) I_0 \left(
+2 \sqrt{r_1 r_2} \right) \right)} \\
+\mathcal{I}_{r_2, p} (r_1, r_2, p) &amp;= \frac{(p - 1) \left( 1 -
+\exp(-r_1 - r_2 ) I_0 \left( 2 \sqrt{r_1 r_2} \right) \right)}{\sqrt{r_1
+r_2} \left( p \exp(r_1 + r_2) + (1 - p) I_0 \left( 2 \sqrt{r_1 r_2}
+\right) \right)} \\
+&amp; \qquad \times \left( \sqrt{r_1 r_2} I_0 \left( 2 \sqrt{r_1 r_2}
+\right) - r_1 I_1 \left( 2 \sqrt{r_1 r_2} \right) \right) \\
+\mathcal{I}_{p, p} (r_1, r_2, p) &amp;= \frac{\exp(r_1 + r_2) - I_0
+\left( 2 \sqrt{r_1 r_2} \right)}{(1 - p) \left( p \exp(r_1 + r_2) + (1 -
+p) I_0 \left( 2 \sqrt{r_1 r_2} \right) \right)} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="mean-dispersion-parametrization-1" class="section level3">
+<h3>Mean-Dispersion Parametrization</h3>
+<div id="parameters-12" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in
+\mathbb{R}\)</span></li>
+<li>Dispersion parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+<li>Inflation parameter <span class="math inline">\(p \in (0,
+1)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-16" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{P} [Y = y | m, s, p] &amp;= \begin{cases}
+p + (1 - p) \exp(-|m| - s) I_0 \left( \sqrt{s^2 + 2 |m| s} \right) &amp;
+\text{ for } y = 0 \\
+(1 - p) \exp(-|m| - s) \left( \frac{|m| + m + s}{|m| - m + s}
+\right)^{\frac{y}{2}} I_y \left( \sqrt{s^2 + 2 |m| s} \right) &amp;
+\text{ for } y \neq 0 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="moments-15" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= (1 - p) m \\
+\mathrm{var}[Y] &amp;= (1 - p) \left( |m| + s + p m^2 \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-16" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s, p) &amp;= \begin{cases}
+\frac{\mathrm{sgn}(m) (p - 1) \left( \sqrt{s^2 + 2 |m| s} I_0 \left(
+\sqrt{s^2 + 2 |m| s} \right) - s I_1 \left( \sqrt{s^2 + 2 |m| s} \right)
+\right)}{\sqrt{s^2 + 2 |m| s} \left( (1 - p) I_0 \left( \sqrt{s^2 + 2
+|m| s} \right) + p \exp(|m| + s) \right)} &amp; \text{ for } y = 0 \\
+\frac{y}{2|m| + s} + \frac{\mathrm{sgn}(m) s}{2 \sqrt{s^2 + 2 |m| s}}
+\frac{ I_{y-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{y+1} \left(
+\sqrt{s^2 + 2 |m| s} \right) }{ I_y \left( \sqrt{s^2 + 2 |m| s} \right)
+} - \mathrm{sgn}(m) &amp; \text{ for } y \neq 0 \\
+\end{cases} \\
+\nabla_{s} (y; m, s, p) &amp;= \begin{cases}
+\frac{   (p - 1)  \left( \sqrt{s^2 + 2 |m| s} I_0 \left( \sqrt{s^2 + 2
+|m| s} \right) - (|m| + s) I_1 \left( \sqrt{s^2 + 2 |m| s} \right)
+\right)    }{\sqrt{s^2 + 2 |m| s} \left( (1 - p) I_0 \left( \sqrt{s^2 +
+2 |m| s} \right) + p \exp(|m| + s) \right)} &amp; \text{ for } y = 0 \\
+- \frac{m y}{s^2 + 2 |m| s} + \frac{|m| + s}{2 \sqrt{s^2 + 2 |m| s}}
+\frac{ I_{y-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{y+1} \left(
+\sqrt{s^2 + 2 |m| s} \right) }{ I_y \left( \sqrt{s^2 + 2 |m| s} \right)
+} - 1 &amp; \text{ for } y \neq 0 \\
+\end{cases} \\
+\nabla_{p} (y; m, s, p) &amp;= \begin{cases}
+\frac{\exp(|m| + s) - I_0 \left( \sqrt{s^2 + 2 |m| s} \right)}{p
+\exp(|m| + s) + (1 - p) I_0 \left( \sqrt{s^2 + 2 |m| s} \right)} &amp;
+\text{ for } y = 0 \\
+\frac{1}{p - 1} &amp; \text{ for } y \neq 0 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-15" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s, p) &amp;\approx \frac{s^2 (1 - p) \left( 1 -
+\exp(-|m|-s) I_{0} \left( \sqrt{s^2 + 2 |m| s} \right) \right)}{4 s^2 +
+8 |m| s} \\
+&amp; \qquad \times \left( \frac{2 (|m| + s)}{\sqrt{s^2 + 2 |m| s}} -
+\frac{ I_{m-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{m+1} \left(
+\sqrt{s^2 + 2 |m| s} \right) }{ I_m \left( \sqrt{s^2 + 2 |m| s} \right)}
+\right)^2 \\
+&amp; \qquad + \frac{(1 - p)^2 \exp(-|m| - s) }{\left( s^2 + 2 |m| s
+\right) \left( p \exp(|m| + s) + (1 - p) I_0 \left( \sqrt{s^2 + 2 |m| s}
+\right) \right)} \\
+&amp; \qquad \times \left( \sqrt{s^2 + 2 |m| s} I_0 \left( \sqrt{s^2 + 2
+|m| s} \right) - s I_1 \left( \sqrt{s^2 + 2 |m| s} \right) \right)^2 \\
+\mathcal{I}_{m, s} (m, s, p) &amp;\approx
+\frac{\mathrm{sgn}(m) s (1 - p) (|m| + s) \left( 1 - \exp(-|m|-s) I_{0}
+\left( \sqrt{s^2 + 2 |m| s} \right) \right)}{4 s^2 + 8 |m| s} \\
+&amp; \qquad \times \left( \frac{2 (|m| + s)}{\sqrt{s^2 + 2 |m| s}} -
+\frac{ I_{m-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{m+1} \left(
+\sqrt{s^2 + 2 |m| s} \right) }{ I_m \left( \sqrt{s^2 + 2 |m| s} \right)}
+\right)^2 \\
+&amp; \qquad + \frac{\mathrm{sgn}(m) (1 - p)^2 \exp(-|m| - s)}{\left(
+s^2 + 2 |m| s \right) \left( p \exp(|m| + s) + (1 - p) I_0 \left(
+\sqrt{s^2 + 2 |m| s} \right) \right)} \\
+&amp; \qquad \times \left( \sqrt{s^2 + 2 |m| s} I_0 \left( \sqrt{s^2 + 2
+|m| s} \right) - s I_1 \left( \sqrt{s^2 + 2 |m| s} \right) \right) \\
+&amp; \qquad \times \left( \sqrt{s^2 + 2 |m| s} I_0 \left( \sqrt{s^2 + 2
+|m| s} \right) - (|m| + s) I_1 \left( \sqrt{s^2 + 2 |m| s} \right)
+\right) \\
+\mathcal{I}_{m, p} (m, s, p) &amp;= \frac{\mathrm{sgn}(m) (p - 1) \left(
+1 - \exp(-|m| - s) I_0 \left( \sqrt{s^2 + 2 |m| s} \right)
+\right)}{\sqrt{s^2 + 2 |m| s} \left( p \exp(|m| + s) + (1 - p) I_0
+\left( \sqrt{s^2 + 2 |m| s} \right) \right)} \\
+&amp; \qquad \times \left( \sqrt{s^2 + 2 |m| s} I_0 \left( \sqrt{s^2 + 2
+|m| s} \right) - s I_1 \left( \sqrt{s^2 + 2 |m| s} \right) \right) \\
+\mathcal{I}_{s, s} (m, s, p) &amp;\approx \frac{(1 - p) (|m| + s)^2
+\left( 1 - \exp(-|m|-s) I_{0} \left( \sqrt{s^2 + 2 |m| s} \right)
+\right)}{4 s^2  + 8 |m| s} \\
+&amp; \qquad \times \left( \frac{2 (|m| + s)}{\sqrt{s^2 + 2 |m| s}} -
+\frac{ I_{m-1} \left( \sqrt{s^2 + 2 |m| s} \right) + I_{m+1} \left(
+\sqrt{s^2 + 2 |m| s} \right) }{ I_m \left( \sqrt{s^2 + 2 |m| s} \right)}
+\right)^2 \\
+&amp; \qquad + \frac{(1 - p)^2 \exp(-|m| - s)}{\left( s^2 + 2 |m| s
+\right) \left( p \exp(|m| + s) + (1 - p) I_0 \left( \sqrt{s^2 + 2 |m| s}
+\right) \right)} \\
+&amp; \qquad \times \left( \sqrt{s^2 + 2 |m| s} I_0 \left( \sqrt{s^2 + 2
+|m| s} \right) - (|m| + s) I_1 \left( \sqrt{s^2 + 2 |m| s} \right)
+\right)^2 \\
+\mathcal{I}_{s, p} (m, s, p) &amp;= \frac{(p - 1) \left( 1 - \exp(-|m| -
+s) I_0 \left( \sqrt{s^2 + 2 |m| s} \right) \right)}{\sqrt{s^2 + 2 |m| s}
+\left( p \exp(|m| + s) + (1 - p) I_0 \left( \sqrt{s^2 + 2 |m| s} \right)
+\right)} \\
+&amp; \qquad \times \left( \sqrt{s^2 + 2 |m| s} I_0 \left( \sqrt{s^2 + 2
+|m| s} \right) - (|m| + s) I_1 \left( \sqrt{s^2 + 2 |m| s} \right)
+\right) \\
+\mathcal{I}_{p, p} (m, s, p) &amp;= \frac{\exp(|m| + s) - I_0 \left(
+\sqrt{s^2 + 2 |m| s} \right)}{(1 - p) \left( p \exp(|m| + s) + (1 - p)
+I_0 \left( \sqrt{s^2 + 2 |m| s} \right) \right)} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="mean-variance-parametrization-1" class="section level3">
+<h3>Mean-Variance Parametrization</h3>
+<div id="parameters-13" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in
+\mathbb{R}\)</span></li>
+<li>Variance parameter <span class="math inline">\(s \in (|m|,
+\infty)\)</span></li>
+<li>Inflation parameter <span class="math inline">\(p \in (0,
+1)\)</span></li>
+</ul>
+</div>
+<div id="probability-mass-function-17" class="section level4">
+<h4>Probability Mass Function</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{P} [Y = y | m, s, p] &amp;= \begin{cases}
+p + (1 - p) \exp(-s) I_0 \left( \sqrt{s^2 - m^2} \right) &amp; \text{
+for } y = 0 \\
+(1 - p) \exp(-s) \left( \frac{s + m}{s - m} \right)^{\frac{y}{2}} I_y
+\left( \sqrt{s^2 - m^2} \right) &amp; \text{ for } y \neq 0 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="moments-16" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= (1 - p) m \\
+\mathrm{var}[Y] &amp;= (1 - p) \left( s + p m^2 \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-17" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s, p) &amp;= \begin{cases}
+\frac{m (p - 1) I_{1} \left( \sqrt{s^2 - m^2} \right)}{\sqrt{s^2 - m^2}
+\left( p \exp(s) + (1 - p) I_{0} \left( \sqrt{s^2 - m^2} \right)
+\right)} &amp; \text{ for } y = 0 \\
+\frac{s y}{s^2 - m^2} - \frac{m}{2 \sqrt{s^2 - m^2}} \frac{ I_{y-1}
+\left( \sqrt{s^2 - m^2} \right) + I_{y+1} \left( \sqrt{s^2 - m^2}
+\right) }{ I_y \left( \sqrt{s^2 - m^2} \right) } &amp; \text{ for } y
+\neq 0 \\
+\end{cases} \\
+\nabla_{s} (y; m, s, p) &amp;= \begin{cases}
+\frac{ (p - 1) \left( \sqrt{s^2 - m^2} I_{0} \left( \sqrt{s^2 - m^2}
+\right) - s I_{1} \left( \sqrt{s^2 - m^2} \right) \right) }{\sqrt{s^2 -
+m^2} \left( p \exp(s) + (1 - p) I_{0} \left( \sqrt{s^2 - m^2} \right)
+\right)} &amp; \text{ for } y = 0 \\
+-\frac{m y}{s^2 - m^2} + \frac{s}{2 \sqrt{s^2 - m^2}} \frac{ I_{y-1}
+\left( \sqrt{s^2 - m^2} \right) + I_{y+1} \left( \sqrt{s^2 - m^2}
+\right) }{ I_y \left( \sqrt{s^2 - m^2} \right) } - 1 &amp; \text{ for }
+y \neq 0 \\
+\end{cases} \\
+\nabla_{p} (y; m, s, p) &amp;= \begin{cases}
+\frac{\exp(s) - I_{0} \left( \sqrt{s^2 - m^2} \right)}{p \exp(s) + (1 -
+p) I_{0} \left( \sqrt{s^2 - m^2} \right)} &amp; \text{ for } y = 0 \\
+\frac{1}{p - 1} &amp; \text{ for } y \neq 0 \\
+\end{cases} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-16" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s, p) &amp;\approx \frac{m^2 (1 - p) \left( 1 -
+\exp(-s) I_{0} \left( \sqrt{s^2 - m^2} \right) \right)}{4 \left( s^2 -
+m^2 \right)} \\
+&amp; \qquad \times \left( \frac{2 s}{\sqrt{s^2 - m^2}} - \frac{ I_{m-1}
+\left( \sqrt{s^2 - m^2} \right) + I_{m+1} \left( \sqrt{s^2 - m^2}
+\right) }{ I_m \left( \sqrt{s^2 - m^2} \right) } \right)^2 \\
+&amp; \qquad + \frac{m^2 (1 - p)^2 \exp(-s) I_{1} \left( \sqrt{s^2 -
+m^2} \right)^2}{\left( s^2 - m^2 \right) \left( p \exp(s) + (1 - p) I_0
+\left( \sqrt{s^2 - m^2} \right) \right)} \\
+\mathcal{I}_{m, s} (m, s, p) &amp;\approx \frac{m s (p - 1) \left( 1 -
+\exp(-s) I_{0} \left( \sqrt{s^2 - m^2} \right) \right) }{4 \left( s^2 -
+m^2 \right)} \\
+&amp; \qquad \times \left( \frac{2 s}{\sqrt{s^2 - m^2}} - \frac{ I_{m-1}
+\left( \sqrt{s^2 - m^2} \right) + I_{m+1} \left( \sqrt{s^2 - m^2}
+\right) }{ I_m \left( \sqrt{s^2 - m^2} \right) } \right)^2 \\
+&amp; \qquad + \frac{m (1 - p)^2 \exp(-s) I_{1} \left( \sqrt{s^2 - m^2}
+\right)}{\left( s^2 - m^2 \right) \left( p \exp(s) + (1 - p) I_0 \left(
+\sqrt{s^2 - m^2} \right) \right)} \\
+&amp; \qquad \times \left( \sqrt{s^2 - m^2} I_0 \left( \sqrt{s^2 - m^2}
+\right) - s I_1 \left( \sqrt{s^2 - m^2} \right) \right) \\
+\mathcal{I}_{m, p} (m, s, p) &amp;= \frac{m (p - 1) \left( 1 - \exp(-s)
+I_0 \left( \sqrt{s^2 - m^2} \right) \right) I_1 \left( \sqrt{s^2 - m^2}
+\right)}{\sqrt{s^2 - m^2} \left( p \exp(s) + (1 - p) I_0 \left(
+\sqrt{s^2 - m^2} \right) \right)} \\
+\mathcal{I}_{s, s} (m, s, p) &amp;\approx \frac{s^2 (1 - p) \left( 1 -
+\exp(-s) I_{0} \left( \sqrt{s^2 - m^2} \right) \right)}{4 \left( s^2 -
+m^2 \right)} \\
+&amp; \qquad \times \left( \frac{2 s}{\sqrt{s^2 - m^2}} - \frac{ I_{m-1}
+\left( \sqrt{s^2 - m^2} \right) + I_{m+1} \left( \sqrt{s^2 - m^2}
+\right) }{ I_m \left( \sqrt{s^2 - m^2} \right) } \right)^2 \\
+&amp; \qquad + \frac{(1 - p)^2 \exp(-s) \left( \sqrt{s^2 - m^2} I_0
+\left( \sqrt{s^2 - m^2} \right) - s I_1 \left( \sqrt{s^2 - m^2} \right)
+\right)^2}{\left( s^2 - m^2 \right) \left( p \exp(s) + (1 - p) I_0
+\left( \sqrt{s^2 - m^2} \right) \right)} \\
+\mathcal{I}_{s, p} (m, s, p) &amp;= \frac{(p - 1) \left( 1 - \exp(-s)
+I_0 \left( \sqrt{s^2 - m^2} \right) \right) }{\sqrt{s^2 - m^2} \left( p
+\exp(s) + (1 - p) I_0 \left( \sqrt{s^2 - m^2} \right) \right)} \\
+&amp; \qquad \times \left( \sqrt{s^2 - m^2} I_0 \left( \sqrt{s^2 - m^2}
+\right) - s I_1 \left( \sqrt{s^2 - m^2} \right) \right) \\
+\mathcal{I}_{p, p} (m, s, p) &amp;= \frac{\exp(s) - I_0 \left( \sqrt{s^2
+- m^2} \right)}{(1 - p) \left( p \exp(s) + (1 - p) I_0 \left( \sqrt{s^2
+- m^2} \right)  \right) } \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="note-5" class="section level3">
+<h3>Note</h3>
+<ul>
+<li>The computation of the Fisher information for the first two
+parameters is quite intricate and we resort to an approximation by
+replacing <span class="math inline">\(y\)</span> with its expected value
+combined with the zero value.</li>
+</ul>
+</div>
+<div id="further-reading-8" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li>Karlis, D. and Ntzoufras, I. (2009). Bayesian Modelling of Football
+Outcomes: Using the Skellam’s Distribution for the Goal Difference.
+<em>IMA Journal of Management Mathematics</em>, <strong>20</strong>(2),
+133–145. doi: <a href="https://doi.org/10.1093/imaman/dpn026">10.1093/imaman/dpn026</a>.</li>
+</ul>
+</div>
+</div>
 </div>
 <div id="duration-data" class="section level1">
 <h1>Duration Data</h1>
@@ -1376,7 +1766,7 @@ Populations. <em>Journal of the Royal Statistical Society</em>,
 f(y | r) = r \exp \left( -r y \right)
 \]</span></p>
 </div>
-<div id="moments-14" class="section level4">
+<div id="moments-17" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1385,7 +1775,7 @@ f(y | r) = r \exp \left( -r y \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-15" class="section level4">
+<div id="score-18" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1393,7 +1783,7 @@ f(y | r) = r \exp \left( -r y \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-14" class="section level4">
+<div id="fisher-information-17" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1417,7 +1807,7 @@ f(y | r) = r \exp \left( -r y \right)
 f(y | s) =  \frac{1}{s} \exp \left( - \frac{y}{s} \right)
 \]</span></p>
 </div>
-<div id="moments-15" class="section level4">
+<div id="moments-18" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1426,7 +1816,7 @@ f(y | s) =  \frac{1}{s} \exp \left( - \frac{y}{s} \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-16" class="section level4">
+<div id="score-19" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1434,7 +1824,7 @@ f(y | s) =  \frac{1}{s} \exp \left( - \frac{y}{s} \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-15" class="section level4">
+<div id="fisher-information-18" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1443,7 +1833,7 @@ f(y | s) =  \frac{1}{s} \exp \left( - \frac{y}{s} \right)
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-8" class="section level3">
+<div id="further-reading-9" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li>Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing
@@ -1457,7 +1847,7 @@ European Journal of Operations Research</em>, <strong>29</strong>(3),
 <h2>Gamma Distribution</h2>
 <div id="rate-parametrization-1" class="section level3">
 <h3>Rate Parametrization</h3>
-<div id="parameters-11" class="section level4">
+<div id="parameters-14" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Rate parameter <span class="math inline">\(r \in (0,
@@ -1473,7 +1863,7 @@ f(y | r, a) =  \frac{r}{\Gamma(a)} (r y)^{a - 1} \exp \left( -r y
 \right)
 \]</span></p>
 </div>
-<div id="moments-16" class="section level4">
+<div id="moments-19" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1482,7 +1872,7 @@ f(y | r, a) =  \frac{r}{\Gamma(a)} (r y)^{a - 1} \exp \left( -r y
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-17" class="section level4">
+<div id="score-20" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1491,7 +1881,7 @@ f(y | r, a) =  \frac{r}{\Gamma(a)} (r y)^{a - 1} \exp \left( -r y
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-16" class="section level4">
+<div id="fisher-information-19" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1504,7 +1894,7 @@ f(y | r, a) =  \frac{r}{\Gamma(a)} (r y)^{a - 1} \exp \left( -r y
 </div>
 <div id="scale-parametrization-1" class="section level3">
 <h3>Scale Parametrization</h3>
-<div id="parameters-12" class="section level4">
+<div id="parameters-15" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Scale parameter <span class="math inline">\(s \in (0,
@@ -1520,7 +1910,7 @@ f(y | s, a) =  \frac{1}{\Gamma(a)} \frac{1}{s} \left( \frac{y}{s}
 \right)^{a - 1} \exp \left( - \frac{y}{s} \right)
 \]</span></p>
 </div>
-<div id="moments-17" class="section level4">
+<div id="moments-20" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1529,7 +1919,7 @@ f(y | s, a) =  \frac{1}{\Gamma(a)} \frac{1}{s} \left( \frac{y}{s}
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-18" class="section level4">
+<div id="score-21" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1539,7 +1929,7 @@ f(y | s, a) =  \frac{1}{\Gamma(a)} \frac{1}{s} \left( \frac{y}{s}
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-17" class="section level4">
+<div id="fisher-information-20" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1550,7 +1940,7 @@ f(y | s, a) =  \frac{1}{\Gamma(a)} \frac{1}{s} \left( \frac{y}{s}
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-9" class="section level3">
+<div id="further-reading-10" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li>Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing
@@ -1564,7 +1954,7 @@ European Journal of Operations Research</em>, <strong>29</strong>(3),
 <h2>Generalized Gamma Distribution</h2>
 <div id="rate-parametrization-2" class="section level3">
 <h3>Rate Parametrization</h3>
-<div id="parameters-13" class="section level4">
+<div id="parameters-16" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Rate parameter <span class="math inline">\(r \in (0,
@@ -1582,7 +1972,7 @@ f(y | r, a, b) =  \frac{r b}{\Gamma(a)} (r y)^{a b - 1} \exp \left( -(r
 y)^b \right)
 \]</span></p>
 </div>
-<div id="moments-18" class="section level4">
+<div id="moments-21" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1594,7 +1984,7 @@ b^{-1} \right)}{\Gamma \left( a \right) } -  \left( \frac{\Gamma \left(a
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-19" class="section level4">
+<div id="score-22" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1605,7 +1995,7 @@ b^{-1} \right)}{\Gamma \left( a \right) } -  \left( \frac{\Gamma \left(a
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-18" class="section level4">
+<div id="fisher-information-21" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1622,7 +2012,7 @@ a \psi_1(a) + 1}{b^2} \\
 </div>
 <div id="scale-parametrization-2" class="section level3">
 <h3>Scale Parametrization</h3>
-<div id="parameters-14" class="section level4">
+<div id="parameters-17" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Scale parameter <span class="math inline">\(s \in (0,
@@ -1640,7 +2030,7 @@ f(y | s, a, b) =  \frac{1}{\Gamma(a)} \frac{b}{s} \left( \frac{y}{s}
 \right)^{a b - 1} \exp \left( - \left( \frac{y}{s} \right)^b \right)
 \]</span></p>
 </div>
-<div id="moments-19" class="section level4">
+<div id="moments-22" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1652,7 +2042,7 @@ b^{-1} \right)}{\Gamma \left( a \right) } \right)^2 \right) \\
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-20" class="section level4">
+<div id="score-23" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1665,7 +2055,7 @@ b^{-1} \right)}{\Gamma \left( a \right) } \right)^2 \right) \\
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-19" class="section level4">
+<div id="fisher-information-22" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1680,7 +2070,7 @@ a \psi_1(a) + 1}{b^2} \\
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-10" class="section level3">
+<div id="further-reading-11" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li><p>Park, T. R. (2014). Derivation of the Fisher Information Matrix
@@ -1701,7 +2091,7 @@ Queueing Systems: Autoregressive Conditional Duration Approach.
 <h2>Weibull Distribution</h2>
 <div id="rate-parametrization-3" class="section level3">
 <h3>Rate Parametrization</h3>
-<div id="parameters-15" class="section level4">
+<div id="parameters-18" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Rate parameter <span class="math inline">\(r \in (0,
@@ -1716,7 +2106,7 @@ Queueing Systems: Autoregressive Conditional Duration Approach.
 f(y | r, b) =  r b (r y)^{b - 1} \exp \left( -(r y)^b \right)
 \]</span></p>
 </div>
-<div id="moments-20" class="section level4">
+<div id="moments-23" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1726,7 +2116,7 @@ f(y | r, b) =  r b (r y)^{b - 1} \exp \left( -(r y)^b \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-21" class="section level4">
+<div id="score-24" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1736,7 +2126,7 @@ f(y | r, b) =  r b (r y)^{b - 1} \exp \left( -(r y)^b \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-20" class="section level4">
+<div id="fisher-information-23" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1750,7 +2140,7 @@ f(y | r, b) =  r b (r y)^{b - 1} \exp \left( -(r y)^b \right)
 </div>
 <div id="scale-parametrization-3" class="section level3">
 <h3>Scale Parametrization</h3>
-<div id="parameters-16" class="section level4">
+<div id="parameters-19" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Scale parameter <span class="math inline">\(s \in (0,
@@ -1766,7 +2156,7 @@ f(y | s, b) =  \frac{b}{s} \left( \frac{y}{s} \right)^{b - 1} \exp
 \left( - \left( \frac{y}{s} \right)^b \right)
 \]</span></p>
 </div>
-<div id="moments-21" class="section level4">
+<div id="moments-24" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1776,7 +2166,7 @@ f(y | s, b) =  \frac{b}{s} \left( \frac{y}{s} \right)^{b - 1} \exp
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-22" class="section level4">
+<div id="score-25" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1787,7 +2177,7 @@ f(y | s, b) =  \frac{b}{s} \left( \frac{y}{s} \right)^{b - 1} \exp
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-21" class="section level4">
+<div id="fisher-information-24" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1799,7 +2189,7 @@ f(y | s, b) =  \frac{b}{s} \left( \frac{y}{s} \right)^{b - 1} \exp
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-11" class="section level3">
+<div id="further-reading-12" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li>Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing
@@ -1814,9 +2204,9 @@ European Journal of Operations Research</em>, <strong>29</strong>(3),
 <h1>Real Data</h1>
 <div id="normal-distribution" class="section level2">
 <h2>Normal Distribution</h2>
-<div id="mean-variance-parametrization-1" class="section level3">
+<div id="mean-variance-parametrization-2" class="section level3">
 <h3>Mean-Variance Parametrization</h3>
-<div id="parameters-17" class="section level4">
+<div id="parameters-20" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Mean parameter <span class="math inline">\(m \in
@@ -1832,7 +2222,7 @@ f(y | m, s) = \frac{1}{\sqrt{2 \pi s}} \exp \left( -\frac{(y - m)^2}{2
 s} \right)
 \]</span></p>
 </div>
-<div id="moments-22" class="section level4">
+<div id="moments-25" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1841,7 +2231,7 @@ s} \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-23" class="section level4">
+<div id="score-26" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1850,7 +2240,7 @@ s} \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-22" class="section level4">
+<div id="fisher-information-25" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1864,9 +2254,9 @@ s} \right)
 </div>
 <div id="students-t-distribution" class="section level2">
 <h2>Student’s t Distribution</h2>
-<div id="mean-variance-parametrization-2" class="section level3">
+<div id="mean-variance-parametrization-3" class="section level3">
 <h3>Mean-Variance Parametrization</h3>
-<div id="parameters-18" class="section level4">
+<div id="parameters-21" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Mean parameter <span class="math inline">\(m \in
@@ -1885,7 +2275,7 @@ f(y | m, s, v) = \frac{\Gamma \left( \frac{v + 1}{2} \right)}{\Gamma
 v} \right)^{-\frac{v + 1}{2}}
 \]</span></p>
 </div>
-<div id="moments-23" class="section level4">
+<div id="moments-26" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1895,7 +2285,7 @@ v} \right)^{-\frac{v + 1}{2}}
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-24" class="section level4">
+<div id="score-27" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1910,7 +2300,7 @@ m)^2 + s v} - \frac{1}{2} \ln \left(1 + \frac{1}{v} \frac{(y - m)^2}{s}
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-23" class="section level4">
+<div id="fisher-information-26" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1926,7 +2316,7 @@ m)^2 + s v} - \frac{1}{2} \ln \left(1 + \frac{1}{v} \frac{(y - m)^2}{s}
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-12" class="section level3">
+<div id="further-reading-13" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li><p>Blazsek, S. and Villatoro, M. (2015). Is Beta-t-EGARCH(1,1)
@@ -1949,9 +2339,9 @@ American Statistical Association</em>, <strong>84</strong>(408),
 <h1>Multivariate Real Data</h1>
 <div id="multivariate-normal-distribution" class="section level2">
 <h2>Multivariate Normal Distribution</h2>
-<div id="mean-variance-parametrization-3" class="section level3">
+<div id="mean-variance-parametrization-4" class="section level3">
 <h3>Mean-Variance Parametrization</h3>
-<div id="parameters-19" class="section level4">
+<div id="parameters-22" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Mean parameters <span class="math inline">\(m_i \in \mathbb{R}, i =
@@ -1979,7 +2369,7 @@ f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}) = \frac{1}{\sqrt{(2
 \boldsymbol{m}) \right)
 \]</span></p>
 </div>
-<div id="moments-24" class="section level4">
+<div id="moments-27" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1988,7 +2378,7 @@ f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}) = \frac{1}{\sqrt{(2
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-25" class="section level4">
+<div id="score-28" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2003,7 +2393,7 @@ f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}) = \frac{1}{\sqrt{(2
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-24" class="section level4">
+<div id="fisher-information-27" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2023,9 +2413,9 @@ f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}) = \frac{1}{\sqrt{(2
 </div>
 <div id="multivariate-students-t-distribution" class="section level2">
 <h2>Multivariate Student’s t Distribution</h2>
-<div id="mean-variance-parametrization-4" class="section level3">
+<div id="mean-variance-parametrization-5" class="section level3">
 <h3>Mean-Variance Parametrization</h3>
-<div id="parameters-20" class="section level4">
+<div id="parameters-23" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Mean parameters <span class="math inline">\(m_i \in \mathbb{R}, i =
@@ -2056,7 +2446,7 @@ f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}, v) = \frac{\Gamma
 (\boldsymbol{y} - \boldsymbol{m}) \right)^{-\frac{v + n}{2}}
 \]</span></p>
 </div>
-<div id="moments-25" class="section level4">
+<div id="moments-28" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2067,7 +2457,7 @@ f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}, v) = \frac{\Gamma
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-26" class="section level4">
+<div id="score-29" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2097,7 +2487,7 @@ v) &amp;= \frac{v + n}{v + \left(\boldsymbol{y} - \boldsymbol{m}
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-25" class="section level4">
+<div id="fisher-information-28" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2124,7 +2514,7 @@ n}{2} \right) \\
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-13" class="section level3">
+<div id="further-reading-14" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li><p>Blazsek, S. and Villatoro, M. (2015). Is Beta-t-EGARCH(1,1)
