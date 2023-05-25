@@ -1,12 +1,12 @@
 
-# EXPONENTIAL DISTRIBUTION / SCALE PARAMETRIZATION
+# DIRICHLET DISTRIBUTION / CONCENTRATION PARAMETRIZATION
 
 
 # Parameters Function ----------------------------------------------------------
-distr_exp_scale_parameters <- function(n) {
-  group_of_par_names <- c("scale")
-  par_names <- c("scale")
-  par_support <- c("positive")
+distr_dirichlet_conc_parameters <- function(n) {
+  group_of_par_names <- rep("conc", times = n)
+  par_names <- paste0("conc", 1:n)
+  par_support <- rep("positive", times = n)
   res_parameters <- list(group_of_par_names = group_of_par_names, par_names = par_names, par_support = par_support)
   return(res_parameters)
 }
@@ -14,83 +14,87 @@ distr_exp_scale_parameters <- function(n) {
 
 
 # Density Function -------------------------------------------------------------
-distr_exp_scale_density <- function(y, f) {
-  t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_density <- be_silent(stats::dexp(y, rate = 1 / s))
+distr_dirichlet_conc_density <- function(y, f) {
+  res_density <- exp(distr_dirichlet_conc_loglik(y = y, f = f))
   return(res_density)
 }
 # ------------------------------------------------------------------------------
 
 
 # Log-Likelihood Function ------------------------------------------------------
-distr_exp_scale_loglik <- function(y, f) {
+distr_dirichlet_conc_loglik <- function(y, f) {
   t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_loglik <- be_silent(stats::dexp(y, rate = 1 / s, log = TRUE))
+  n <- ncol(f)
+  res_loglik <- lgamma(rowSums(f)) + rowSums((f - 1) * log(y) - lgamma(f))
+  res_loglik <- matrix(res_loglik, nrow = t, ncol = 1L)
   return(res_loglik)
 }
 # ------------------------------------------------------------------------------
 
 
 # Mean Function ----------------------------------------------------------------
-distr_exp_scale_mean <- function(f) {
+distr_dirichlet_conc_mean <- function(f) {
   t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_mean <- s
+  n <- ncol(f)
+  res_mean <- f / rowSums(f)
   return(res_mean)
 }
 # ------------------------------------------------------------------------------
 
 
 # Variance Function ------------------------------------------------------------
-distr_exp_scale_var <- function(f) {
+distr_dirichlet_conc_var <- function(f) {
   t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_var <- s^2
-  res_var <- array(res_var, dim = c(t, 1, 1))
+  n <- ncol(f)
+  f_sum <- rowSums(f)
+  res_mean <- f / f_sum
+  res_var <- array(0, dim = c(t, n, n))
+  for (i in 1:t) {
+    res_var[i, , ] <- (diag(res_mean[i, ]) - t(res_mean[i, , drop = FALSE]) %*% res_mean[i, , drop = FALSE]) / (1 + f_sum[i])
+  }
   return(res_var)
 }
 # ------------------------------------------------------------------------------
 
 
 # Score Function ---------------------------------------------------------------
-distr_exp_scale_score <- function(y, f) {
+distr_dirichlet_conc_score <- function(y, f) {
   t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_score <- matrix(0, nrow = t, ncol = 1L)
-  res_score[, 1] <- (y - s) / s^2
+  n <- ncol(f)
+  res_score <- digamma(rowSums(f)) - digamma(f) + log(y)
   return(res_score)
 }
 # ------------------------------------------------------------------------------
 
 
 # Fisher Information Function --------------------------------------------------
-distr_exp_scale_fisher <- function(f) {
+distr_dirichlet_conc_fisher <- function(f) {
   t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_fisher <- array(0, dim = c(t, 1L, 1L))
-  res_fisher[, 1, 1] <- 1 / s^2
+  n <- ncol(f)
+  res_fisher <- array(0, dim = c(t, n, n))
+  for (i in 1:t) {
+    res_fisher[i, , ] <- diag(trigamma(f[i, ])) - trigamma(sum(f[i, ]))
+  }
   return(res_fisher)
 }
 # ------------------------------------------------------------------------------
 
 
 # Random Generation Function ---------------------------------------------------
-distr_exp_scale_random <- function(t, f) {
-  s <- f[1]
-  res_random <- be_silent(stats::rexp(t, rate = 1 / s))
-  res_random <- matrix(res_random, nrow = t, ncol = 1L)
+distr_dirichlet_conc_random <- function(t, f) {
+  n <- length(f)
+  res_random <- matrix(stats::rgamma(n * t, shape = f), nrow = t, ncol = n, byrow = TRUE)
+  res_random <- res_random / rowSums(res_random)
   return(res_random)
 }
 # ------------------------------------------------------------------------------
 
 
 # Starting Estimates Function --------------------------------------------------
-distr_exp_scale_start <- function(y) {
-  y_mean <- mean(y, na.rm = TRUE)
-  s <- max(y_mean, 1e-6)
-  res_start <- s
+distr_dirichlet_conc_start <- function(y) {
+  y_mean <- colMeans(y, na.rm = TRUE)
+  y_var <- stats::var(y, na.rm = TRUE)
+  res_start <- pmax(y_mean * (y_mean * (1 - y_mean) / diag(y_var) - 1), 1e-6)
   return(res_start)
 }
 # ------------------------------------------------------------------------------

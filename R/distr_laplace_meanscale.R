@@ -1,12 +1,12 @@
 
-# EXPONENTIAL DISTRIBUTION / SCALE PARAMETRIZATION
+# NORMAL DISTRIBUTION / MEAN-VARIANCE PARAMETRIZATION
 
 
 # Parameters Function ----------------------------------------------------------
-distr_exp_scale_parameters <- function(n) {
-  group_of_par_names <- c("scale")
-  par_names <- c("scale")
-  par_support <- c("positive")
+distr_laplace_meanscale_parameters <- function(n) {
+  group_of_par_names <- c("mean", "scale")
+  par_names <- c("mean", "scale")
+  par_support <- c("real", "positive")
   res_parameters <- list(group_of_par_names = group_of_par_names, par_names = par_names, par_support = par_support)
   return(res_parameters)
 }
@@ -14,40 +14,44 @@ distr_exp_scale_parameters <- function(n) {
 
 
 # Density Function -------------------------------------------------------------
-distr_exp_scale_density <- function(y, f) {
+distr_laplace_meanscale_density <- function(y, f) {
   t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_density <- be_silent(stats::dexp(y, rate = 1 / s))
+  m <- f[, 1, drop = FALSE]
+  s <- f[, 2, drop = FALSE]
+  res_density <- exp(-abs(y - m) / s) / (2 * s)
   return(res_density)
 }
 # ------------------------------------------------------------------------------
 
 
 # Log-Likelihood Function ------------------------------------------------------
-distr_exp_scale_loglik <- function(y, f) {
+distr_laplace_meanscale_loglik <- function(y, f) {
   t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_loglik <- be_silent(stats::dexp(y, rate = 1 / s, log = TRUE))
+  m <- f[, 1, drop = FALSE]
+  s <- f[, 2, drop = FALSE]
+  res_loglik <- -log(2 * s) - abs(y - m) / s
   return(res_loglik)
 }
 # ------------------------------------------------------------------------------
 
 
 # Mean Function ----------------------------------------------------------------
-distr_exp_scale_mean <- function(f) {
+distr_laplace_meanscale_mean <- function(f) {
   t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_mean <- s
+  m <- f[, 1, drop = FALSE]
+  s <- f[, 2, drop = FALSE]
+  res_mean <- m
   return(res_mean)
 }
 # ------------------------------------------------------------------------------
 
 
 # Variance Function ------------------------------------------------------------
-distr_exp_scale_var <- function(f) {
+distr_laplace_meanscale_var <- function(f) {
   t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_var <- s^2
+  m <- f[, 1, drop = FALSE]
+  s <- f[, 2, drop = FALSE]
+  res_var <- 2 * s^2
   res_var <- array(res_var, dim = c(t, 1, 1))
   return(res_var)
 }
@@ -55,31 +59,37 @@ distr_exp_scale_var <- function(f) {
 
 
 # Score Function ---------------------------------------------------------------
-distr_exp_scale_score <- function(y, f) {
+distr_laplace_meanscale_score <- function(y, f) {
   t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_score <- matrix(0, nrow = t, ncol = 1L)
-  res_score[, 1] <- (y - s) / s^2
+  m <- f[, 1, drop = FALSE]
+  s <- f[, 2, drop = FALSE]
+  res_score <- matrix(0, nrow = t, ncol = 2L)
+  res_score[, 1] <- sign(y - m) / s
+  res_score[, 2] <- abs(y - m) / s^2 - 1 / s
   return(res_score)
 }
 # ------------------------------------------------------------------------------
 
 
 # Fisher Information Function --------------------------------------------------
-distr_exp_scale_fisher <- function(f) {
+distr_laplace_meanscale_fisher <- function(f) {
   t <- nrow(f)
-  s <- f[, 1, drop = FALSE]
-  res_fisher <- array(0, dim = c(t, 1L, 1L))
+  m <- f[, 1, drop = FALSE]
+  s <- f[, 2, drop = FALSE]
+  res_fisher <- array(0, dim = c(t, 2L, 2L))
   res_fisher[, 1, 1] <- 1 / s^2
+  res_fisher[, 2, 2] <- 1 / s^2
   return(res_fisher)
 }
 # ------------------------------------------------------------------------------
 
 
 # Random Generation Function ---------------------------------------------------
-distr_exp_scale_random <- function(t, f) {
-  s <- f[1]
-  res_random <- be_silent(stats::rexp(t, rate = 1 / s))
+distr_laplace_meanscale_random <- function(t, f) {
+  m <- f[1]
+  s <- f[2]
+  u <- stats::runif(n = t, min = -1, max = 1)
+  res_random <- m - s * sign(u) * log(1 - abs(u))
   res_random <- matrix(res_random, nrow = t, ncol = 1L)
   return(res_random)
 }
@@ -87,10 +97,12 @@ distr_exp_scale_random <- function(t, f) {
 
 
 # Starting Estimates Function --------------------------------------------------
-distr_exp_scale_start <- function(y) {
+distr_laplace_meanscale_start <- function(y) {
   y_mean <- mean(y, na.rm = TRUE)
-  s <- max(y_mean, 1e-6)
-  res_start <- s
+  y_var <- stats::var(y, na.rm = TRUE)
+  m <- y_mean
+  s <- max(sqrt(y_var / 2), 1e-6)
+  res_start <- c(m, s)
   return(res_start)
 }
 # ------------------------------------------------------------------------------

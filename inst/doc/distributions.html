@@ -12,7 +12,7 @@
 
 <meta name="author" content="Vladimír Holý" />
 
-<meta name="date" content="2023-01-03" />
+<meta name="date" content="2023-05-24" />
 
 <title>Probability Distributions</title>
 
@@ -239,7 +239,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Probability Distributions</h1>
 <h4 class="author">Vladimír Holý</h4>
-<h4 class="date">2023-01-03</h4>
+<h4 class="date">2023-05-24</h4>
 
 
 <div id="TOC">
@@ -278,6 +278,19 @@ Distribution</a></li>
 <li><a href="#zero-inflated-skellam-distribution" id="toc-zero-inflated-skellam-distribution">Zero-Inflated Skellam
 Distribution</a></li>
 </ul></li>
+<li><a href="#circular-data" id="toc-circular-data">Circular Data</a>
+<ul>
+<li><a href="#von-mises-distribution" id="toc-von-mises-distribution">von Mises Distribution</a></li>
+</ul></li>
+<li><a href="#interval-data" id="toc-interval-data">Interval Data</a>
+<ul>
+<li><a href="#beta-distribution" id="toc-beta-distribution">Beta
+Distribution</a></li>
+</ul></li>
+<li><a href="#compositional-data" id="toc-compositional-data">Compositional Data</a>
+<ul>
+<li><a href="#dirichlet-distribution" id="toc-dirichlet-distribution">Dirichlet Distribution</a></li>
+</ul></li>
 <li><a href="#duration-data" id="toc-duration-data">Duration Data</a>
 <ul>
 <li><a href="#exponential-distribution" id="toc-exponential-distribution">Exponential Distribution</a></li>
@@ -289,6 +302,7 @@ Distribution</a></li>
 </ul></li>
 <li><a href="#real-data" id="toc-real-data">Real Data</a>
 <ul>
+<li><a href="#laplace-distribution" id="toc-laplace-distribution">Laplace Distribution</a></li>
 <li><a href="#normal-distribution" id="toc-normal-distribution">Normal
 Distribution</a></li>
 <li><a href="#students-t-distribution" id="toc-students-t-distribution">Student’s t Distribution</a></li>
@@ -393,7 +407,7 @@ length <span class="math inline">\(n\)</span></li>
 \boldsymbol{w} \\
 \mathrm{var}[\boldsymbol{Y}] &amp;= \frac{1}{\sum_{i=1}^n
 w_i}  \mathrm{diag} (\boldsymbol{w}) - \frac{1}{\left( \sum_{i=1}^n w_i
-\right)^2} \boldsymbol{w} \boldsymbol{w}&#39; \\
+\right)^2} \boldsymbol{w} \boldsymbol{w}^\intercal \\
 \end{aligned}
 \]</span></p>
 </div>
@@ -489,8 +503,10 @@ standardized, e.g. to zero sum in the latter case.</p></li>
 <ul>
 <li><p>Alvo, M. and Yu, P. L. H. (2014). <em>Statistical Methods for
 Ranking Data</em>. Springer. doi: <a href="https://doi.org/10.1007/978-1-4939-1471-5">10.1007/978-1-4939-1471-5</a>.</p></li>
-<li><p>Holý, V. and Zouhar, J. (2021). Modelling Time-Varying Rankings
-with Autoregressive and Score-Driven Dynamics. arXiv: <a href="https://arxiv.org/abs/2101.04040">2101.04040</a>.</p></li>
+<li><p>Holý, V. and Zouhar, J. (2022). Modelling Time-Varying Rankings
+with Autoregressive and Score-Driven Dynamics. Journal of the Royal
+Statistical Society: Series C (Applied Statistics),
+<strong>71</strong>(5). doi: <a href="https://doi.org/10.1111/rssc.12584">10.1111/rssc.12584</a>.</p></li>
 <li><p>Luce, R. D. (1977). The Choice Axiom after Twenty Years.
 <em>Journal of Mathematical Psychology</em>, <strong>15</strong>(3),
 215–233. doi: <a href="https://doi.org/10.1016/0022-2496(77)90032-3">10.1016/0022-2496(77)90032-3</a>.</p></li>
@@ -1747,6 +1763,299 @@ Outcomes: Using the Skellam’s Distribution for the Goal Difference.
 </div>
 </div>
 </div>
+<div id="circular-data" class="section level1">
+<h1>Circular Data</h1>
+<div id="von-mises-distribution" class="section level2">
+<h2>von Mises Distribution</h2>
+<div id="mean-concentration-parametrization" class="section level3">
+<h3>Mean-Concentration Parametrization</h3>
+<div id="parameters-14" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in
+\mathbb{R}\)</span></li>
+<li>Concentration parameter <span class="math inline">\(v \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | m, v) = \frac{1}{2 \pi I_0(v)} \exp \left( v \cos(y - m) \right)
+\]</span></p>
+</div>
+<div id="circular-moments" class="section level4">
+<h4>Circular Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m \\
+\mathrm{var}[Y] &amp;= 1 - \frac{I_1(v)}{I_0(v)} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-18" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, v) &amp;= v \sin(y - m) \\
+\nabla_{v} (y; m, v) &amp;= \cos(y - m) - \frac{I_1(v)}{I_0(v)} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-17" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, v) &amp;= v \frac{I_1(v)}{I_0(v)} \\
+\mathcal{I}_{m, v} (m, v) &amp;= 0 \\
+\mathcal{I}_{v, v} (m, v) &amp;= \frac{1}{2} - \left(
+\frac{I_1(v)}{I_0(v)} \right)^2 + \frac{I_2(v)}{2 I_0(v)} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="further-reading-9" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li>Harvey, A., Hurn, S., and Thiele, S. (2019). Modeling Directional
+(Circular) Time Series. <em>Cambridge Working Papers in Economics</em>,
+CWPE 1971. doi: <a href="https://doi.org/10.17863/cam.43915">10.17863/cam.43915</a>.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="interval-data" class="section level1">
+<h1>Interval Data</h1>
+<div id="beta-distribution" class="section level2">
+<h2>Beta Distribution</h2>
+<div id="concentration-parametrization" class="section level3">
+<h3>Concentration Parametrization</h3>
+<div id="parameters-15" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>First concentration parameter <span class="math inline">\(a_1 \in
+(0, \infty)\)</span></li>
+<li>Second concentration parameter <span class="math inline">\(a_2 \in
+(0, \infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-1" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | a_1, a_2) = \frac{1}{B(a_1, a_2)} y^{a_1 - 1} (1 - y)^{a_2 - 1}
+\]</span></p>
+</div>
+<div id="moments-17" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= \frac{a_1}{a_1 + a_2} \\
+\mathrm{var}[Y] &amp;= \frac{a_1 a_2}{(a_1 + a_2)^2 (a_1 + a_2 + 1)} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-19" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{a} (y; a_1, a_2) &amp;= \psi_0(a_1 + a_2) - \psi_0(a_1) + \ln(y)
+\\
+\nabla_{b} (y; a_1, a_2) &amp;= \psi_0(a_1 + a_2) - \psi_0(a_2) + \ln(1
+- y) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-18" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{a_1, a_1} (a_1, a_2) &amp;= \psi_1(a_1) - \psi_1(a_1 + a_2)
+\\
+\mathcal{I}_{a_1, a_2} (a_1, a_2) &amp;= -\psi_1(a_1 + a_2) \\
+\mathcal{I}_{a_2, a_2} (a_1, a_2) &amp;= \psi_1(a_2) - \psi_1(a_1 + a_2)
+\\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="mean-size-parametrization" class="section level3">
+<h3>Mean-Size Parametrization</h3>
+<div id="parameters-16" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in (0,
+1)\)</span></li>
+<li>Size parameter <span class="math inline">\(v \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-2" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | m, v) = \frac{1}{B(m v, (1 - m) v)} y^{m v - 1} (1 - y)^{(1 - m) v
+- 1}
+\]</span></p>
+</div>
+<div id="moments-18" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m \\
+\mathrm{var}[Y] &amp;= \frac{m (1 - m)}{v + 1} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-20" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, v) &amp;= \frac{v}{1 - m} (\psi_0(v) - \psi_0(m v) +
+\ln(y)) \\
+\nabla_{v} (y; m, v) &amp;= \psi_0(v) - \psi_0(v - m v) + \ln(1 - y) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-19" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, v) &amp;= \frac{v^2}{(1 - m)^2} (\psi_1(m v) -
+\psi_1(v)) \\
+\mathcal{I}_{m, v} (m, v) &amp;= \frac{v}{m - 1} \psi_1(v) \\
+\mathcal{I}_{v, v} (m, v) &amp;= \psi_1(v - m v) - \psi_1(v) \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="mean-variance-parametrization-2" class="section level3">
+<h3>Mean-Variance Parametrization</h3>
+<div id="parameters-17" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in (0,
+1)\)</span></li>
+<li>Variance parameter <span class="math inline">\(s \in (0, m (1 -
+m))\)</span></li>
+</ul>
+</div>
+<div id="density-function-3" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | m, s) = \frac{1}{B \left( m \left( \frac{m - m^2}{s} - 1 \right),
+(1 - m) \left( \frac{m - m^2}{s} - 1 \right) \right)} y^{m \left(
+\frac{m - m^2}{s} - 1 \right) - 1} (1 - y)^{(1 - m) \left( \frac{m -
+m^2}{s} - 1 \right) - 1}
+\]</span></p>
+</div>
+<div id="moments-19" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m \\
+\mathrm{var}[Y] &amp;= s \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-21" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s) &amp;= \frac{m^2 - m + s}{(m - 1) s} \left( \psi_0
+\left( \frac{m - m^2}{s} - 1 \right) - \psi_0 \left( m \left( \frac{m -
+m^2}{s} - 1 \right) \right) + \ln(y) \right) \\
+\nabla_{s} (y; m, s) &amp;= \frac{s^2 (3 m^2 - 2 m + s)}{m (m - 1) (m^2
+- m + s)}  \left( \psi_0 \left( \frac{m - m^2}{s} - 1 \right) - \psi_0
+\left( (1 - m) \left( \frac{m - m^2}{s} - 1 \right) \right) + \ln(1 - y)
+\right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-20" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &amp;= \frac{(m^2 - m + s)^2}{(m - 1)^2 s^2}
+\left( \psi_1 \left( m \left( \frac{m - m^2}{s} - 1 \right) \right)  -
+\psi_1 \left( \frac{m - m^2}{s} - 1 \right) \right) \\
+\mathcal{I}_{m, s} (m, s) &amp;= \frac{s (2 m - 3 m^2 - s)}{m (m^2 - 2 m
++ 1)} \psi_1 \left( \frac{m - m^2}{s} - 1 \right) \\
+\mathcal{I}_{s, s} (m, s) &amp;= \frac{s^2 (3 m^2 - 2 m + s)^2}{(m -
+1)^4 m^2} \left( \psi_1 \left( (1 - m) \left( \frac{m - m^2}{s} - 1
+\right) \right)  - \psi_1 \left( \frac{m - m^2}{s} - 1 \right) \right)
+\\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div id="compositional-data" class="section level1">
+<h1>Compositional Data</h1>
+<div id="dirichlet-distribution" class="section level2">
+<h2>Dirichlet Distribution</h2>
+<div id="concentration-parametrization-1" class="section level3">
+<h3>Concentration Parametrization</h3>
+<div id="parameters-18" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Concentration parameters <span class="math inline">\(a_i \in (0,
+\infty)\)</span>, <span class="math inline">\(i =
+1,\ldots,n\)</span></li>
+</ul>
+</div>
+<div id="vector-notation-1" class="section level4">
+<h4>Vector Notation</h4>
+<ul>
+<li>Concentration vector <span class="math inline">\(\boldsymbol{a}\)</span> of length <span class="math inline">\(n\)</span></li>
+</ul>
+</div>
+<div id="density-function-4" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(\boldsymbol{y} | \boldsymbol{a}) = \frac{1}{B(\boldsymbol{a})}
+\prod_{i=1}^n y_i^{a_i - 1}
+\]</span></p>
+</div>
+<div id="moments-20" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[\boldsymbol{Y}] &amp;= \frac{1}{\sum_{i=1}^n a_i}
+\boldsymbol{a} \\
+\mathrm{var}[\boldsymbol{Y}] &amp;= \frac{1}{1 + \sum_{i=1}^n a_i}
+\left( \frac{1}{\sum_{i=1}^n a_i} \mathrm{diag}(\boldsymbol{a}) -
+\frac{1}{\left( \sum_{i=1}^n a_i \right)^2} \boldsymbol{a}
+\boldsymbol{a}^\intercal \right) \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-22" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\nabla_{\boldsymbol{a}} (\boldsymbol{y}; \boldsymbol{a}) =
+\ln(\boldsymbol{y}) - \psi_0 (\boldsymbol{a}) + \psi_0 \left(
+\sum_{i=1}^n a_i \right) \\
+\]</span></p>
+</div>
+<div id="fisher-information-21" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\mathcal{I}_{\boldsymbol{a}, \boldsymbol{a}} (\boldsymbol{a}) =
+\mathrm{diag} \left( \psi_1 \left( \boldsymbol{a} \right) \right) -
+\psi_1 \left( \sum_{i=1}^n a_i \right)  \\
+\]</span></p>
+</div>
+</div>
+<div id="further-reading-10" class="section level3">
+<h3>Further Reading</h3>
+<ul>
+<li>Calvori, F., Cipollini, F., and Gallo, G. M. (2013). Go with the
+Flow: A GAS Model For Predicting Intra-Daily Volume Shares.
+<em>SSRN</em>, 2363483. doi: <a href="https://doi.org/10.2139/ssrn.2363483">10.2139/ssrn.2363483</a>.</li>
+</ul>
+</div>
+</div>
+</div>
 <div id="duration-data" class="section level1">
 <h1>Duration Data</h1>
 <div id="exponential-distribution" class="section level2">
@@ -1760,13 +2069,13 @@ Outcomes: Using the Skellam’s Distribution for the Goal Difference.
 \infty)\)</span></li>
 </ul>
 </div>
-<div id="density-function" class="section level4">
+<div id="density-function-5" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(y | r) = r \exp \left( -r y \right)
 \]</span></p>
 </div>
-<div id="moments-17" class="section level4">
+<div id="moments-21" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1775,7 +2084,7 @@ f(y | r) = r \exp \left( -r y \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-18" class="section level4">
+<div id="score-23" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1783,7 +2092,7 @@ f(y | r) = r \exp \left( -r y \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-17" class="section level4">
+<div id="fisher-information-22" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1801,13 +2110,13 @@ f(y | r) = r \exp \left( -r y \right)
 \infty)\)</span></li>
 </ul>
 </div>
-<div id="density-function-1" class="section level4">
+<div id="density-function-6" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(y | s) =  \frac{1}{s} \exp \left( - \frac{y}{s} \right)
 \]</span></p>
 </div>
-<div id="moments-18" class="section level4">
+<div id="moments-22" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1816,7 +2125,7 @@ f(y | s) =  \frac{1}{s} \exp \left( - \frac{y}{s} \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-19" class="section level4">
+<div id="score-24" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1824,7 +2133,7 @@ f(y | s) =  \frac{1}{s} \exp \left( - \frac{y}{s} \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-18" class="section level4">
+<div id="fisher-information-23" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1833,7 +2142,7 @@ f(y | s) =  \frac{1}{s} \exp \left( - \frac{y}{s} \right)
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-9" class="section level3">
+<div id="further-reading-11" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li>Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing
@@ -1847,7 +2156,7 @@ European Journal of Operations Research</em>, <strong>29</strong>(3),
 <h2>Gamma Distribution</h2>
 <div id="rate-parametrization-1" class="section level3">
 <h3>Rate Parametrization</h3>
-<div id="parameters-14" class="section level4">
+<div id="parameters-19" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Rate parameter <span class="math inline">\(r \in (0,
@@ -1856,14 +2165,14 @@ European Journal of Operations Research</em>, <strong>29</strong>(3),
 \infty)\)</span></li>
 </ul>
 </div>
-<div id="density-function-2" class="section level4">
+<div id="density-function-7" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(y | r, a) =  \frac{r}{\Gamma(a)} (r y)^{a - 1} \exp \left( -r y
 \right)
 \]</span></p>
 </div>
-<div id="moments-19" class="section level4">
+<div id="moments-23" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1872,7 +2181,7 @@ f(y | r, a) =  \frac{r}{\Gamma(a)} (r y)^{a - 1} \exp \left( -r y
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-20" class="section level4">
+<div id="score-25" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1881,7 +2190,7 @@ f(y | r, a) =  \frac{r}{\Gamma(a)} (r y)^{a - 1} \exp \left( -r y
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-19" class="section level4">
+<div id="fisher-information-24" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1894,7 +2203,7 @@ f(y | r, a) =  \frac{r}{\Gamma(a)} (r y)^{a - 1} \exp \left( -r y
 </div>
 <div id="scale-parametrization-1" class="section level3">
 <h3>Scale Parametrization</h3>
-<div id="parameters-15" class="section level4">
+<div id="parameters-20" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Scale parameter <span class="math inline">\(s \in (0,
@@ -1903,14 +2212,14 @@ f(y | r, a) =  \frac{r}{\Gamma(a)} (r y)^{a - 1} \exp \left( -r y
 \infty)\)</span></li>
 </ul>
 </div>
-<div id="density-function-3" class="section level4">
+<div id="density-function-8" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(y | s, a) =  \frac{1}{\Gamma(a)} \frac{1}{s} \left( \frac{y}{s}
 \right)^{a - 1} \exp \left( - \frac{y}{s} \right)
 \]</span></p>
 </div>
-<div id="moments-20" class="section level4">
+<div id="moments-24" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1919,7 +2228,7 @@ f(y | s, a) =  \frac{1}{\Gamma(a)} \frac{1}{s} \left( \frac{y}{s}
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-21" class="section level4">
+<div id="score-26" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1929,7 +2238,7 @@ f(y | s, a) =  \frac{1}{\Gamma(a)} \frac{1}{s} \left( \frac{y}{s}
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-20" class="section level4">
+<div id="fisher-information-25" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1940,7 +2249,7 @@ f(y | s, a) =  \frac{1}{\Gamma(a)} \frac{1}{s} \left( \frac{y}{s}
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-10" class="section level3">
+<div id="further-reading-12" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li>Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing
@@ -1954,7 +2263,7 @@ European Journal of Operations Research</em>, <strong>29</strong>(3),
 <h2>Generalized Gamma Distribution</h2>
 <div id="rate-parametrization-2" class="section level3">
 <h3>Rate Parametrization</h3>
-<div id="parameters-16" class="section level4">
+<div id="parameters-21" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Rate parameter <span class="math inline">\(r \in (0,
@@ -1965,14 +2274,14 @@ European Journal of Operations Research</em>, <strong>29</strong>(3),
 \infty)\)</span></li>
 </ul>
 </div>
-<div id="density-function-4" class="section level4">
+<div id="density-function-9" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(y | r, a, b) =  \frac{r b}{\Gamma(a)} (r y)^{a b - 1} \exp \left( -(r
 y)^b \right)
 \]</span></p>
 </div>
-<div id="moments-21" class="section level4">
+<div id="moments-25" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1984,7 +2293,7 @@ b^{-1} \right)}{\Gamma \left( a \right) } -  \left( \frac{\Gamma \left(a
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-22" class="section level4">
+<div id="score-27" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1995,7 +2304,7 @@ b^{-1} \right)}{\Gamma \left( a \right) } -  \left( \frac{\Gamma \left(a
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-21" class="section level4">
+<div id="fisher-information-26" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2012,7 +2321,7 @@ a \psi_1(a) + 1}{b^2} \\
 </div>
 <div id="scale-parametrization-2" class="section level3">
 <h3>Scale Parametrization</h3>
-<div id="parameters-17" class="section level4">
+<div id="parameters-22" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Scale parameter <span class="math inline">\(s \in (0,
@@ -2023,14 +2332,14 @@ a \psi_1(a) + 1}{b^2} \\
 \infty)\)</span></li>
 </ul>
 </div>
-<div id="density-function-5" class="section level4">
+<div id="density-function-10" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(y | s, a, b) =  \frac{1}{\Gamma(a)} \frac{b}{s} \left( \frac{y}{s}
 \right)^{a b - 1} \exp \left( - \left( \frac{y}{s} \right)^b \right)
 \]</span></p>
 </div>
-<div id="moments-22" class="section level4">
+<div id="moments-26" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2042,7 +2351,7 @@ b^{-1} \right)}{\Gamma \left( a \right) } \right)^2 \right) \\
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-23" class="section level4">
+<div id="score-28" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2055,7 +2364,7 @@ b^{-1} \right)}{\Gamma \left( a \right) } \right)^2 \right) \\
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-22" class="section level4">
+<div id="fisher-information-27" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2070,7 +2379,7 @@ a \psi_1(a) + 1}{b^2} \\
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-11" class="section level3">
+<div id="further-reading-13" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li><p>Park, T. R. (2014). Derivation of the Fisher Information Matrix
@@ -2091,7 +2400,7 @@ Queueing Systems: Autoregressive Conditional Duration Approach.
 <h2>Weibull Distribution</h2>
 <div id="rate-parametrization-3" class="section level3">
 <h3>Rate Parametrization</h3>
-<div id="parameters-18" class="section level4">
+<div id="parameters-23" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Rate parameter <span class="math inline">\(r \in (0,
@@ -2100,13 +2409,13 @@ Queueing Systems: Autoregressive Conditional Duration Approach.
 \infty)\)</span></li>
 </ul>
 </div>
-<div id="density-function-6" class="section level4">
+<div id="density-function-11" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(y | r, b) =  r b (r y)^{b - 1} \exp \left( -(r y)^b \right)
 \]</span></p>
 </div>
-<div id="moments-23" class="section level4">
+<div id="moments-27" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2116,7 +2425,7 @@ f(y | r, b) =  r b (r y)^{b - 1} \exp \left( -(r y)^b \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-24" class="section level4">
+<div id="score-29" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2126,7 +2435,7 @@ f(y | r, b) =  r b (r y)^{b - 1} \exp \left( -(r y)^b \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-23" class="section level4">
+<div id="fisher-information-28" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2140,7 +2449,7 @@ f(y | r, b) =  r b (r y)^{b - 1} \exp \left( -(r y)^b \right)
 </div>
 <div id="scale-parametrization-3" class="section level3">
 <h3>Scale Parametrization</h3>
-<div id="parameters-19" class="section level4">
+<div id="parameters-24" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Scale parameter <span class="math inline">\(s \in (0,
@@ -2149,14 +2458,14 @@ f(y | r, b) =  r b (r y)^{b - 1} \exp \left( -(r y)^b \right)
 \infty)\)</span></li>
 </ul>
 </div>
-<div id="density-function-7" class="section level4">
+<div id="density-function-12" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(y | s, b) =  \frac{b}{s} \left( \frac{y}{s} \right)^{b - 1} \exp
 \left( - \left( \frac{y}{s} \right)^b \right)
 \]</span></p>
 </div>
-<div id="moments-24" class="section level4">
+<div id="moments-28" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2166,7 +2475,7 @@ f(y | s, b) =  \frac{b}{s} \left( \frac{y}{s} \right)^{b - 1} \exp
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-25" class="section level4">
+<div id="score-30" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2177,7 +2486,7 @@ f(y | s, b) =  \frac{b}{s} \left( \frac{y}{s} \right)^{b - 1} \exp
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-24" class="section level4">
+<div id="fisher-information-29" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2189,7 +2498,7 @@ f(y | s, b) =  \frac{b}{s} \left( \frac{y}{s} \right)^{b - 1} \exp
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-12" class="section level3">
+<div id="further-reading-14" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li>Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing
@@ -2202,11 +2511,62 @@ European Journal of Operations Research</em>, <strong>29</strong>(3),
 </div>
 <div id="real-data" class="section level1">
 <h1>Real Data</h1>
+<div id="laplace-distribution" class="section level2">
+<h2>Laplace Distribution</h2>
+<div id="mean-scale-parametrization" class="section level3">
+<h3>Mean-Scale Parametrization</h3>
+<div id="parameters-25" class="section level4">
+<h4>Parameters</h4>
+<ul>
+<li>Mean parameter <span class="math inline">\(m \in
+\mathbb{R}\)</span></li>
+<li>Scale parameter <span class="math inline">\(s \in (0,
+\infty)\)</span></li>
+</ul>
+</div>
+<div id="density-function-13" class="section level4">
+<h4>Density Function</h4>
+<p><span class="math display">\[
+f(y | m, s) = \frac{1}{2s} \exp \left\{- \frac{\lvert y - m \rvert}{s}
+\right\}
+\]</span></p>
+</div>
+<div id="moments-29" class="section level4">
+<h4>Moments</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathrm{E}[Y] &amp;= m \\
+\mathrm{var}[Y] &amp;= 2s^2 \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="score-31" class="section level4">
+<h4>Score</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla_{m} (y; m, s) &amp;= \frac{\mathrm{sign}(y - m)}{s} \\
+\nabla_{s} (y; m, s) &amp;= \frac{\lvert y - m \rvert}{s^2} -
+\frac{1}{s} \\
+\end{aligned}
+\]</span></p>
+</div>
+<div id="fisher-information-30" class="section level4">
+<h4>Fisher Information</h4>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s) &amp;= \frac{1}{s^2} \\
+\mathcal{I}_{m, s} (m, s) &amp;= 0 \\
+\mathcal{I}_{s, s} (m, s) &amp;= \frac{1}{s^2} \\
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+</div>
 <div id="normal-distribution" class="section level2">
 <h2>Normal Distribution</h2>
-<div id="mean-variance-parametrization-2" class="section level3">
+<div id="mean-variance-parametrization-3" class="section level3">
 <h3>Mean-Variance Parametrization</h3>
-<div id="parameters-20" class="section level4">
+<div id="parameters-26" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Mean parameter <span class="math inline">\(m \in
@@ -2215,14 +2575,14 @@ European Journal of Operations Research</em>, <strong>29</strong>(3),
 \infty)\)</span></li>
 </ul>
 </div>
-<div id="density-function-8" class="section level4">
+<div id="density-function-14" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(y | m, s) = \frac{1}{\sqrt{2 \pi s}} \exp \left( -\frac{(y - m)^2}{2
 s} \right)
 \]</span></p>
 </div>
-<div id="moments-25" class="section level4">
+<div id="moments-30" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2231,7 +2591,7 @@ s} \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-26" class="section level4">
+<div id="score-32" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2240,7 +2600,7 @@ s} \right)
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-25" class="section level4">
+<div id="fisher-information-31" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2254,9 +2614,9 @@ s} \right)
 </div>
 <div id="students-t-distribution" class="section level2">
 <h2>Student’s t Distribution</h2>
-<div id="mean-variance-parametrization-3" class="section level3">
+<div id="mean-variance-parametrization-4" class="section level3">
 <h3>Mean-Variance Parametrization</h3>
-<div id="parameters-21" class="section level4">
+<div id="parameters-27" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Mean parameter <span class="math inline">\(m \in
@@ -2267,7 +2627,7 @@ s} \right)
 \infty)\)</span></li>
 </ul>
 </div>
-<div id="density-function-9" class="section level4">
+<div id="density-function-15" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(y | m, s, v) = \frac{\Gamma \left( \frac{v + 1}{2} \right)}{\Gamma
@@ -2275,7 +2635,7 @@ f(y | m, s, v) = \frac{\Gamma \left( \frac{v + 1}{2} \right)}{\Gamma
 v} \right)^{-\frac{v + 1}{2}}
 \]</span></p>
 </div>
-<div id="moments-26" class="section level4">
+<div id="moments-31" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2285,7 +2645,7 @@ v} \right)^{-\frac{v + 1}{2}}
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-27" class="section level4">
+<div id="score-33" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2300,7 +2660,7 @@ m)^2 + s v} - \frac{1}{2} \ln \left(1 + \frac{1}{v} \frac{(y - m)^2}{s}
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-26" class="section level4">
+<div id="fisher-information-32" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2316,7 +2676,7 @@ m)^2 + s v} - \frac{1}{2} \ln \left(1 + \frac{1}{v} \frac{(y - m)^2}{s}
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-13" class="section level3">
+<div id="further-reading-15" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li><p>Blazsek, S. and Villatoro, M. (2015). Is Beta-t-EGARCH(1,1)
@@ -2339,9 +2699,9 @@ American Statistical Association</em>, <strong>84</strong>(408),
 <h1>Multivariate Real Data</h1>
 <div id="multivariate-normal-distribution" class="section level2">
 <h2>Multivariate Normal Distribution</h2>
-<div id="mean-variance-parametrization-4" class="section level3">
+<div id="mean-variance-parametrization-5" class="section level3">
 <h3>Mean-Variance Parametrization</h3>
-<div id="parameters-22" class="section level4">
+<div id="parameters-28" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Mean parameters <span class="math inline">\(m_i \in \mathbb{R}, i =
@@ -2360,16 +2720,16 @@ length <span class="math inline">\(n\)</span></li>
 <li>Variance-covariance matrix <span class="math inline">\(\boldsymbol{K}\)</span> of size <span class="math inline">\(n \times n\)</span></li>
 </ul>
 </div>
-<div id="density-function-10" class="section level4">
+<div id="density-function-16" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}) = \frac{1}{\sqrt{(2
 \pi)^n | \boldsymbol{K}|}} \exp \left( - \frac{1}{2} (\boldsymbol{y} -
-\boldsymbol{m})&#39; \boldsymbol{K}^{-1} (\boldsymbol{y} -
+\boldsymbol{m})^\intercal \boldsymbol{K}^{-1} (\boldsymbol{y} -
 \boldsymbol{m}) \right)
 \]</span></p>
 </div>
-<div id="moments-27" class="section level4">
+<div id="moments-32" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2378,7 +2738,7 @@ f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}) = \frac{1}{\sqrt{(2
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-28" class="section level4">
+<div id="score-34" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2388,12 +2748,12 @@ f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}) = \frac{1}{\sqrt{(2
 \nabla_{\mathrm{vec}(\boldsymbol{K})} (\boldsymbol{y}; \boldsymbol{m},
 \boldsymbol{K}) &amp;= \mathrm{vec} \left( \frac{1}{2}
 \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right)
-\left(\boldsymbol{y} - \boldsymbol{m} \right)&#39; \boldsymbol{K}^{-1} -
-\frac{1}{2} \boldsymbol{K}^{-1} \right) \\
+\left(\boldsymbol{y} - \boldsymbol{m} \right)^\intercal
+\boldsymbol{K}^{-1} - \frac{1}{2} \boldsymbol{K}^{-1} \right) \\
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-27" class="section level4">
+<div id="fisher-information-33" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2405,7 +2765,7 @@ f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}) = \frac{1}{\sqrt{(2
 (\boldsymbol{m}, \boldsymbol{K}) &amp;= \frac{1}{4} \boldsymbol{K}^{-1}
 \otimes \boldsymbol{K}^{-1} + \frac{1}{4}
 \mathrm{vec}\left(\boldsymbol{K}^{-1} \right)
-\mathrm{vec}\left(\boldsymbol{K}^{-1} \right)&#39; \\
+\mathrm{vec}\left(\boldsymbol{K}^{-1} \right)^\intercal \\
 \end{aligned}
 \]</span></p>
 </div>
@@ -2413,9 +2773,9 @@ f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}) = \frac{1}{\sqrt{(2
 </div>
 <div id="multivariate-students-t-distribution" class="section level2">
 <h2>Multivariate Student’s t Distribution</h2>
-<div id="mean-variance-parametrization-5" class="section level3">
+<div id="mean-variance-parametrization-6" class="section level3">
 <h3>Mean-Variance Parametrization</h3>
-<div id="parameters-23" class="section level4">
+<div id="parameters-29" class="section level4">
 <h4>Parameters</h4>
 <ul>
 <li>Mean parameters <span class="math inline">\(m_i \in \mathbb{R}, i =
@@ -2436,17 +2796,17 @@ length <span class="math inline">\(n\)</span></li>
 <li>Variance-covariance matrix <span class="math inline">\(\boldsymbol{K}\)</span> of size <span class="math inline">\(n \times n\)</span></li>
 </ul>
 </div>
-<div id="density-function-11" class="section level4">
+<div id="density-function-17" class="section level4">
 <h4>Density Function</h4>
 <p><span class="math display">\[
 f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}, v) = \frac{\Gamma
 \left( \frac{v + n}{2} \right)}{\Gamma \left( \frac{v}{2} \right)
 \sqrt{(v \pi)^n | \boldsymbol{K}|}} \left( 1 + \frac{1}{v}
-(\boldsymbol{y} - \boldsymbol{m})&#39; \boldsymbol{K}^{-1}
+(\boldsymbol{y} - \boldsymbol{m})^\intercal \boldsymbol{K}^{-1}
 (\boldsymbol{y} - \boldsymbol{m}) \right)^{-\frac{v + n}{2}}
 \]</span></p>
 </div>
-<div id="moments-28" class="section level4">
+<div id="moments-33" class="section level4">
 <h4>Moments</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2457,37 +2817,38 @@ f(\boldsymbol{y} | \boldsymbol{m}, \boldsymbol{K}, v) = \frac{\Gamma
 \end{aligned}
 \]</span></p>
 </div>
-<div id="score-29" class="section level4">
+<div id="score-35" class="section level4">
 <h4>Score</h4>
 <p><span class="math display">\[
 \begin{aligned}
 \nabla_{\boldsymbol{m}} (\boldsymbol{y}; \boldsymbol{m}, \boldsymbol{K},
 v) &amp;= \frac{v + n}{v + \left(\boldsymbol{y} - \boldsymbol{m}
-\right)&#39; \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m}
-\right)} \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m}
-\right) \\
+\right)^\intercal \boldsymbol{K}^{-1} \left(\boldsymbol{y} -
+\boldsymbol{m} \right)} \boldsymbol{K}^{-1} \left(\boldsymbol{y} -
+\boldsymbol{m} \right) \\
 \nabla_{\mathrm{vec}(\boldsymbol{K})} (\boldsymbol{y}; \boldsymbol{m},
 \boldsymbol{K}, v) &amp;=
 \mathrm{vec} \left( \frac{1}{2} \frac{v + n}{v + \left(\boldsymbol{y} -
-\boldsymbol{m} \right)&#39; \boldsymbol{K}^{-1} \left(\boldsymbol{y} -
-\boldsymbol{m} \right)} \boldsymbol{K}^{-1} \left(\boldsymbol{y} -
-\boldsymbol{m} \right) \left(\boldsymbol{y} - \boldsymbol{m}
-\right)&#39; \boldsymbol{K}^{-1} - \frac{1}{2} \boldsymbol{K}^{-1}
-\right) \\
+\boldsymbol{m} \right)^\intercal \boldsymbol{K}^{-1}
+\left(\boldsymbol{y} - \boldsymbol{m} \right)} \boldsymbol{K}^{-1}
+\left(\boldsymbol{y} - \boldsymbol{m} \right) \left(\boldsymbol{y} -
+\boldsymbol{m} \right)^\intercal \boldsymbol{K}^{-1} - \frac{1}{2}
+\boldsymbol{K}^{-1} \right) \\
 \nabla_{v} (\boldsymbol{y}; \boldsymbol{m}, \boldsymbol{K}, v) &amp;=
-\frac{1}{2} \frac{ \left(\boldsymbol{y} - \boldsymbol{m} \right)&#39;
-\boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right) - n }{
-\left(\boldsymbol{y} - \boldsymbol{m} \right)&#39; \boldsymbol{K}^{-1}
-\left(\boldsymbol{y} - \boldsymbol{m} \right)) + v} - \frac{1}{2} \ln
-\left( 1 + \frac{1}{v} \left(\boldsymbol{y} - \boldsymbol{m}
-\right)&#39; \boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m}
-\right) \right) \\
+\frac{1}{2} \frac{ \left(\boldsymbol{y} - \boldsymbol{m}
+\right)^\intercal \boldsymbol{K}^{-1} \left(\boldsymbol{y} -
+\boldsymbol{m} \right) - n }{ \left(\boldsymbol{y} - \boldsymbol{m}
+\right)^\intercal \boldsymbol{K}^{-1} \left(\boldsymbol{y} -
+\boldsymbol{m} \right)) + v} - \frac{1}{2} \ln \left( 1 + \frac{1}{v}
+\left(\boldsymbol{y} - \boldsymbol{m} \right)^\intercal
+\boldsymbol{K}^{-1} \left(\boldsymbol{y} - \boldsymbol{m} \right)
+\right) \\
 &amp; \qquad - \frac{1}{2} \psi_0 \left( \frac{v}{2} \right) +
 \frac{1}{2} \psi_0 \left( \frac{v + n}{2} \right) \\
 \end{aligned}
 \]</span></p>
 </div>
-<div id="fisher-information-28" class="section level4">
+<div id="fisher-information-34" class="section level4">
 <h4>Fisher Information</h4>
 <p><span class="math display">\[
 \begin{aligned}
@@ -2502,7 +2863,7 @@ v) &amp;= \frac{v + n}{v + \left(\boldsymbol{y} - \boldsymbol{m}
 \frac{1}{4} \frac{v + n}{v + n + 2} \boldsymbol{K}^{-1} \otimes
 \boldsymbol{K}^{-1} + \frac{1}{4} \frac{v + n - 2}{v + n + 2}
 \mathrm{vec}\left(\boldsymbol{K}^{-1} \right)
-\mathrm{vec}\left(\boldsymbol{K}^{-1} \right)&#39; \\
+\mathrm{vec}\left(\boldsymbol{K}^{-1} \right)^\intercal \\
 \mathcal{I}_{\mathrm{vec}(\boldsymbol{K}), v} (\boldsymbol{m},
 \boldsymbol{K}, v) &amp;= - \frac{1}{(v + n +2)(v + n)}
 \mathrm{vec}\left(\boldsymbol{K}^{-1} \right) \\
@@ -2514,7 +2875,7 @@ n}{2} \right) \\
 \]</span></p>
 </div>
 </div>
-<div id="further-reading-14" class="section level3">
+<div id="further-reading-16" class="section level3">
 <h3>Further Reading</h3>
 <ul>
 <li><p>Blazsek, S. and Villatoro, M. (2015). Is Beta-t-EGARCH(1,1)

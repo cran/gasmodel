@@ -30,6 +30,28 @@
 # ------------------------------------------------------------------------------
 
 
+# Dataset german_car_market_cap ------------------------------------------------
+#' @title Market Capitalization of German Car Manufacturers
+#'
+#' @description
+#' Market capitalization of the "Germany's Big Three" automobile manufacturers – Volkswagen Group, Mercedes-Benz Group, and BMW.
+#' Market capitalization is reported in billions of euros and covers the period 1994–2021.
+#'
+#' @source
+#' Thomson Reuters (\href{https://www.thomsonreuters.com/}{www.thomsonreuters.com}).
+#'
+#' @format
+#' A data frame with columns:
+#' \describe{
+#'   \item{year}{Year.}
+#'   \item{car_manufacturer}{Car manufacturer.}
+#'   \item{market_cap}{Market capitalization in billions of euros.}
+#' }
+#'
+"german_car_market_cap"
+# ------------------------------------------------------------------------------
+
+
 # Dataset ice_hockey_championships ---------------------------------------------
 #' @title Results of the Ice Hockey World Championships
 #'
@@ -37,7 +59,7 @@
 #' The dataset contains the results of the annual men's Ice Hockey World Championships from 1998 to 2021.
 #' In 1998, the International Ice Hockey Federation set the number of teams participating in the championships at 16.
 #' Since 1998, a total of 24 teams have qualified for the championship division.
-#' This dataset is analyzed in Holý and Zouhar (2021).
+#' This dataset is analyzed in Holý and Zouhar (2022).
 #'
 #' @source
 #' International Ice Hockey Federation (\href{https://www.iihf.com/}{www.iihf.com}).
@@ -50,7 +72,7 @@
 #' }
 #'
 #' @references
-#' Holý, V. and Zouhar, J. (2021). Modelling Time-Varying Rankings with Autoregressive and Score-Driven Dynamics. Journal of the Royal Statistical Society: Series C (Applied Statistics). \doi{10.1111/rssc.12584}.
+#' Holý, V. and Zouhar, J. (2022). Modelling Time-Varying Rankings with Autoregressive and Score-Driven Dynamics. Journal of the Royal Statistical Society: Series C (Applied Statistics), \strong{71}(5). \doi{10.1111/rssc.12584}.
 #'
 "ice_hockey_championships"
 # ------------------------------------------------------------------------------

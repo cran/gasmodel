@@ -15,7 +15,7 @@
 #' @param x Optional exogenous variables. For a single variable common for all time-varying parameters, a numeric vector. For multiple variables common for all time-varying parameters, a numeric matrix with observations in rows. For individual variables for each time-varying parameter, a list of numeric vectors or matrices in the above form. The number of observation must be equal to the number of observations of \code{y}.
 #' @param distr A conditional distribution. See \code{\link[gasmodel:distr]{distr()}} for available distributions.
 #' @param param A parametrization of the conditional distribution. If \code{NULL}, default parametrization is used. See \code{\link[gasmodel:distr]{distr()}} for available parametrizations.
-#' @param scaling A scaling function for the score. The supported scaling functions are the unit scaling (\code{scaling = "unit"}), the inverse of the Fisher information matrix scaling (\code{scaling = "fisher_inv"}), and the inverse square root of the Fisher information matrix scaling (\code{scaling = "fisher_inv_sqrt"}).
+#' @param scaling A scaling function for the score. The supported scaling functions are the unit scaling (\code{scaling = "unit"}), the inverse of the Fisher information matrix scaling (\code{scaling = "fisher_inv"}), and the inverse square root of the Fisher information matrix scaling (\code{scaling = "fisher_inv_sqrt"}). The latter two scalings use the Fisher information for the time-varying parameters only. For the full Fisher information matrix for both time-varying and static parameters, there are the \code{"full_fisher_inv"} and \code{"full_fisher_inv_sqrt"} scalings. For the individual Fisher information for each parameter, there are the \code{"diag_fisher_inv"} and \code{"diag_fisher_inv_sqrt"} scalings. Note that when the parametrization is orthogonal (see \code{\link[gasmodel:distr]{distr()}}), there are no differences between these scaling variants.
 #' @param spec A specification of the dynamic equation with regard to exogeneous variables. The supported specifications are exogenous variables and dynamics within the same equation (\code{spec = "joint"}) and separate equations for exogenous variables and dynamics in the fashion of regression models with dynamic errors (\code{spec = "reg_err"}). In a stationary model without exogenous variables, the two specifications are equivalent, although with differently parametrized intercept.
 #' @param p A score order. For order common for all parameters, a numeric vector of length 1. For individual order for each parameter, a numeric vector of length equal to the number of parameters. Defaults to \code{1L}.
 #' @param q An autoregressive order. For order common for all parameters, a numeric vector of length 1. For individual order for each parameter, a numeric vector of length equal to the number of parameters. Defaults to \code{1L}.
@@ -58,7 +58,7 @@
 #' For a comparison of the GAS models to alternative models, see Koopman et al. (2016) and Blazsek and Licht (2020).
 #'
 #' The GAS class includes many well-known econometric models, such as the generalized autoregressive conditional heteroskedasticity (GARCH) model of Bollerslev (1986), the autoregressive conditional duration (ACD) model of Engle and Russel (1998), and the Poisson count model of Davis et al. (2003).
-#' More recently, a variety of novel score-driven models has been proposed, such as the Beta-t-(E)GARCH model of Harvey and Chakravarty (2008), the discrete price changes model of Koopman et al. (2018), the directional model of Harvey (2019), the bivariate Poisson model of Koopman and Lit (2019), and the ranking model of Holý and Zouhar (2021).
+#' More recently, a variety of novel score-driven models has been proposed, such as the Beta-t-(E)GARCH model of Harvey and Chakravarty (2008), the discrete price changes model of Koopman et al. (2018), the circular model of Harvey (2019), the bivariate Poisson model of Koopman and Lit (2019), and the ranking model of Holý and Zouhar (2022).
 #' For an overview of various GAS models, see Harvey (2022).
 #'
 #' The extensive GAS literature is listed on \href{http://www.gasmodel.com}{www.gasmodel.com}.
@@ -144,7 +144,7 @@
 #'
 #' Harvey, A., Hurn, S., and Thiele, S. (2019). Modeling Directional (Circular) Time Series. \emph{Cambridge Working Papers in Economics}, CWPE 1971. \doi{10.17863/cam.43915}.
 #'
-#' Holý, V. and Zouhar, J. (2021). Modelling Time-Varying Rankings with Autoregressive and Score-Driven Dynamics. Journal of the Royal Statistical Society: Series C (Applied Statistics). \doi{10.1111/rssc.12584}.
+#' Holý, V. and Zouhar, J. (2022). Modelling Time-Varying Rankings with Autoregressive and Score-Driven Dynamics. Journal of the Royal Statistical Society: Series C (Applied Statistics), \strong{71}(5). \doi{10.1111/rssc.12584}.
 #'
 #' Koopman, S. J. and Lit, R. (2019). Forecasting Football Match Results in National League Competitions Using Score-Driven Time Series Models. \emph{International Journal of Forecasting}, \strong{35}(2), 797–809. \doi{10.1016/j.ijforecast.2018.10.011}.
 #'
@@ -230,7 +230,7 @@ gas <- function(y, x = NULL, distr, param = NULL, scaling = "unit", spec = "join
   fun$loglik <- setup_fun_loglik(distr = model$distr, param = model$param, par_trans = info_par$par_trans)
   fun$mean <- setup_fun_mean(distr = model$distr, param = model$param, par_trans = info_par$par_trans)
   fun$var <- setup_fun_var(distr = model$distr, param = model$param, par_trans = info_par$par_trans)
-  fun$score <- setup_fun_score(distr = model$distr, param = model$param, scaling = model$scaling, orthog = info_distr$orthog, par_trans = info_par$par_trans)
+  fun$score <- setup_fun_score(distr = model$distr, param = model$param, scaling = model$scaling, orthog = info_distr$orthog, par_trans = info_par$par_trans, par_static = model$par_static)
   comp <- list()
   comp$coef_start <- check_my_coef_start(coef_start = coef_start, coef_bound_lower = model$coef_bound_lower, coef_bound_upper = model$coef_bound_upper, coef_num = info_coef$coef_num)
   comp$theta_start <- convert_coef_vector_to_theta_vector(comp$coef_start, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
@@ -297,7 +297,7 @@ gas <- function(y, x = NULL, distr, param = NULL, scaling = "unit", spec = "join
   }
   fit <- list()
   fit$coef_est <- name_vector(convert_theta_vector_to_coef_vector(solution$theta_optim, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other), info_coef$coef_names)
-  comp$eval_tv <- suppressWarnings(likelihood_evaluate(coef = fit$coef_est, data = data, model = model, fun = fun, info_par = info_par, info_coef = info_coef))
+  comp$eval_tv <- be_silent(likelihood_evaluate(coef = fit$coef_est, data = data, model = model, fun = fun, info_par = info_par, info_coef = info_coef))
   model$num_obs <- sum(!is.na(comp$eval_tv$lik))
   model$num_coef <- info_theta$theta_num
   comp$theta_vcov <- matrix_inv(solution$theta_hessian) / model$num_obs
@@ -305,7 +305,7 @@ gas <- function(y, x = NULL, distr, param = NULL, scaling = "unit", spec = "join
   data$y <- name_matrix(data$y, info_data$index_time, info_data$index_series, drop = c(FALSE, TRUE))
   data$x <- name_list_of_matrices(data$x, info_par$par_names, info_data$index_time_list, info_data$index_vars_list, drop = c(FALSE, TRUE), zero = c(FALSE, TRUE))
   fit$coef_vcov <- name_matrix(convert_theta_matrix_to_coef_matrix(comp$theta_vcov, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other), info_coef$coef_names, info_coef$coef_names)
-  fit$coef_sd <- suppressWarnings(sqrt(diag(fit$coef_vcov)))
+  fit$coef_sd <- be_silent(sqrt(diag(fit$coef_vcov)))
   fit$coef_zstat <- fit$coef_est / fit$coef_sd
   fit$coef_pval <- 2 * stats::pnorm(-abs(fit$coef_zstat))
   if (model$spec == "joint") {

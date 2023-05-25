@@ -134,7 +134,7 @@ gas_filter <- function(gas_object = NULL, method = "simulated_coefs", coef_set =
     model$coef_bound_upper <- name_vector(check_my_coef_bound_upper(coef_bound_upper = coef_bound_upper, coef_bound_lower = model$coef_bound_lower, par_static = model$par_static, par_support = info_par$par_support, par_num = info_par$par_num, coef_in_par_num = info_coef$coef_in_par_num, coef_num = info_coef$coef_num), info_coef$coef_names)
     info_theta <- info_thetas(coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other, coef_names = info_coef$coef_names)
     fun <- list()
-    fun$score <- setup_fun_score(distr = model$distr, param = model$param, scaling = model$scaling, orthog = info_distr$orthog, par_trans = info_par$par_trans)
+    fun$score <- setup_fun_score(distr = model$distr, param = model$param, scaling = model$scaling, orthog = info_distr$orthog, par_trans = info_par$par_trans, par_static = model$par_static)
     fun$random <- setup_fun_random(distr = model$distr, param = model$param, par_trans = info_par$par_trans)
     filter <- list()
     filter$method <- check_my_method(method = method, values = c("given_coefs", "simulated_coefs"))
@@ -152,7 +152,7 @@ gas_filter <- function(gas_object = NULL, method = "simulated_coefs", coef_set =
       comp$theta_vcov <- convert_coef_matrix_to_theta_matrix(coef_mat = comp$coef_vcov, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
       comp$theta_bound_lower <- convert_coef_vector_to_theta_vector(model$coef_bound_lower, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
       comp$theta_bound_upper <- convert_coef_vector_to_theta_vector(model$coef_bound_upper, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
-      comp$theta_set <- suppressWarnings(mvnfast::rmvn(comp$rep_gen, mu = comp$theta_est, sigma = comp$theta_vcov))
+      comp$theta_set <- be_silent(mvnfast::rmvn(comp$rep_gen, mu = comp$theta_est, sigma = comp$theta_vcov))
       model$coef_set <- name_matrix(matrix(NA_real_, nrow = comp$rep_gen, ncol = info_coef$coef_num), paste0("coef", 1:comp$rep_gen), info_coef$coef_names)
       for (i in 1:comp$rep_gen) {
         model$coef_set[i, ] <- convert_theta_vector_to_coef_vector(pmax(pmin(comp$theta_set[i, ], comp$theta_bound_upper), comp$theta_bound_lower), coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
