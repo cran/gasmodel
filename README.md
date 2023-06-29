@@ -130,7 +130,7 @@ the following case studies in the form of vignettes:
 
 ## Supported Distributions
 
-Currently, there are 24 distributions available.
+Currently, there are 26 distributions available.
 
 The list of supported distribution can be obtained by the `distr()`
 function:
@@ -144,33 +144,35 @@ distr() %>%
   ungroup() %>%
   arrange(distr) %>%
   print(right = FALSE, row.names = FALSE)
-#> # A tibble: 24 × 5
+#> # A tibble: 26 × 5
 #>    distr     distr_title                     dim   type     param                  
 #>    <chr>     <chr>                           <fct> <fct>    <chr>                  
-#>  1 bernoulli Bernoulli                       uni   binary   prob                   
-#>  2 beta      Beta                            uni   interval conc, meansize, meanvar
-#>  3 cat       Categorical                     multi cat      worth                  
-#>  4 dirichlet Dirichlet                       multi comp     conc                   
-#>  5 dpois     Double Poisson                  uni   count    mean                   
-#>  6 exp       Exponential                     uni   duration scale, rate            
-#>  7 gamma     Gamma                           uni   duration scale, rate            
-#>  8 gengamma  Generalized Gamma               uni   duration scale, rate            
-#>  9 geom      Geometric                       uni   count    mean, prob             
-#> 10 laplace   Laplace                         uni   real     meanscale              
-#> 11 mvnorm    Multivariate Normal             multi real     meanvar                
-#> 12 mvt       Multivariate Student‘s t        multi real     meanvar                
-#> 13 negbin    Negative Binomial               uni   count    nb2, prob              
-#> 14 norm      Normal                          uni   real     meanvar                
-#> 15 pluce     Plackett-Luce                   multi ranking  worth                  
-#> 16 pois      Poisson                         uni   count    mean                   
-#> 17 skellam   Skellam                         uni   integer  meanvar, diff, meandisp
-#> 18 t         Student‘s t                     uni   real     meanvar                
-#> 19 vonmises  von Mises                       uni   circular meanconc               
-#> 20 weibull   Weibull                         uni   duration scale, rate            
-#> 21 zigeom    Zero-Inflated Geometric         uni   count    mean                   
-#> 22 zinegbin  Zero-Inflated Negative Binomial uni   count    nb2                    
-#> 23 zipois    Zero-Inflated Poisson           uni   count    mean                   
-#> 24 ziskellam Zero-Inflated Skellam           uni   integer  meanvar, diff, meandisp
+#>  1 alaplace  Asymmetric Laplace              uni   real     meanscale              
+#>  2 bernoulli Bernoulli                       uni   binary   prob                   
+#>  3 beta      Beta                            uni   interval conc, meansize, meanvar
+#>  4 bisa      Birnbaum-Saunders               uni   duration scale                  
+#>  5 cat       Categorical                     multi cat      worth                  
+#>  6 dirichlet Dirichlet                       multi comp     conc                   
+#>  7 dpois     Double Poisson                  uni   count    mean                   
+#>  8 exp       Exponential                     uni   duration scale, rate            
+#>  9 gamma     Gamma                           uni   duration scale, rate            
+#> 10 gengamma  Generalized Gamma               uni   duration scale, rate            
+#> 11 geom      Geometric                       uni   count    mean, prob             
+#> 12 laplace   Laplace                         uni   real     meanscale              
+#> 13 mvnorm    Multivariate Normal             multi real     meanvar                
+#> 14 mvt       Multivariate Student‘s t        multi real     meanvar                
+#> 15 negbin    Negative Binomial               uni   count    nb2, prob              
+#> 16 norm      Normal                          uni   real     meanvar                
+#> 17 pluce     Plackett-Luce                   multi ranking  worth                  
+#> 18 pois      Poisson                         uni   count    mean                   
+#> 19 skellam   Skellam                         uni   integer  meanvar, diff, meandisp
+#> 20 t         Student‘s t                     uni   real     meanvar                
+#> 21 vonmises  von Mises                       uni   circular meanconc               
+#> 22 weibull   Weibull                         uni   duration scale, rate            
+#> 23 zigeom    Zero-Inflated Geometric         uni   count    mean                   
+#> 24 zinegbin  Zero-Inflated Negative Binomial uni   count    nb2                    
+#> 25 zipois    Zero-Inflated Poisson           uni   count    mean                   
+#> 26 ziskellam Zero-Inflated Skellam           uni   integer  meanvar, diff, meandisp
 ```
 
 Details of each distribution, including its density function, expected
@@ -223,11 +225,10 @@ of Bollerslev (1986), the autoregressive conditional duration (ACD)
 model of Engle and Russel (1998), and the Poisson count model of Davis
 et al. (2003). More recently, a variety of novel score-driven models has
 been proposed, such as the Beta-t-(E)GARCH model of Harvey and
-Chakravarty (2008), the discrete price changes model of Koopman et
-al. (2018), the directional model of Harvey (2019), the bivariate
-Poisson model of Koopman and Lit (2019), and the ranking model of Holý
-and Zouhar (2022). For an overview of various GAS models, see Harvey
-(2022).
+Chakravarty (2008), a Skellam model of Koopman et al. (2018), a
+directional model of Harvey (2019), a bivariate Poisson model of Koopman
+and Lit (2019), and a ranking model of Holý and Zouhar (2022). For an
+overview of various GAS models, see Harvey (2022).
 
 The extensive GAS literature is listed on
 [www.gasmodel.com](http://www.gasmodel.com).
@@ -319,4 +320,4 @@ of Applied Econometrics*, **33**(7), 966–985. doi:
 Koopman, S. J., Lucas, A., and Scharth, M. (2016). Predicting
 Time-Varying Parameters with Parameter-Driven and Observation-Driven
 Models. *Review of Economics and Statistics*, **98**(1), 97–110. doi:
-[10.1162/rest_a\_00533](https://doi.org/10.1162/rest_a_00533).
+[10.1162/rest_a_00533](https://doi.org/10.1162/rest_a_00533).

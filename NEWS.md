@@ -1,3 +1,11 @@
+# gasmodel 0.4.0
+* Added the asymmetric Laplace distribution.
+* Added the Birnbaum–Saunders distribution.
+* Changed the default value of par_static. Now, the first group of parameters (usually just the first parameter for univariate distributions) is dynamic while the rest are static.
+* Renamed the "spec" argument to "regress". One of its value, "reg_err", renamed to "sep".
+* Corrected the Fisher information for the generalized gamma and zero-inflated negative binomial distributions.
+* Updated the ice_hockey_championships dataset.
+
 # gasmodel 0.3.0
 * Added diagonal and full Fisher information matrix scalings.
 * Added the Beta distribution.

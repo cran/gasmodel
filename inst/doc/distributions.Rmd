@@ -110,7 +110,7 @@ $$
 
 # Ranking Data
 
-## Plackett-Luce Distribution
+## Plackett–Luce Distribution
 
 ### Worth Parametrization
 
@@ -1222,6 +1222,53 @@ $$
 
 # Duration Data
 
+## Birnbaum–Saunders Distribution
+
+### Scale Parametrization
+
+#### Parameters
+
+- Scale parameter $s \in (0, \infty)$
+- Shape parameter $a \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | s, a) = \frac{\sqrt{\frac{s}{y}} \left( 1 + \frac{s}{y} \right)}{2 a s \sqrt{2 \pi}} \exp \left( \frac{2 - \frac{y}{s} - \frac{s}{y}}{2 a^2} \right)
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= s \left( 1 + \frac{a^2}{2} \right) \\
+\mathrm{var}[Y] &= s^2 a^2 \left( 1 + \frac{5 a^2}{4} \right) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{s} (y; s, a) &= \frac{y}{2 a^2 s^2} - \frac{1}{2 a^2 y} + \frac{1}{s + y} - \frac{1}{2 s} \\
+\nabla_{a} (y; s, a) &= \frac{y}{a^3 s} + \frac{s}{a^3 y} - \frac{2 + a^2}{a^3} \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{s, s} (s, a) &= \frac{1}{a^2 s^2} \left( 1 + \frac{a}{\sqrt{2 \pi}} \left( a \sqrt{\frac{\pi}{2}} - \pi \exp \left( \frac{2}{a^2} \right) \left(1 - \Phi \left( \frac{2}{a} \right) \right) \right) \right) \\
+\mathcal{I}_{s, a} (s, a) &= 0 \\
+\mathcal{I}_{a, a} (s, a) &= \frac{2}{a^2} \\
+\end{aligned}
+$$
+
+### Further Reading
+
+- Lemonte, A. J. (2021). A Note on the Fisher Information Matrix of the Birnbaum–Saunders Distribution. *Journal of Statistical Theory and Applications*, **15**(2), 196–205. doi: [10.2991/jsta.2016.15.2.9](https://doi.org/10.2991/jsta.2016.15.2.9).
+
 ## Exponential Distribution
 
 ### Rate Parametrization
@@ -1581,6 +1628,56 @@ $$
 - Tomanová, P. and Holý, V. (2021). Clustering of Arrivals in Queueing Systems: Autoregressive Conditional Duration Approach. *Central European Journal of Operations Research*, **29**(3), 859–874. doi: [10.1007/s10100-021-00744-7](https://doi.org/10.1007/s10100-021-00744-7).
 
 # Real Data
+
+## Asymmetric Laplace Distribution
+
+### Mean-Scale Parametrization
+
+#### Parameters
+
+- Mean parameter $m \in \mathbb{R}$
+- Scale parameter $s \in (0, \infty)$
+- Asymmetry parameter $a \in (0, \infty)$
+
+#### Density Function
+
+$$
+f(y | m, s, a) = \frac{1}{s \left( 1 / a + a\right)}  \exp \left\{- \frac{\lvert y - m \rvert}{s} a^{\mathrm{sign}(y - m)} \right\}
+$$
+
+#### Moments
+
+$$
+\begin{aligned}
+\mathrm{E}[Y] &= m + s (1 / a - a) \\
+\mathrm{var}[Y] &= s^2 (1 / a^2 + a^2) \\
+\end{aligned}
+$$
+
+#### Score
+
+$$
+\begin{aligned}
+\nabla_{m} (y; m, s, a) &= \frac{\mathrm{sign}(y - m) a^{\mathrm{sign}(y - m)}}{s} \\
+\nabla_{s} (y; m, s, a) &= \frac{\lvert y - m \rvert a^{\mathrm{sign}(y - m)}}{s^2} - \frac{1}{s} \\
+\nabla_{a} (y; m, s, a) &= -\frac{(y - m) a^{\mathrm{sign}(y - m)}}{s} + \frac{1 - a^2}{a + a^3} \\
+\end{aligned}
+$$
+
+#### Fisher Information
+
+$$
+\begin{aligned}
+\mathcal{I}_{m, m} (m, s, a) &= \frac{1}{s^2} \\
+\mathcal{I}_{m, s} (m, s, a) &= 0 \\
+\mathcal{I}_{m, a} (m, s, a) &= -\frac{2}{s (1 + a^2)} \\
+\mathcal{I}_{s, s} (m, s, a) &= \frac{1}{s^2} \\
+\mathcal{I}_{s, a} (m, s, a) &= -\frac{1}{s a} \frac{1 - a^2}{1 + a^2} \\
+\mathcal{I}_{a, a} (m, s, a) &= \frac{1}{a^2} + \frac{4}{(1 + a^2)^2} \\
+\end{aligned}
+$$
+
+
 
 ## Laplace Distribution
 
