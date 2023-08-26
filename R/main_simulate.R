@@ -17,7 +17,7 @@
 #' @param n A dimension of the model. Required only for multivariate models.
 #' @param coef_est A numeric vector of estimated coefficients.
 #'
-#' @return A \code{list} with components:
+#' @return A \code{list} of S3 class \code{gas_simulate} with components:
 #' \item{data$x_sim}{The exogenous variables used in simulation.}
 #' \item{model$distr}{The conditional distribution.}
 #' \item{model$param}{The parametrization of the conditional distribution.}
@@ -35,6 +35,9 @@
 #' \item{simulation$y_sim}{The simulated time series.}
 #' \item{simulation$par_tv_sim}{The simulated time-varying parameters.}
 #' \item{simulation$score_tv_sim}{The simulated scores.}
+#'
+#' @note
+#' Supported generic functions for S3 class \code{gas_simulate} include \code{\link[base:summary]{summary()}} ans \code{\link[base:plot]{plot()}}.
 #'
 #' @references
 #' Creal, D., Koopman, S. J., and Lucas, A. (2013). Generalized Autoregressive Score Models with Applications. \emph{Journal of Applied Econometrics}, \strong{28}(5), 777–795. \doi{10.1002/jae.1279}.
@@ -54,7 +57,7 @@
 #'
 #' @export
 gas_simulate <- function(gas_object = NULL, t_sim = 1L, x_sim = NULL, distr = NULL, param = NULL, scaling = "unit", regress = "joint", n = NULL, p = 1L, q = 1L, par_static = NULL, par_link = NULL, par_init = NULL, coef_est = NULL) {
-  if (!is.null(gas_object) && "gas" %in% class(gas_object)) {
+  if (!is.null(gas_object) && inherits(gas_object, "gas")) {
     gas_simulate(gas_object = NULL, t_sim = t_sim, x_sim = x_sim, distr = gas_object$model$distr, param = gas_object$model$param, scaling = gas_object$model$scaling, regress = gas_object$model$regress, n = gas_object$model$n, p = gas_object$model$p, q = gas_object$model$q, par_static = gas_object$model$par_static, par_link = gas_object$model$par_link, par_init = gas_object$model$par_init, coef_est = gas_object$fit$coef_est)
   } else if (!is.null(gas_object)) {
     stop("Unsupported class of gas_object.")
@@ -203,6 +206,65 @@ print.gas_simulate <- function(x, ...) {
   cat("Simulations: \n")
   print(x$simulation$y_sim)
   invisible(x)
+}
+# ------------------------------------------------------------------------------
+
+
+# Summarize Simulations --------------------------------------------------------
+#' @export
+summary.gas_simulate <- function(object, ...) {
+  print(object)
+  cat("\n")
+  cat("Time-Varying Parameters:", "\n")
+  print(object$simulation$par_tv_sim)
+  invisible(object)
+}
+# ------------------------------------------------------------------------------
+
+
+# Plot Simulated Time Series ---------------------------------------------------
+#' @importFrom dplyr %>%
+#' @importFrom ggplot2 .data
+#' @export
+plot.gas_simulate <- function(x, ...) {
+  y_sim <- x$simulation$y_sim
+  if (is.vector(y_sim)) {
+    ts_index <- 1:length(y_sim)
+    gg_data <- dplyr::tibble(index = ts_index, value = y_sim)
+    gg_fig <- ggplot2::ggplot(gg_data, mapping = ggplot2::aes(.data$index, .data$value)) +
+      ggplot2::geom_line(color = "#800000") +
+      ggplot2::geom_point(color = "#800000") +
+      ggplot2::labs(title = "Simulated Time Series", x = "Time Index", y = "Observation Value")
+    print(gg_fig)
+    gg_list <- list(gg_fig)
+  } else {
+    ser_names <- colnames(y_sim)
+    ts_index <- 1:nrow(y_sim)
+    gg_col <- c(rep("#CCCCCC", times = ncol(y_sim) - 1), "#800000")
+    gg_list <- list()
+    for (i in 1:length(ser_names)) {
+      gg_levels <- c(ser_names[-i], ser_names[i])
+      gg_data <-  y_sim %>%
+        dplyr::as_tibble() %>%
+        dplyr::mutate(index = ts_index) %>%
+        tidyr::pivot_longer(cols = -dplyr::last_col(), names_to = "ser", values_to = "value") %>%
+        dplyr::mutate(ser = factor(.data$ser, levels = gg_levels, ordered = TRUE)) %>%
+        dplyr::arrange(.data$ser)
+      gg_fig <- ggplot2::ggplot(gg_data, mapping = ggplot2::aes(.data$index, .data$value, group = .data$ser, color = .data$ser)) +
+        ggplot2::geom_line(show.legend = FALSE) +
+        ggplot2::geom_point(show.legend = FALSE) +
+        ggplot2::scale_colour_manual(values = gg_col) +
+        ggplot2::labs(title = paste("Simulated Time Series", ser_names[i]), x = "Time Index", y = "Observation Value")
+      gg_list <- append(gg_list, list(gg_fig))
+    }
+    print(gg_list[[1]])
+    old_par <- grDevices::devAskNewPage(ask = TRUE)
+    for (i in 2:length(gg_list)) {
+      print(gg_list[[i]])
+    }
+    on.exit(grDevices::devAskNewPage(ask = old_par))
+  }
+  invisible(gg_list)
 }
 # ------------------------------------------------------------------------------
 

@@ -20,7 +20,7 @@
 #' @param rep_ahead A number of simulation repetitions for \code{method = "simulated_paths"}.
 #' @param quant A numeric vector of probabilities determining quantiles for \code{method = "simulated_paths"}.
 #'
-#' @return A \code{list} with components:
+#' @return A \code{list} of S3 class \code{gas_forecast} with components:
 #' \item{data$y}{The time series.}
 #' \item{data$x}{The exogenous variables.}
 #' \item{data$x_ahead}{The out-of-sample exogenous variables.}
@@ -48,6 +48,9 @@
 #' \item{forecast$score_tv_ahead_mean}{The mean of the forecasted scores.}
 #' \item{forecast$score_tv_ahead_sd}{The standard deviation of the forecasted scores. Only for \code{method = "simulated_paths"}.}
 #' \item{forecast$score_tv_ahead_quant}{The quantiles of the forecasted scores. Only for \code{method = "simulated_paths"}.}
+#'
+#' @note
+#' Supported generic functions for S3 class \code{gas_forecast} include \code{\link[base:summary]{summary()}} ans \code{\link[base:plot]{plot()}}.
 #'
 #' @references
 #' Blasques, F., Koopman, S. J., Łasak, K., and Lucas, A. (2016). In-Sample Confidence Bands and Out-of-Sample Forecast Bands for Time-Varying Parameters in Observation-Driven Models. \emph{International Journal of Forecasting}, \strong{32}(3), 875–887. \doi{10.1016/j.ijforecast.2015.11.018}.
@@ -82,7 +85,7 @@
 #'
 #' @export
 gas_forecast <- function(gas_object = NULL, method = "mean_path", t_ahead = 1L, x_ahead = NULL, rep_ahead = 1000L, quant = c(0.025, 0.975), y = NULL, x = NULL, distr = NULL, param = NULL, scaling = "unit", regress = "joint", p = 1L, q = 1L, par_static = NULL, par_link = NULL, par_init = NULL, coef_est = NULL) {
-  if (!is.null(gas_object) && "gas" %in% class(gas_object)) {
+  if (!is.null(gas_object) && inherits(gas_object, "gas")) {
     gas_forecast(gas_object = NULL, method = method, t_ahead = t_ahead, x_ahead = x_ahead, rep_ahead = rep_ahead, quant = quant, y = gas_object$data$y, x = gas_object$data$x, distr = gas_object$model$distr, param = gas_object$model$param, scaling = gas_object$model$scaling, regress = gas_object$model$regress, p = gas_object$model$p, q = gas_object$model$q, par_static = gas_object$model$par_static, par_link = gas_object$model$par_link, par_init = gas_object$model$par_init, coef_est = gas_object$fit$coef_est)
   } else if (!is.null(gas_object)) {
     stop("Unsupported class of gas_object.")
@@ -389,6 +392,72 @@ print.gas_forecast <- function(x, ...) {
   cat("Forecasts: \n")
   print(x$forecast$y_ahead_mean)
   invisible(x)
+}
+# ------------------------------------------------------------------------------
+
+
+# Summarize Forecasts ----------------------------------------------------------
+#' @export
+summary.gas_forecast <- function(object, ...) {
+  print(object)
+  cat("\n")
+  cat("Time-Varying Parameters:", "\n")
+  print(object$forecast$par_tv_ahead_mean)
+  invisible(object)
+}
+# ------------------------------------------------------------------------------
+
+
+# Plot Forecasted Time Series ---------------------------------------------------
+#' @importFrom dplyr %>%
+#' @importFrom ggplot2 .data
+#' @export
+plot.gas_forecast <- function(x, ...) {
+  y <- x$data$y
+  y_fcst <- x$forecast$y_ahead_mean
+  if (is.vector(y)) {
+    y_full <- c(y, y_fcst)
+    ts_index <- 1:length(y_full)
+    ts_divide <- length(y) + 0.5
+    gg_data <- dplyr::tibble(index = ts_index, value = y_full)
+    gg_fig <- ggplot2::ggplot(gg_data, mapping = ggplot2::aes(.data$index, .data$value)) +
+      ggplot2::geom_vline(xintercept = ts_divide, linetype = "dotted") +
+      ggplot2::geom_line(color = "#800000") +
+      ggplot2::geom_point(color = "#800000") +
+      ggplot2::labs(title = "Forecasted Time Series", x = "Time Index", y = "Observation Value")
+    print(gg_fig)
+    gg_list <- list(gg_fig)
+  } else {
+    y_full <- rbind(y, y_fcst)
+    ser_names <- colnames(y_full)
+    ts_index <- 1:nrow(y_full)
+    ts_divide <- nrow(y) + 0.5
+    gg_col <- c(rep("#CCCCCC", times = ncol(y_full) - 1), "#800000")
+    gg_list <- list()
+    for (i in 1:length(ser_names)) {
+      gg_levels <- c(ser_names[-i], ser_names[i])
+      gg_data <-  y_full %>%
+        dplyr::as_tibble() %>%
+        dplyr::mutate(index = ts_index) %>%
+        tidyr::pivot_longer(cols = -dplyr::last_col(), names_to = "ser", values_to = "value") %>%
+        dplyr::mutate(ser = factor(.data$ser, levels = gg_levels, ordered = TRUE)) %>%
+        dplyr::arrange(.data$ser)
+      gg_fig <- ggplot2::ggplot(gg_data, mapping = ggplot2::aes(.data$index, .data$value, group = .data$ser, color = .data$ser)) +
+        ggplot2::geom_vline(xintercept = ts_divide, linetype = "dotted") +
+        ggplot2::geom_line(show.legend = FALSE) +
+        ggplot2::geom_point(show.legend = FALSE) +
+        ggplot2::scale_colour_manual(values = gg_col) +
+        ggplot2::labs(title = paste("Forecasted Time Series", ser_names[i]), x = "Time Index", y = "Observation Value")
+      gg_list <- append(gg_list, list(gg_fig))
+    }
+    print(gg_list[[1]])
+    old_par <- grDevices::devAskNewPage(ask = TRUE)
+    for (i in 2:length(gg_list)) {
+      print(gg_list[[i]])
+    }
+    on.exit(grDevices::devAskNewPage(ask = old_par))
+  }
+  invisible(gg_list)
 }
 # ------------------------------------------------------------------------------
 

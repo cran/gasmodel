@@ -113,7 +113,7 @@
 #' \item{fit$bic}{The Bayesian information criterion.}
 #'
 #' @note
-#' Supported generic functions for S3 class \code{gas} include \code{\link[stats:coef]{coef()}}, \code{\link[stats:vcov]{vcov()}}, \code{\link[stats:residuals]{residuals()}}, \code{\link[stats:logLik]{logLik()}}, \code{\link[stats:AIC]{AIC()}}, \code{\link[stats:BIC]{BIC()}}, and \code{\link[stats:confint]{confint()}}.
+#' Supported generic functions for S3 class \code{gas} include \code{\link[base:summary]{summary()}}, \code{\link[base:plot]{plot()}}, \code{\link[stats:coef]{coef()}}, \code{\link[stats:vcov]{vcov()}}, \code{\link[stats:fitted]{fitted()}}, \code{\link[stats:residuals]{residuals()}}, \code{\link[stats:logLik]{logLik()}}, \code{\link[stats:AIC]{AIC()}}, \code{\link[stats:BIC]{BIC()}}, and \code{\link[stats:confint]{confint()}}.
 #'
 #' @references
 #' Blasques, F., Gorgi, P., Koopman, S. J., and Wintenberger, O. (2018). Feasible Invertibility Conditions and Maximum Likelihood Estimation for Observation-Driven Models. \emph{Electronic Journal of Statistics}, \strong{12}(1), 1019–1052. \doi{10.1214/18-ejs1416}.
@@ -257,7 +257,7 @@ gas <- function(y, x = NULL, distr, param = NULL, scaling = "unit", regress = "j
     control$hessian_arguments <- check_generic_list(arg = hessian_arguments, arg_name = "hessian_arguments")
   }
   comp$print_progress <- check_generic_logical_scalar(arg = print_progress, arg_name = "print_progress")
-  comp$est_details <- list(data = data, model = model, fun = fun, info_distr = info_distr, info_par = info_par, info_coef = info_coef)
+  comp$est_details <- list(data = data, model = model, fun = fun, info_distr = info_distr, info_par = info_par, info_coef = info_coef, print_progress = comp$print_progress)
   solution <- list()
   if (comp$compute_start) {
     if (comp$print_progress) { message("Computing a starting solution...") }
@@ -273,7 +273,7 @@ gas <- function(y, x = NULL, distr, param = NULL, scaling = "unit", regress = "j
   }
   if (comp$compute_optim) {
     if (comp$print_progress) { message("Computing the optimal solution...") }
-    comp$result_optim <- do.call(control$optim_function, args = c(list(obj_fun = likelihood_objective, theta_start = solution$theta_start, theta_bound_lower = comp$theta_bound_lower, theta_bound_upper = comp$theta_bound_upper, est_details = comp$est_details, print_progress = comp$print_progress), control$optim_arguments))
+    comp$result_optim <- do.call(control$optim_function, args = c(list(obj_fun = likelihood_objective, theta_start = solution$theta_start, theta_bound_lower = comp$theta_bound_lower, theta_bound_upper = comp$theta_bound_upper, est_details = comp$est_details), control$optim_arguments))
     solution$status_optim <- comp$result_optim$status_optim
     solution$theta_optim <- name_vector(comp$result_optim$theta_optim, info_theta$theta_names)
     if (!(solution$status_optim %in% c("success", "objective_tolerance_reached", "desired_objective_reached", "variables_tolerance_reached"))) {
@@ -285,7 +285,7 @@ gas <- function(y, x = NULL, distr, param = NULL, scaling = "unit", regress = "j
   }
   if (comp$compute_hessian) {
     if (comp$print_progress) { message("Computing the Hessian matrix...") }
-    comp$result_hessian <- do.call(control$hessian_function, args = c(list(obj_fun = likelihood_objective, theta_optim = solution$theta_optim, est_details = comp$est_details, print_progress = comp$print_progress), control$hessian_arguments))
+    comp$result_hessian <- do.call(control$hessian_function, args = c(list(obj_fun = likelihood_objective, theta_optim = solution$theta_optim, est_details = comp$est_details), control$hessian_arguments))
     solution$status_hessian <- comp$result_hessian$status_hessian
     solution$theta_hessian <- name_matrix(comp$result_hessian$theta_hessian, info_theta$theta_names, info_theta$theta_names)
     if (solution$status_hessian != "success") {
@@ -351,6 +351,21 @@ print.gas <- function(x, ...) {
 # ------------------------------------------------------------------------------
 
 
+# Summarize Estimate -----------------------------------------------------------
+#' @export
+summary.gas <- function(object, ...) {
+  print(object)
+  cat("\n")
+  cat("Unconditional Parameters:", "\n")
+  print(object$fit$par_unc)
+  cat("\n")
+  cat("Time-Varying Parameters:", "\n")
+  print(object$fit$par_tv)
+  invisible(object)
+}
+# ------------------------------------------------------------------------------
+
+
 # Obtain Coefficients ----------------------------------------------------------
 #' @export
 coef.gas <- function(object, ...) {
@@ -365,6 +380,15 @@ coef.gas <- function(object, ...) {
 vcov.gas <- function(object, ...) {
   coef_vcov <- object$fit$coef_vcov
   return(coef_vcov)
+}
+# ------------------------------------------------------------------------------
+
+
+# Obtain Fitted Values ---------------------------------------------------------
+#' @export
+fitted.gas <- function(object, ...) {
+  mean_tv <- object$fit$mean_tv
+  return(mean_tv)
 }
 # ------------------------------------------------------------------------------
 
@@ -386,6 +410,42 @@ logLik.gas <- function(object, ...) {
   attr(loglik_sum, "df") <- object$model$num_coef
   class(loglik_sum) <- "logLik"
   return(loglik_sum)
+}
+# ------------------------------------------------------------------------------
+
+
+# Plot Time-Varying Parameters -------------------------------------------------
+#' @importFrom ggplot2 .data
+#' @export
+plot.gas <- function(x, ...) {
+  par_static <- x$model$par_static
+  par_tv <- as.matrix(x$fit$par_tv)
+  par_unc <- x$fit$par_unc
+  par_names <- names(par_unc)
+  par_num <- length(par_unc)
+  be_silent(ts_index <- as.numeric(rownames(par_tv)))
+  if (any(is.na(ts_index)) || any(diff(ts_index) <= 0)) {
+    ts_index <- 1:nrow(par_tv)
+  }
+  gg_list <- list()
+  for (i in which(!par_static)) {
+    gg_data <- data.frame(index = ts_index, value = par_tv[, i])
+    gg_fig <- ggplot2::ggplot(gg_data, mapping = ggplot2::aes(.data$index, .data$value)) +
+      ggplot2::geom_hline(yintercept = par_unc[i], linetype = "dashed") +
+      ggplot2::geom_line(color = "#800000") +
+      ggplot2::geom_point(color = "#800000") +
+      ggplot2::labs(title = paste("Time-Varying Parameter", par_names[i]), x = "Time Index", y = "Parameter Value")
+    gg_list <- append(gg_list, list(gg_fig))
+  }
+  print(gg_list[[1]])
+  if (length(gg_list) > 1) {
+    old_par <- grDevices::devAskNewPage(ask = TRUE)
+    for (i in 2:length(gg_list)) {
+      print(gg_list[[i]])
+    }
+    on.exit(grDevices::devAskNewPage(ask = old_par))
+  }
+  invisible(gg_list)
 }
 # ------------------------------------------------------------------------------
 

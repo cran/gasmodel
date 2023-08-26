@@ -22,7 +22,7 @@
 #' @param quant A numeric vector of probabilities determining quantiles.
 #' @param coef_vcov A numeric matrix of estimated covariances between coefficients.
 #'
-#' @return A \code{list} with components:
+#' @return A \code{list} of S3 class \code{gas_filter} with components:
 #' \item{data$y}{The time series.}
 #' \item{data$x}{The exogenous variables.}
 #' \item{data$x_ahead}{The out-of-sample exogenous variables. Only when \code{t_ahead > 0}.}
@@ -62,6 +62,9 @@
 #' \item{filter$score_tv_ahead_sd}{The standard deviation of the forecasted scores. Only when \code{t_ahead > 0}.}
 #' \item{filter$score_tv_ahead_quant}{The quantiles of the forecasted scores. Only when \code{t_ahead > 0}.}
 #'
+#' @note
+#' Supported generic functions for S3 class \code{gas_filter} include \code{\link[base:summary]{summary()}} ans \code{\link[base:plot]{plot()}}.
+#'
 #' @references
 #' Blasques, F., Koopman, S. J., Łasak, K., and Lucas, A. (2016). In-Sample Confidence Bands and Out-of-Sample Forecast Bands for Time-Varying Parameters in Observation-Driven Models. \emph{International Journal of Forecasting}, \strong{32}(3), 875–887. \doi{10.1016/j.ijforecast.2015.11.018}.
 #'
@@ -89,7 +92,7 @@
 #'
 #' @export
 gas_filter <- function(gas_object = NULL, method = "simulated_coefs", coef_set = NULL, rep_gen = 1000L, t_ahead = 0L, x_ahead = NULL, rep_ahead = 1000L, quant = c(0.025, 0.975), y = NULL, x = NULL, distr = NULL, param = NULL, scaling = "unit", regress = "joint", p = 1L, q = 1L, par_static = NULL, par_link = NULL, par_init = NULL, coef_fix_value = NULL, coef_fix_other = NULL, coef_fix_special = NULL, coef_bound_lower = NULL, coef_bound_upper = NULL, coef_est = NULL, coef_vcov = NULL) {
-  if (!is.null(gas_object) && "gas" %in% class(gas_object)) {
+  if (!is.null(gas_object) && inherits(gas_object, "gas")) {
     gas_filter(gas_object = NULL, method = method, coef_set = coef_set, rep_gen = rep_gen, t_ahead = t_ahead, x_ahead = x_ahead, rep_ahead = rep_ahead, quant = quant, y = gas_object$data$y, x = gas_object$data$x, distr = gas_object$model$distr, param = gas_object$model$param, scaling = gas_object$model$scaling, regress = gas_object$model$regress, p = gas_object$model$p, q = gas_object$model$q, par_static = gas_object$model$par_static, par_link = gas_object$model$par_link, par_init = gas_object$model$par_init, coef_fix_value = gas_object$model$coef_fix_value, coef_fix_other = gas_object$model$coef_fix_other, coef_fix_special = gas_object$model$coef_fix_special, coef_bound_lower = gas_object$model$coef_bound_lower, coef_bound_upper = gas_object$model$coef_bound_upper, coef_est = gas_object$fit$coef_est, coef_vcov = gas_object$fit$coef_vcov)
   } else if (!is.null(gas_object)) {
     stop("Unsupported class of gas_object.")
@@ -350,6 +353,77 @@ print.gas_filter <- function(x, ...) {
   cat("Filtered Parameters: \n")
   print(abind::abind(x$filter$par_tv_quant, x$filter$par_tv_ahead_quant, along = 1L))
   invisible(x)
+}
+# ------------------------------------------------------------------------------
+
+
+# Summarize Filter -------------------------------------------------------------
+#' @export
+summary.gas_filter <- function(object, ...) {
+  print(object)
+  invisible(object)
+}
+# ------------------------------------------------------------------------------
+
+
+# Plot Filtered Time-Varying Parameters ----------------------------------------
+#' @importFrom ggplot2 .data
+#' @export
+plot.gas_filter <- function(x, ...) {
+  t <- x$model$t
+  par_static <- x$model$par_static
+  if(is.null(x$filter$par_tv_ahead_mean)) {
+    par_tv_mean <- as.matrix(x$filter$par_tv_mean)
+    if (length(dim(x$filter$par_tv_quant)) == 3) {
+      par_tv_low <- x$filter$par_tv_quant[, , 1]
+      par_tv_high <- x$filter$par_tv_quant[, , 2]
+    } else {
+      par_tv_low <- as.matrix(x$filter$par_tv_quant[, 1])
+      par_tv_high <- as.matrix(x$filter$par_tv_quant[, 2])
+    }
+    ts_divide <- NA
+  } else {
+    par_tv_mean <- rbind(as.matrix(x$filter$par_tv_mean), as.matrix(x$filter$par_tv_ahead_mean))
+    if (length(dim(x$filter$par_tv_quant)) == 3) {
+      par_tv_low <- rbind(x$filter$par_tv_quant[, , 1], x$filter$par_tv_ahead_quant[, , 1])
+      par_tv_high <- rbind(x$filter$par_tv_quant[, , 2], x$filter$par_tv_ahead_quant[, , 2])
+    } else {
+      par_tv_low <- rbind(as.matrix(x$filter$par_tv_quant[, 1]), as.matrix(x$filter$par_tv_ahead_quant[, 1]))
+      par_tv_high <- rbind(as.matrix(x$filter$par_tv_quant[, 2]), as.matrix(x$filter$par_tv_ahead_quant[, 2]))
+    }
+    ts_divide <- nrow(x$filter$par_tv_mean) + 0.5
+  }
+  par_names <- colnames(par_tv_mean)
+  par_num <- ncol(par_tv_mean)
+  ts_index <- 1:nrow(par_tv_mean)
+  gg_list <- list()
+  for (i in which(!par_static)) {
+    gg_data <- data.frame(index = ts_index, value_mean = par_tv_mean[, i], value_low = par_tv_low[, i], value_high = par_tv_high[, i])
+    if (is.na(ts_divide)) {
+      gg_fig <- ggplot2::ggplot(gg_data, mapping = ggplot2::aes(.data$index, .data$value_mean)) +
+        ggplot2::geom_ribbon(ggplot2::aes(.data$index, ymax = .data$value_low, ymin = .data$value_high), fill = "#FFAAAA") +
+        ggplot2::geom_line(color = "#800000") +
+        ggplot2::geom_point(color = "#800000") +
+        ggplot2::labs(title = paste("Time-Varying Parameter", par_names[i]), x = "Time Index", y = "Parameter Value")
+    } else {
+      gg_fig <- ggplot2::ggplot(gg_data, mapping = ggplot2::aes(.data$index, .data$value_mean)) +
+        ggplot2::geom_ribbon(ggplot2::aes(.data$index, ymax = .data$value_low, ymin = .data$value_high), fill = "#FFAAAA") +
+        ggplot2::geom_vline(xintercept = ts_divide, linetype = "dotted") +
+        ggplot2::geom_line(color = "#800000") +
+        ggplot2::geom_point(color = "#800000") +
+        ggplot2::labs(title = paste("Time-Varying Parameter", par_names[i]), x = "Time Index", y = "Parameter Value")
+    }
+    gg_list <- append(gg_list, list(gg_fig))
+  }
+  print(gg_list[[1]])
+  if (length(gg_list) > 1) {
+    old_par <- grDevices::devAskNewPage(ask = TRUE)
+    for (i in 2:length(gg_list)) {
+      print(gg_list[[i]])
+    }
+    on.exit(grDevices::devAskNewPage(ask = old_par))
+  }
+  invisible(gg_list)
 }
 # ------------------------------------------------------------------------------
 

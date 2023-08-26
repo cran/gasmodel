@@ -39,18 +39,22 @@ A strand of financial econometrics is devoted to analyzing the timing of transac
 
 Let us prepare the analyzed data. We use the `bookshop_sales` dataset containing times of orders from June 8, 2018 to December 20, 2018. We calculate differences of subsequent times, i.e. durations. To avoid zero durations, we set them to 0.5 second.
 
-``` {r data}
+``` {r durations_data}
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(hms)
 library(gasmodel)
 
 data(bookshop_sales)
 
 data_dur <- bookshop_sales %>%
-  mutate(duration = as.numeric(time - lag(time)) / 60) %>%
+  as_tibble() %>%
+  rename(datetime = time) %>%
+  mutate(date = as.Date(datetime)) %>%
+  mutate(time = as_hms(datetime)) %>%
+  mutate(duration = as.numeric(datetime - lag(datetime)) / 60) %>%
   mutate(duration = recode(duration, "0" = 0.5)) %>%
-  mutate(just = as.vector(as.POSIXct(format(time, "1970-01-01 %H:%M:%S"), tz = "UTC"))) %>%
   drop_na()
 ```
 
@@ -58,13 +62,12 @@ data_dur <- bookshop_sales %>%
 
 We adjust the observed durations for diurnal pattern and extract the time series to be analyzed.
 
-``` {r diurnal}
-model_spline <- smooth.spline(data_dur$just, data_dur$duration, df = 10)
+``` {r durations_diurnal}
+model_spline <- smooth.spline(as.vector(data_dur$time), data_dur$duration, df = 10)
 
 data_dur <- data_dur %>%
-  mutate(duration_spline = predict(model_spline, x = just)$y) %>%
-  mutate(duration_adj = duration / duration_spline) %>%
-  select(-just)
+  mutate(duration_spline = predict(model_spline, x = as.vector(time))$y) %>%
+  mutate(duration_adj = duration / duration_spline)
 
 y <- data_dur$duration_adj
 ```
@@ -73,72 +76,124 @@ y <- data_dur$duration_adj
 
 The following distributions are available for our data type. We utilize the generalized gamma family.
 
-``` {r distr}
+``` {r durations_distr}
 distr(filter_type = "duration", filter_dim = "uni")
 ```
 
 First, we estimate the model based on the exponential distribution. By default, the logarithmic link for the time-varying scale parameter is adopted. In this particular case, the Fisher information is constant and the three scalings are therefore equivalent.
 
-``` {r exp}
+``` {r durations_model_exp}
 est_exp <- gas(y = y, distr = "exp")
 est_exp
 ```
 
 Second, we estimate the model based on the Weibull distribution. Compared to the exponential distribution, it has an additional shape parameter. By default, the first parameter is assumed time-varying while the remaining are assumed static. In our case, the model features the time-varying scale parameter with the constant shape parameter. However, it is possible to modify this behavior using the `par_static` argument.
 
-``` {r weibull}
+``` {r durations_model_weibull}
 est_weibull <- gas(y = y, distr = "weibull")
 est_weibull
 ```
 
 Third, we estimate the model based on the gamma distribution. This is another generalization of the exponential distribution with an additional shape parameter.
 
-``` {r gamma}
+``` {r durations_model_gamma}
 est_gamma <- gas(y = y, distr = "gamma")
 est_gamma
 ```
 
 Fourth, we estimate the model based on the generalized gamma distribution. The generalized gamma distribution encompasses all three aforementioned distributions as special cases.
 
-``` {r gengamma}
+``` {r durations_model_gengamma}
 est_gengamma <- gas(y = y, distr = "gengamma")
 est_gengamma
 ```
 
 By comparing the Akaike information criterion (AIC), we find that the most general model, i.e. the one based on the generalized gamma distribution, is the most suitable. For this purpose, we use generic function `AIC()`. Alternatively, the AIC of an estimated model is stored in `est_gengamma$fit$aic`.
 
-``` {r aic}
+``` {r durations_aic}
 AIC(est_exp, est_weibull, est_gamma, est_gengamma)
+```
+
+Let us take a look on the time-varying parameters of the generalized gamma model.
+
+``` {r durations_tv_plot, fig.cap = "Time-varying parameters based on the generalized gamma model."}
+plot(est_gengamma)
+```
+
+## Trend
+
+We can see a slight negative trend in time-varying parameters. We can try including a trend as an exogenous variable for all four considered distributions.
+
+``` {r durations_trend_models}
+x <- as.integer(data_dur$date) - as.integer(data_dur$date[1])
+
+est_exp_tr <- gas(y = y, x = x, distr = "exp", reg = "sep")
+est_exp_tr
+
+est_weibull_tr <- gas(y = y, x = x, distr = "weibull", reg = "sep")
+est_weibull_tr
+
+est_gamma_tr <- gas(y = y, x = x, distr = "gamma", reg = "sep")
+est_gamma_tr
+
+est_gengamma_tr <- gas(y = y, x = x, distr = "gengamma", reg = "sep")
+est_gengamma_tr
+```
+
+The trend variable is significant in all cases. The AIC also confirms improvement of the fit.
+
+``` {r durations_trend_aic}
+AIC(est_exp_tr, est_weibull_tr, est_gamma_tr, est_gengamma_tr)
+```
+
+Note that the time-varying parameters returned by the `gas()` function include the effect of exogenous variables. By using the `plot()` function, the now modeled trend can be clearly seen.
+
+``` {r durations_trend_tv_plot, fig.cap = "Time-varying parameters based on the generalized gamma model with trend."}
+plot(est_gengamma_tr)
 ```
 
 ## Bootstrapping
 
-To assess the suitability of standard deviations based on asymptotics for our finite sample, we employ the `gas_bootstrap()` function. This function conducts a parametric bootstrap, allowing us to calculate standard errors and quantiles. It's important to note that this could be computationally very intensive, depending on the number of repetitions, the quantity of observations, the complexity of the model structure, and the optimizer used.
+To assess the suitability of standard deviations based on asymptotics for our finite sample, we employ the `gas_bootstrap()` function. This function conducts a parametric bootstrap, allowing us to calculate standard errors and quantiles. It's important to note that this could be computationally very intensive, depending on the number of repetitions, the quantity of observations, the complexity of the model structure, and the optimizer used. Note that the function supports parallelization through arguments `parallel_function` and `parallel_arguments`. For example, for the `snow` parallelization functionality with 4 cores, you can call `gas_bootstrap(est_gengamma_tr, parallel_function = wrapper_parallel_snow, parallel_arguments = list(mc.cores = 4))`.
 
-``` {r boot}
+``` {r durations_boot_comp}
 set.seed(42)
-boot_gengamma <- gas_bootstrap(est_gengamma)
-boot_gengamma
+boot_gengamma_tr <- gas_bootstrap(est_gengamma_tr)
+boot_gengamma_tr
 ```
 
-Given that the number of observations in our model is 5752 (accessible through `est_gengamma$model$t`), it is reasonable to anticipate that standard deviations based on asymptotics would yield precise results. Fortunately, this holds true in our scenario. Note that standard deviations can also be obtained using the `vcov()` generic function for both `est_gengamma` and `boot_gengamma`.
+The results can also be viewed in a boxplot.
 
-``` {r sd}
-est_gengamma$fit$coef_sd - boot_gengamma$bootstrap$coef_sd
+``` {r durations_boot_plot, fig.cap = "Boxplot of bootstrapped coefficients based on the generalized gamma model with trend."}
+plot(boot_gengamma_tr)
+```
+
+Given that the number of observations in our model is 5752 (accessible through `est_gengamma_tr$model$t`), it is reasonable to anticipate that standard deviations based on asymptotics would yield precise results. Fortunately, this holds true in our scenario. Note that standard deviations can also be obtained using the `vcov()` generic function for both `est_gengamma_tr` and `boot_gengamma_tr`.
+
+``` {r durations_boot_sd}
+est_gengamma_tr$fit$coef_sd - boot_gengamma_tr$bootstrap$coef_sd
 ```
 
 ## Simulation
 
 Lastly, we highlight the utilization of simulation techniques. Simulation is executed using the `gas_simulate()` function, which can be supplied with either an estimated model or a custom model structure.
 
-``` {r sim}
+``` {r durations_sim_comp}
+t_sim <- 20
+x_sim <- rep(max(x) + 1, t_sim)
+
 set.seed(42)
-sim_gengamma <- gas_simulate(est_gengamma, t_sim = 20)
-sim_gengamma
+sim_gengamma_tr <- gas_simulate(est_gengamma_tr, t_sim = t_sim, x_sim = x_sim)
+sim_gengamma_tr
+```
+
+The simulated time series can be plotted using the generic `plot()` function.
+
+``` {r durations_sim_plot, fig.cap = "Simulated time series based on the generalized gamma model with trend."}
+plot(sim_gengamma_tr)
 ```
 
 The simulated time series can be employed, for example, to assess the impact of order arrivals on queuing systems, as demonstrated by Tomanová and Holý (2021).
-
 
 ## References
 

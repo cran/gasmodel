@@ -1,3 +1,8 @@
+# gasmodel 0.5.0
+* Added support for summarize() and plot() generic functions.
+* Added computation of p-values in the gas_bootstrap() function.
+* Added functionality for parallelization in the gas_bootstrap() function.
+
 # gasmodel 0.4.0
 * Added the asymmetric Laplace distribution.
 * Added the Birnbaum–Saunders distribution.

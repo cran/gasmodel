@@ -9,6 +9,7 @@
 #' A function for bootstrapping coefficients of generalized autoregressive score (GAS) models of Creal et al. (2013) and Harvey (2013).
 #' Method \code{"parametric"} repeatedly simulates time series using the parametric model and re-estimates coefficients.
 #' Instead of supplying arguments about the model, the function can be applied to the \code{gas} object obtained by the \code{\link[gasmodel:gas]{gas()}} function.
+#' The function enables parallelization.
 #'
 #' @inheritParams gas
 #' @inheritParams gas_simulate
@@ -16,8 +17,10 @@
 #' @param method A method used for bootstrapping. Currently, the only supported method is \code{"parametric"}.
 #' @param rep_boot A number of bootstrapping repetitions.
 #' @param quant A numeric vector of probabilities determining quantiles.
+#' @param parallel_function A parallelization function. For suitable wrappers of common R parallelization functions, see \code{\link[gasmodel:wrappers_parallel]{wrappers_parallel}}. Can be set to \code{NULL} if no parallelization is to be used.
+#' @param parallel_arguments An optional list of arguments to be passed to the optimization function.
 #'
-#' @return A list with components:
+#' @return A \code{list} of S3 class \code{gas_bootstrap} with components:
 #' \item{data$y}{The time series.}
 #' \item{data$x}{The exogenous variables.}
 #' \item{model$distr}{The conditional distribution.}
@@ -44,16 +47,20 @@
 #' \item{bootstrap$coef_mean}{The mean of bootstrapped coefficients.}
 #' \item{bootstrap$coef_vcov}{The variance-covariance matrix of bootstrapped coefficients.}
 #' \item{bootstrap$coef_sd}{The standard deviation of bootstrapped coefficients.}
+#' \item{bootstrap$coef_pval}{The p-value of bootstrapped coefficients.}
 #' \item{bootstrap$coef_quant}{The quantiles of bootstrapped coefficients.}
+#'
+#' @note
+#' Supported generic functions for S3 class \code{gas_bootstrap} include \code{\link[base:summary]{summary()}}, \code{\link[base:plot]{plot()}}, \code{\link[stats:coef]{coef()}}, and \code{\link[stats:vcov]{vcov()}}.
 #'
 #' @references
 #' Creal, D., Koopman, S. J., and Lucas, A. (2013). Generalized Autoregressive Score Models with Applications. \emph{Journal of Applied Econometrics}, \strong{28}(5), 777–795. \doi{10.1002/jae.1279}.
 #'
 #' Harvey, A. C. (2013). \emph{Dynamic Models for Volatility and Heavy Tails: With Applications to Financial and Economic Time Series}. Cambridge University Press. \doi{10.1017/cbo9781139540933}.
 #'
-#'
 #' @seealso
 #' \code{\link[gasmodel:gas]{gas()}}
+#' \code{\link[gasmodel:wrappers_parallel]{wrappers_parallel}}
 #'
 #' @examples
 #' # Load Level of Lake Huron dataset
@@ -71,9 +78,9 @@
 #' boot_gas}
 #'
 #' @export
-gas_bootstrap <- function(gas_object = NULL, method = "parametric", rep_boot = 1000L, quant = c(0.025, 0.975), y = NULL, x = NULL, distr = NULL, param = NULL, scaling = "unit", regress = "joint", p = 1L, q = 1L, par_static = NULL, par_link = NULL, par_init = NULL, lik_skip = 0L, coef_fix_value = NULL, coef_fix_other = NULL, coef_fix_special = NULL, coef_bound_lower = NULL, coef_bound_upper = NULL, coef_est = NULL, optim_function = wrapper_optim_nloptr, optim_arguments = list(opts = list(algorithm = 'NLOPT_LN_NELDERMEAD', xtol_rel = 0, maxeval = 1e6))) {
-  if (!is.null(gas_object) && "gas" %in% class(gas_object)) {
-    gas_bootstrap(gas_object = NULL, method = method, rep_boot = rep_boot, quant = quant, y = gas_object$data$y, x = gas_object$data$x, distr = gas_object$model$distr, param = gas_object$model$param, scaling = gas_object$model$scaling, regress = gas_object$model$regress, p = gas_object$model$p, q = gas_object$model$q, par_static = gas_object$model$par_static, par_link = gas_object$model$par_link, par_init = gas_object$model$par_init, lik_skip = gas_object$model$lik_skip, coef_fix_value = gas_object$model$coef_fix_value, coef_fix_other = gas_object$model$coef_fix_other, coef_fix_special = gas_object$model$coef_fix_special, coef_bound_lower = gas_object$model$coef_bound_lower, coef_bound_upper = gas_object$model$coef_bound_upper, coef_est = gas_object$fit$coef_est, optim_function = gas_object$control$optim_function, optim_arguments = gas_object$control$optim_arguments)
+gas_bootstrap <- function(gas_object = NULL, method = "parametric", rep_boot = 1000L, quant = c(0.025, 0.975), y = NULL, x = NULL, distr = NULL, param = NULL, scaling = "unit", regress = "joint", p = 1L, q = 1L, par_static = NULL, par_link = NULL, par_init = NULL, lik_skip = 0L, coef_fix_value = NULL, coef_fix_other = NULL, coef_fix_special = NULL, coef_bound_lower = NULL, coef_bound_upper = NULL, coef_est = NULL, optim_function = wrapper_optim_nloptr, optim_arguments = list(opts = list(algorithm = 'NLOPT_LN_NELDERMEAD', xtol_rel = 0, maxeval = 1e6)), parallel_function = NULL, parallel_arguments = list()) {
+  if (!is.null(gas_object) && inherits(gas_object, "gas")) {
+    gas_bootstrap(gas_object = NULL, method = method, rep_boot = rep_boot, quant = quant, y = gas_object$data$y, x = gas_object$data$x, distr = gas_object$model$distr, param = gas_object$model$param, scaling = gas_object$model$scaling, regress = gas_object$model$regress, p = gas_object$model$p, q = gas_object$model$q, par_static = gas_object$model$par_static, par_link = gas_object$model$par_link, par_init = gas_object$model$par_init, lik_skip = gas_object$model$lik_skip, coef_fix_value = gas_object$model$coef_fix_value, coef_fix_other = gas_object$model$coef_fix_other, coef_fix_special = gas_object$model$coef_fix_special, coef_bound_lower = gas_object$model$coef_bound_lower, coef_bound_upper = gas_object$model$coef_bound_upper, coef_est = gas_object$fit$coef_est, optim_function = gas_object$control$optim_function, optim_arguments = gas_object$control$optim_arguments, parallel_function = parallel_function, parallel_arguments = parallel_arguments)
   } else if (!is.null(gas_object)) {
     stop("Unsupported class of gas_object.")
   } else {
@@ -123,6 +130,13 @@ gas_bootstrap <- function(gas_object = NULL, method = "parametric", rep_boot = 1
     control <- list()
     control$optim_function <- check_generic_function(arg = optim_function, arg_name = "optim_function")
     control$optim_arguments <- check_generic_list(arg = optim_arguments, arg_name = "optim_arguments")
+    if (is.null(parallel_function)) {
+      control$parallel_function <- wrapper_parallel_none
+      control$parallel_arguments <- list()
+    } else {
+      control$parallel_function <- check_generic_function(arg = parallel_function, arg_name = "parallel_function")
+      control$parallel_arguments <- check_generic_list(arg = parallel_arguments, arg_name = "parallel_arguments")
+    }
     bootstrap <- list()
     bootstrap$method <- check_my_method(method = method, values = c("parametric"))
     comp <- list()
@@ -132,7 +146,7 @@ gas_bootstrap <- function(gas_object = NULL, method = "parametric", rep_boot = 1
     comp$theta_start <- convert_coef_vector_to_theta_vector(model$coef_est, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
     comp$theta_bound_lower <- convert_coef_vector_to_theta_vector(model$coef_bound_lower, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
     comp$theta_bound_upper <- convert_coef_vector_to_theta_vector(model$coef_bound_upper, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
-    comp$est_details <- list(data = data, model = model, fun = fun, info_distr = info_distr, info_par = info_par, info_coef = info_coef)
+    comp$est_details <- list(data = data, model = model, fun = fun, info_distr = info_distr, info_par = info_par, info_coef = info_coef, print_progress = FALSE)
     if (bootstrap$method == "parametric") {
       comp$pre_num <- max(c(model$p, model$q, 1L))
       comp$burn_num <- 10L + max(model$p) + max(model$q)
@@ -159,7 +173,12 @@ gas_bootstrap <- function(gas_object = NULL, method = "parametric", rep_boot = 1
           comp$par_tv[comp$idx_na, ] <- matrix(comp$par_init, nrow = length(comp$idx_na), ncol = info_par$par_num, byrow = TRUE)
           comp$score_tv[comp$idx_na, ] <- 0
         }
-        for (b in 1:comp$rep_boot) {
+        comp$run_details <- list(model = model, control = control, info_par = info_par, comp = comp)
+        comp$run_fun <- function(id, run_details) {
+          model <- run_details$model
+          control <- run_details$control
+          info_par <- run_details$info_par
+          comp <- run_details$comp
           comp$par_tv[comp$idx_ok, ] <- matrix(comp$omega_vector, nrow = length(comp$idx_ok), ncol = info_par$par_num, byrow = TRUE)
           if (any(model$m > 0L)) {
             comp$par_tv[comp$idx_ok, ] <- comp$par_tv[comp$idx_ok, ] + sapply(1L:info_par$par_num, function(i) { comp$x[[i]][comp$idx_ok, , drop = FALSE] %*% comp$beta_list[[i]] })
@@ -169,8 +188,9 @@ gas_bootstrap <- function(gas_object = NULL, method = "parametric", rep_boot = 1
             comp$score_tv[j, ] <- fun$score(y = comp$y[j, , drop = FALSE], f = comp$par_tv[j, , drop = FALSE])
           }
           comp$est_details$data$y <- comp$y[(comp$pre_num + comp$burn_num + 1L):comp$full_num, , drop = FALSE]
-          comp$result_optim <- do.call(control$optim_function, args = c(list(obj_fun = likelihood_objective, theta_start = comp$theta_start, theta_bound_lower = comp$theta_bound_lower, theta_bound_upper = comp$theta_bound_upper, est_details = comp$est_details, print_progress = FALSE), control$optim_arguments))
-          bootstrap$coef_set[b, ] <- convert_theta_vector_to_coef_vector(comp$result_optim$theta_optim, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
+          comp$result_optim <- do.call(control$optim_function, args = c(list(obj_fun = comp$fun$likelihood_objective, theta_start = comp$theta_start, theta_bound_lower = comp$theta_bound_lower, theta_bound_upper = comp$theta_bound_upper, est_details = comp$est_details), control$optim_arguments))
+          coef_set <- comp$fun$convert_theta_vector_to_coef_vector(comp$result_optim$theta_optim, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
+          return(coef_set)
         }
       } else if (model$regress == "joint") {
         comp$par_init <- model$par_init
@@ -182,7 +202,12 @@ gas_bootstrap <- function(gas_object = NULL, method = "parametric", rep_boot = 1
           comp$par_tv[comp$idx_na, ] <- matrix(comp$par_init, nrow = length(comp$idx_na), ncol = info_par$par_num, byrow = TRUE)
           comp$score_tv[comp$idx_na, ] <- 0
         }
-        for (b in 1:comp$rep_boot) {
+        comp$run_details <- list(model = model, control = control, info_par = info_par, comp = comp)
+        comp$run_fun <- function(id, run_details) {
+          model <- run_details$model
+          control <- run_details$control
+          info_par <- run_details$info_par
+          comp <- run_details$comp
           comp$par_tv[comp$idx_ok, ] <- matrix(comp$omega_vector, nrow = length(comp$idx_ok), ncol = info_par$par_num, byrow = TRUE)
           if (any(model$m > 0L)) {
             comp$par_tv[comp$idx_ok, ] <- comp$par_tv[comp$idx_ok, ] + sapply(1L:info_par$par_num, function(i) { comp$x[[i]][comp$idx_ok, , drop = FALSE] %*% comp$beta_list[[i]] })
@@ -197,8 +222,9 @@ gas_bootstrap <- function(gas_object = NULL, method = "parametric", rep_boot = 1
             comp$score_tv[j, ] <- fun$score(y = comp$y[j, , drop = FALSE], f = comp$par_tv[j, , drop = FALSE])
           }
           comp$est_details$data$y <- comp$y[(comp$pre_num + comp$burn_num + 1L):comp$full_num, , drop = FALSE]
-          comp$result_optim <- do.call(control$optim_function, args = c(list(obj_fun = likelihood_objective, theta_start = comp$theta_start, theta_bound_lower = comp$theta_bound_lower, theta_bound_upper = comp$theta_bound_upper, est_details = comp$est_details, print_progress = FALSE), control$optim_arguments))
-          bootstrap$coef_set[b, ] <- convert_theta_vector_to_coef_vector(comp$result_optim$theta_optim, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
+          comp$result_optim <- do.call(control$optim_function, args = c(list(obj_fun = likelihood_objective, theta_start = comp$theta_start, theta_bound_lower = comp$theta_bound_lower, theta_bound_upper = comp$theta_bound_upper, est_details = comp$est_details), control$optim_arguments))
+          coef_set <- convert_theta_vector_to_coef_vector(comp$result_optim$theta_optim, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
+          return(coef_set)
         }
       } else if (model$regress == "sep") {
         comp$err_tv <- matrix(NA_real_, nrow = comp$full_num, ncol = info_par$par_num)
@@ -214,7 +240,12 @@ gas_bootstrap <- function(gas_object = NULL, method = "parametric", rep_boot = 1
           comp$par_tv[comp$idx_na, ] <- matrix(comp$par_init, nrow = length(comp$idx_na), ncol = info_par$par_num, byrow = TRUE)
           comp$score_tv[comp$idx_na, ] <- 0
         }
-        for (b in 1:comp$rep_boot) {
+        comp$run_details <- list(model = model, control = control, info_par = info_par, comp = comp)
+        comp$run_fun <- function(id, run_details) {
+          model <- run_details$model
+          control <- run_details$control
+          info_par <- run_details$info_par
+          comp <- run_details$comp
           comp$par_tv[comp$idx_ok, ] <- matrix(comp$omega_vector, nrow = length(comp$idx_ok), ncol = info_par$par_num, byrow = TRUE)
           if (any(model$m > 0L)) {
             comp$par_tv[comp$idx_ok, ] <- comp$par_tv[comp$idx_ok, ] + sapply(1L:info_par$par_num, function(i) { comp$x[[i]][comp$idx_ok, , drop = FALSE] %*% comp$beta_list[[i]] })
@@ -230,17 +261,22 @@ gas_bootstrap <- function(gas_object = NULL, method = "parametric", rep_boot = 1
             comp$score_tv[j, ] <- fun$score(y = comp$y[j, , drop = FALSE], f = comp$par_tv[j, , drop = FALSE])
           }
           comp$est_details$data$y <- comp$y[(comp$pre_num + comp$burn_num + 1L):comp$full_num, , drop = FALSE]
-          comp$result_optim <- do.call(control$optim_function, args = c(list(obj_fun = likelihood_objective, theta_start = comp$theta_start, theta_bound_lower = comp$theta_bound_lower, theta_bound_upper = comp$theta_bound_upper, est_details = comp$est_details, print_progress = FALSE), control$optim_arguments))
-          bootstrap$coef_set[b, ] <- convert_theta_vector_to_coef_vector(comp$result_optim$theta_optim, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
+          comp$result_optim <- do.call(control$optim_function, args = c(list(obj_fun = likelihood_objective, theta_start = comp$theta_start, theta_bound_lower = comp$theta_bound_lower, theta_bound_upper = comp$theta_bound_upper, est_details = comp$est_details), control$optim_arguments))
+          coef_set <- convert_theta_vector_to_coef_vector(comp$result_optim$theta_optim, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other)
+          return(coef_set)
         }
       }
+      comp$coef_list <- do.call(control$parallel_function, args = c(list(run_num = comp$rep_boot, run_fun = comp$run_fun, run_details = comp$run_details), control$parallel_arguments))
+      bootstrap$coef_set <- matrix(unlist(comp$coef_list), nrow = comp$rep_boot, byrow = TRUE)
     }
     info_data <- info_data(y = data$y, x = data$x)
     data$y <- name_matrix(data$y, info_data$index_time, info_data$index_series, drop = c(FALSE, TRUE))
     data$x <- name_list_of_matrices(data$x, info_par$par_names, info_data$index_time_list, info_data$index_vars_list, drop = c(FALSE, TRUE), zero = c(FALSE, TRUE))
-    bootstrap$coef_mean <- colMeans(bootstrap$coef_set)
-    bootstrap$coef_vcov <- stats::cov(bootstrap$coef_set)
-    bootstrap$coef_sd <- sqrt(diag(bootstrap$coef_vcov))
+    bootstrap$coef_set <- name_matrix(bootstrap$coef_set, paste0("s", 1:comp$rep_boot), info_coef$coef_names, drop = c(FALSE, FALSE))
+    bootstrap$coef_mean <- name_vector(colMeans(bootstrap$coef_set), info_coef$coef_names)
+    bootstrap$coef_vcov <- name_matrix(stats::cov(bootstrap$coef_set), info_coef$coef_names, info_coef$coef_names,  drop = c(FALSE, FALSE))
+    bootstrap$coef_sd <-  name_vector(sqrt(diag(bootstrap$coef_vcov)), info_coef$coef_names)
+    bootstrap$coef_pval <-  name_vector(apply(bootstrap$coef_set, MARGIN = 2, FUN = function(x) { 1 - 2 * abs(mean(x >= 0) - 0.5) }), info_coef$coef_names)
     bootstrap$coef_quant <- name_matrix(t(matrix(apply(bootstrap$coef_set, 2, stats::quantile, probs = comp$quant), ncol = info_coef$coef_num)), info_coef$coef_names, paste0(comp$quant * 100, "%"), drop = c(FALSE, TRUE), zero = c(FALSE, TRUE))
     report <- list(data = data, model = model, bootstrap = bootstrap)
     class(report) <- "gas_bootstrap"
@@ -260,10 +296,22 @@ print.gas_bootstrap <- function(x, ...) {
   cat("\n")
   cat("Number of Bootstrap Samples:", nrow(x$bootstrap$coef_set), "\n")
   cat("\n")
-  coef_table <- cbind("Original" = x$model$coef_est, "Mean" = x$bootstrap$coef_mean, "Std. Error" = x$bootstrap$coef_sd, x$bootstrap$coef_quant)
+  coef_table <- cbind("Original" = x$model$coef_est, "Mean" = x$bootstrap$coef_mean, "Std. Error" = x$bootstrap$coef_sd, "P-Value" = x$bootstrap$coef_pval, x$bootstrap$coef_quant)
   cat("Bootstrapped Coefficients:", "\n")
   print(coef_table)
   invisible(x)
+}
+# ------------------------------------------------------------------------------
+
+
+# Summarize Bootstrap Coefficients ---------------------------------------------
+#' @export
+summary.gas_bootstrap <- function(object, ...) {
+  print(object)
+  cat("\n")
+  cat("Bootstrapped Variance-Covariance Matrix:", "\n")
+  print(object$bootstrap$coef_vcov)
+  invisible(object)
 }
 # ------------------------------------------------------------------------------
 
@@ -282,6 +330,24 @@ coef.gas_bootstrap <- function(object, ...) {
 vcov.gas_bootstrap <- function(object, ...) {
   coef_vcov <- object$bootstrap$coef_vcov
   return(coef_vcov)
+}
+# ------------------------------------------------------------------------------
+
+
+# Plot Bootstrapped Coefficients -----------------------------------------------
+#' @importFrom dplyr %>%
+#' @importFrom ggplot2 .data
+#' @export
+plot.gas_bootstrap <- function(x, ...) {
+  gg_data <- x$bootstrap$coef_set %>%
+    dplyr::as_tibble() %>%
+    tidyr::pivot_longer(cols = dplyr::everything(), names_to = "coef", values_to = "value") %>%
+    dplyr::mutate(coef = factor(.data$coef, levels = unique(.data$coef)))
+  gg_fig <- ggplot2::ggplot(gg_data, mapping = ggplot2::aes(.data$coef, .data$value)) +
+    ggplot2::geom_boxplot(color = "#800000", fill = "#FFAAAA") +
+    ggplot2::labs(title = "Bootstrapped Coefficients", x = "Coefficient", y = "Coefficient Value")
+  print(gg_fig)
+  invisible(gg_fig)
 }
 # ------------------------------------------------------------------------------
 
