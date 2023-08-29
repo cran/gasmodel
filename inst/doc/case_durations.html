@@ -604,9 +604,9 @@ structure, and the optimizer used. Note that the function supports
 parallelization through arguments <code>parallel_function</code> and
 <code>parallel_arguments</code>. For example, for the <code>snow</code>
 parallelization functionality with 4 cores, you can call
-<code>gas_bootstrap(est_gengamma_tr, parallel_function = wrapper_parallel_snow, parallel_arguments = list(mc.cores = 4))</code>.</p>
+<code>gas_bootstrap(est_gengamma_tr, parallel_function = wrapper_parallel_snow, parallel_arguments = list(spec = 4))</code>.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>boot_gengamma_tr <span class="ot">&lt;-</span> <span class="fu">gas_bootstrap</span>(est_gengamma_tr)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>boot_gengamma_tr <span class="ot">&lt;-</span> <span class="fu">gas_bootstrap</span>(est_gengamma_tr, <span class="at">method =</span> <span class="st">&quot;parametric&quot;</span>)</span>
 <span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>boot_gengamma_tr</span>
 <span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; GAS Model: Generalized Gamma Distribution / Scale Parametrization / Unit Scaling </span></span>
 <span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
