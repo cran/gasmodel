@@ -125,8 +125,10 @@ They capture the dynamics of time-varying parameters using the autoregressive te
 Exogenous variables can also be included.
 Specifically, time-varying parameters \eqn{f_t} follow the recursion
 \deqn{f_t = \omega + \sum_{i=1}^M \beta_i x_{ti} + \sum_{j=1}^P \alpha_j S(f_{t-j}) \nabla(y_{t-j}, f_{t-j}) + \sum_{k=1}^Q \varphi_k f_{t-k},}{f_t = \omega + \sum_{i=1}^M \beta_i x_{ti} + \sum_{j=1}^P \alpha_j S(f_{t-j}) ∇(y_{t-j}, f_{t-j}) + \sum_{k=1}^Q \phi_k f_{t-k},}
-where \eqn{\omega} is a vector of constants, \eqn{\beta_i} are regression parameters, \eqn{\alpha_j} are score parameters, \eqn{\varphi_k}{\phi_k} are autoregressive parameters, \eqn{x_{ti}} are exogenous variables, \eqn{S(f_t)} is a scaling function for the score, and \eqn{\nabla(y_t, f_t)}{∇(y_t, f_t)} is the score given by
+where \eqn{\omega} is the intercept, \eqn{\beta_i} are the regression parameters, \eqn{\alpha_j} are the score parameters, \eqn{\varphi_k}{\phi_k} are the autoregressive parameters, \eqn{x_{ti}} are the exogenous variables, \eqn{S(f_t)} is a scaling function for the score, and \eqn{\nabla(y_t, f_t)}{∇(y_t, f_t)} is the score given by
 \deqn{\nabla(y_t, f_t) = \frac{\partial \ln p(y_t | f_t)}{\partial f_t}.}{∇(y_t, f_t) = d ln p(y_t | f_t) / d f_t.}
+In the case of a single time-varying parameter, \eqn{\omega}, \eqn{\beta_i}, \eqn{\alpha_j}, \eqn{\varphi_k}, \eqn{x_{ti}}, \eqn{S(f_t)}, and \eqn{\nabla(y_t, f_t)} are all scalar.
+In the case of multiple time-varying parameters, \eqn{x_{ti}} are scalar, \eqn{\omega}, \eqn{\beta_i}, and \eqn{\nabla(y_{t - j}, f_{t - j})} are vectors, \eqn{\alpha_j} and \eqn{\varphi_k} are diagonal matrices, and \eqn{S(f_t)} is a square matrix.
 Alternatively, a different model can be obtained by defining the recursion in the fashion of regression models with dynamic errors as
 \deqn{f_t = \omega + \sum_{i=1}^M \beta_i x_{ti} + e_{t}, \quad e_t = \sum_{j=1}^P \alpha_j S(f_{t-j}) \nabla(y_{t-j}, f_{t-j}) + \sum_{k=1}^Q \varphi_k e_{t-k}.}{f_t = \omega + \sum_{i=1}^M \beta_i x_{ti} + e_t,   e_t = \sum_{j=1}^P \alpha_j S(f_{t-j}) ∇(y_{t-j}, f_{t-j}) + \sum_{k=1}^Q \phi_k e_{t-k}.}
 
@@ -149,32 +151,31 @@ The extensive GAS literature is listed on \href{http://www.gasmodel.com}{www.gas
 Supported generic functions for S3 class \code{gas} include \code{\link[base:summary]{summary()}}, \code{\link[base:plot]{plot()}}, \code{\link[stats:coef]{coef()}}, \code{\link[stats:vcov]{vcov()}}, \code{\link[stats:fitted]{fitted()}}, \code{\link[stats:residuals]{residuals()}}, \code{\link[stats:logLik]{logLik()}}, \code{\link[stats:AIC]{AIC()}}, \code{\link[stats:BIC]{BIC()}}, and \code{\link[stats:confint]{confint()}}.
 }
 \examples{
-# Load Level of Lake Huron dataset
-data(LakeHuron)
-y <- LakeHuron - 570
-x <- 1:length(y)
+\donttest{# Load the Daily Toilet Paper Sales dataset
+data("toilet_paper_sales")
+y <- toilet_paper_sales$quantity
+x <- as.matrix(toilet_paper_sales[3:9])
 
-# Estimate GAS model based on the normal distribution with dynamic mean
-est_gas <- gas(y = y, x = x, distr = "norm", regress = "sep",
-  coef_start = c(9.99, -0.02, 0.46, 0.67, 0.46))
-est_gas
+# Estimate GAS model based on the negative binomial distribution
+est_negbin <- gas(y = y, x = x, distr = "negbin", regress = "sep")
+est_negbin
 
 # Obtain the estimated coefficients
-coef(est_gas)
+coef(est_negbin)
 
 # Obtain the estimated variance-covariance matrix
-vcov(est_gas)
+vcov(est_negbin)
 
 # Obtain the log-likelihood, AIC, and BIC
-logLik(est_gas)
-AIC(est_gas)
-BIC(est_gas)
+logLik(est_negbin)
+AIC(est_negbin)
+BIC(est_negbin)
 
 # Obtain the confidence intervals of coefficients
-confint(est_gas)
+confint(est_negbin)
 
 # Plot the time-varying parameters
-plot(est_gas)
+plot(est_negbin)}
 
 }
 \references{

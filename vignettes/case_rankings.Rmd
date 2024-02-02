@@ -1,7 +1,7 @@
 ---
 title: "Case Study: Ice Hockey Rankings"
 author: "Vladimír Holý & Jan Zouhar"
-date: "2023-08-25"
+date: "2024-02-01"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Case Study: Ice Hockey Rankings}
@@ -21,11 +21,11 @@ Our analyzed data are supplied in the `ice_hockey_championships` dataset. We res
 
 
 ```r
-library(dplyr)
-library(ggplot2)
-library(gasmodel)
+library("dplyr")
+library("ggplot2")
+library("gasmodel")
 
-data(ice_hockey_championships)
+data("ice_hockey_championships")
 
 t <- 22
 n <- ncol(ice_hockey_championships$host)
@@ -72,12 +72,12 @@ The `gasmodel` package provides a single distribution on rankings -- the Placket
 ```r
 distr(filter_type = "ranking")
 #>      distr_title param_title distr param    type   dim orthog default
-#> 24 Plackett-Luce       Worth pluce worth ranking multi  FALSE    TRUE
+#> 32 Plackett-Luce       Worth pluce worth ranking multi  FALSE    TRUE
 ```
 
 It is a convenient and simple probability distribution on rankings utilizing a worth parameter for each item to be ranked. It originates from Luce’s choice axiom and is also related to the Thurstone’s theory of comparative judgment, see Luce (1977) and Yellott (1977). For more details on this distribution, see Plackett (1975), Stern (1990), and Critchlow et al. (1991).
 
-We consider a total of three different models. We incorporate `x` as an explanatory variable in our model to capture possible home advantage. For each model, we assume a panel-like structure where each worth parameter has its own intercept, while the regression and dynamics parameters remain the same for all worth parameters. In the `gasmodel` package, this structure can be achieved using the `coef_fix_value` and `coef_fix_other` arguments. Alternatively, for convenience, the value `panel_structure` can be included in the `coef_fix_special` argument. It is important to note that the worth parameters in the Plackett--Luce distribution are not identifiable, and it is common practice to impose a standardizing condition. In our model, we enforce the condition that the sum of all $\omega_i$ is 0. This can be accomplished by including the value `zero_sum_intercept` in the `coef_fix_special` argument.
+We consider three different model specifications. We incorporate `x` as an explanatory variable in our model to capture possible home advantage. For each model specification, we assume a panel-like structure where each worth parameter has its own intercept, while the regression and dynamics parameters remain the same for all worth parameters. In the `gasmodel` package, this structure can be achieved using the `coef_fix_value` and `coef_fix_other` arguments. Alternatively, for convenience, the value `panel_structure` can be included in the `coef_fix_special` argument. It is important to note that the worth parameters in the Plackett--Luce distribution are not identifiable, and it is common practice to impose a standardizing condition. In our model, we enforce the condition that the sum of all $\omega_i$ is 0. This can be accomplished by including the value `zero_sum_intercept` in the `coef_fix_special` argument.
 
 First, we estimate the static model where there are no dynamics involved. In this case, we set both the autoregressive and score orders to zero. Either a single integer can be provided to determine the order for all parameters, or a vector of integers can be supplied to specify the order for individual parameters.
 
@@ -113,9 +113,9 @@ cbind(est_static = c("beta1" = unname(coef(est_static)[2]), "alpha1" = 0, "phi1"
   est_stnry = coef(est_stnry)[2:4],
   est_walk = coef(est_walk)[2:4])
 #>        est_static est_stnry   est_walk
-#> beta1   0.1707329 0.2274378 0.09873335
-#> alpha1  0.0000000 0.3919432 0.34300137
-#> phi1    0.0000000 0.5062479 1.00000000
+#> beta1   0.1707329 0.2274380 0.09873333
+#> alpha1  0.0000000 0.3919431 0.34300134
+#> phi1    0.0000000 0.5062478 1.00000000
 ```
 
 In all three models, coefficient $\alpha_1$ representing the home advantage is positive but not significant.
@@ -126,9 +126,9 @@ cbind(est_static = c("beta1" = unname(est_static$fit$coef_pval)[2], "alpha1" = 0
       est_stnry = est_stnry$fit$coef_pval[2:4],
       est_walk = est_walk$fit$coef_pval[2:4])
 #>        est_static    est_stnry     est_walk
-#> beta1    0.514887 3.772815e-01 5.995825e-01
-#> alpha1   0.000000 2.141361e-06 2.634611e-09
-#> phi1     0.000000 6.463353e-04 0.000000e+00
+#> beta1    0.514887 3.772811e-01 5.995826e-01
+#> alpha1   0.000000 2.141363e-06 2.634614e-09
+#> phi1     0.000000 6.463390e-04 0.000000e+00
 ```
 
 We compare the models using the Akaike information criterion (AIC). The `gas` class allows for generic function `AIC()`. In terms of AIC, the mean-reverting model outperformed the remaining two by a wide margin.
@@ -157,21 +157,21 @@ tibble(team = colnames(y)) %>%
 #> # A tibble: 24 × 5
 #>    team  stnry_strength stnry_rank static_strength static_rank
 #>    <chr>          <dbl>      <dbl>           <dbl>       <dbl>
-#>  1 CAN           3.72            1          3.72             2
-#>  2 FIN           3.70            2          3.66             3
-#>  3 SWE           3.65            3          3.84             1
-#>  4 CZE           3.47            4          3.41             4
-#>  5 RUS           3.25            5          3.17             5
+#>  1 FIN           3.76            1          3.69             3
+#>  2 CAN           3.74            2          3.72             2
+#>  3 SWE           3.71            3          3.86             1
+#>  4 CZE           3.51            4          3.42             4
+#>  5 RUS           3.31            5          3.19             5
 #>  6 USA           1.83            6          2.18             6
-#>  7 CHE           1.67            7          1.76             7
-#>  8 SVK           1.65            8          1.55             8
-#>  9 LVA           0.862           9          0.822            9
-#> 10 DEU           0.280          10          0.311           10
-#> 11 BLR           0.254          11          0.109           11
-#> 12 NOR           0.0335         12         -0.0743          12
+#>  7 CHE           1.72            7          1.78             7
+#>  8 SVK           1.69            8          1.56             8
+#>  9 LVA           0.883           9          0.830            9
+#> 10 DEU           0.343          10          0.334           10
+#> 11 BLR           0.275          11          0.116           11
+#> 12 NOR           0.0544         12         -0.0665          12
 #> 13 DNK          -0.0732         13         -0.175           13
-#> 14 FRA          -0.405          14         -0.509           14
-#> 15 AUT          -0.833          15         -0.886           15
+#> 14 FRA          -0.384          14         -0.501           14
+#> 15 AUT          -0.812          15         -0.878           15
 #> 16 ITA          -1.02           16         -1.10            16
 #> 17 UKR          -1.34           17         -1.52            17
 #> 18 SVN          -1.75           18         -1.64            18
@@ -189,7 +189,7 @@ Additionally, we can examine the evolution of the worth parameters for individua
 
 
 ```r
-plot(est_static)
+plot(est_static, which = 3)
 ```
 
 <div class="figure" style="text-align: center">
@@ -198,7 +198,7 @@ plot(est_static)
 </div>
 
 ```r
-plot(est_stnry)
+plot(est_stnry, which = 3)
 ```
 
 <div class="figure" style="text-align: center">
@@ -207,7 +207,7 @@ plot(est_stnry)
 </div>
 
 ```r
-plot(est_walk)
+plot(est_walk, which = 3)
 ```
 
 <div class="figure" style="text-align: center">
@@ -227,12 +227,12 @@ To visualize time-varying parameters with confidence band, we can use the `plot(
 
 
 ```r
-plot(flt_stnry)
+plot(flt_stnry, which = 3)
 ```
 
 <div class="figure" style="text-align: center">
 <img src="rankings_filter_plot-1.png" alt="Confidence bands of time-varying parameters of the Canada team based on the stationary model." width="75%" />
-<p class="caption">Confidence band of time-varying parameters of the Canada team based on the stationary model.</p>
+<p class="caption">Confidence bands of time-varying parameters of the Canada team based on the stationary model.</p>
 </div>
 
 ## Forecasting
@@ -244,45 +244,45 @@ Finally, we perform one-year-ahead forecasts. We use the `gas_forecast()` functi
 fcst_stnry <- gas_forecast(est_stnry, t_ahead = 1, x_ahead = 0)
 
 tibble(team = colnames(y)) %>%
-  mutate(forecasted_strength = fcst_stnry$forecast$par_tv_ahead_mean[1, ]) %>%
-  mutate(forecasted_gold = exp(forecasted_strength) / sum(exp(forecasted_strength))) %>%
-  mutate(forecasted_rank = rank(-forecasted_strength)) %>%
+  mutate(fcst_strength = fcst_stnry$forecast$par_tv_ahead_mean[1, ]) %>%
+  mutate(fcst_gold = exp(fcst_strength) / sum(exp(fcst_strength))) %>%
+  mutate(fcst_rank = rank(-fcst_strength)) %>%
   mutate(real_rank = ice_hockey_championships$rankings[24, ]) %>%
   arrange(real_rank)
 #> # A tibble: 24 × 5
-#>    team  forecasted_strength forecasted_gold forecasted_rank real_rank
-#>    <chr>               <dbl>           <dbl>           <dbl>     <dbl>
-#>  1 CAN                 3.97        0.234                   2         1
-#>  2 FIN                 3.97        0.235                   1         2
-#>  3 USA                 2.09        0.0356                  6         3
-#>  4 DEU                 0.742       0.00929                10         4
-#>  5 RUS                 3.43        0.137                   3         5
-#>  6 CHE                 1.82        0.0272                  7         6
-#>  7 CZE                 3.41        0.134                   4         7
-#>  8 SVK                 1.58        0.0214                  8         8
-#>  9 SWE                 3.40        0.133                   5         9
-#> 10 KAZ                -2.05        0.000569               19        10
-#> 11 LVA                 0.978       0.0117                  9        11
-#> 12 DNK                 0.229       0.00556                11        12
-#> 13 NOR                 0.125       0.00501                12        13
-#> 14 GBR                -3.55        0.000127               22        14
-#> 15 BLR                -0.704       0.00219                14        15
-#> 16 ITA                -0.957       0.00170                16        16
-#> 17 AUT                -0.832       0.00192                15       Inf
-#> 18 FRA                -0.490       0.00271                13       Inf
-#> 19 HUN                -3.31        0.000162               21       Inf
-#> 20 JPN                -2.21        0.000486               20       Inf
-#> 21 KOR                -3.81        0.0000982              23       Inf
-#> 22 POL                -3.99        0.0000821              24       Inf
-#> 23 SVN                -1.95        0.000631               18       Inf
-#> 24 UKR                -1.69        0.000813               17       Inf
+#>    team  fcst_strength fcst_gold fcst_rank real_rank
+#>    <chr>         <dbl>     <dbl>     <dbl>     <dbl>
+#>  1 CAN           3.97  0.234             2         1
+#>  2 FIN           3.97  0.235             1         2
+#>  3 USA           2.09  0.0356            6         3
+#>  4 DEU           0.742 0.00929          10         4
+#>  5 RUS           3.43  0.137             3         5
+#>  6 CHE           1.82  0.0272            7         6
+#>  7 CZE           3.41  0.134             4         7
+#>  8 SVK           1.58  0.0214            8         8
+#>  9 SWE           3.40  0.133             5         9
+#> 10 KAZ          -2.05  0.000569         19        10
+#> 11 LVA           0.978 0.0117            9        11
+#> 12 DNK           0.229 0.00556          11        12
+#> 13 NOR           0.125 0.00501          12        13
+#> 14 GBR          -3.55  0.000127         22        14
+#> 15 BLR          -0.704 0.00219          14        15
+#> 16 ITA          -0.957 0.00170          16        16
+#> 17 AUT          -0.832 0.00192          15       Inf
+#> 18 FRA          -0.490 0.00271          13       Inf
+#> 19 HUN          -3.31  0.000162         21       Inf
+#> 20 JPN          -2.21  0.000486         20       Inf
+#> 21 KOR          -3.81  0.0000982        23       Inf
+#> 22 POL          -3.99  0.0000821        24       Inf
+#> 23 SVN          -1.95  0.000631         18       Inf
+#> 24 UKR          -1.69  0.000813         17       Inf
 ```
 
 The forecasted values can be displayed using the generic `plot()` function.
 
 
 ```r
-plot(fcst_stnry)
+plot(fcst_stnry, which = 3)
 ```
 
 <div class="figure" style="text-align: center">
@@ -296,7 +296,7 @@ Alvo, M. and Yu, P. L. H. (2014). *Statistical Methods for Ranking Data*. Spring
 
 Critchlow, D. E., Fligner, M. A., and Verducci, J. S. (1991). Probability Models on Rankings. *Journal of Mathematical Psychology*, **35**(3), 294–318. doi: [10.1016/0022-2496(91)90050-4](https://doi.org/10.1016/0022-2496(91)90050-4).
 
-Holý, V. and Zouhar, J. (2021). Modelling Time-Varying Rankings with Autoregressive and Score-Driven Dynamics. Journal of the Royal Statistical Society: Series C (Applied Statistics). doi: [10.1111/rssc.12584](https://doi.org/10.1111/rssc.12584).
+Holý, V. and Zouhar, J. (2022). Modelling Time-Varying Rankings with Autoregressive and Score-Driven Dynamics. Journal of the Royal Statistical Society: Series C (Applied Statistics), **71**(5), 1427–1450. doi: [10.1111/rssc.12584](https://doi.org/10.1111/rssc.12584).
 
 Luce, R. D. (1977). The Choice Axiom after Twenty Years. *Journal of Mathematical Psychology*, **15**(3), 215–233. doi: [10.1016/0022-2496(77)90032-3](https://doi.org/10.1016/0022-2496(77)90032-3).
 

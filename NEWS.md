@@ -1,3 +1,17 @@
+# gasmodel 0.6.0
+* Added the Burr distribution.
+* Added the exponential-logarithmic distribution.
+* Added the Fisk distribution.
+* Added the Kumaraswamy distribution.
+* Added the log-normal distribution.
+* Added the logistic distribution.
+* Added the Lomax distribution.
+* Added the Rayleigh distribution.
+* Modified the datasets.
+* Changed the examples.
+* Increased the running speed of the estimation.
+* Corrected the log-likelihood function for the zero-inflated geometric distribution.
+
 # gasmodel 0.5.1
 * Added block bootstrap methods.
 

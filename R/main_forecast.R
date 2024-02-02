@@ -63,23 +63,22 @@
 #' \code{\link[gasmodel:gas]{gas()}}
 #'
 #' @examples
-#' # Load Level of Lake Huron dataset
-#' data(LakeHuron)
-#' y <- LakeHuron - 570
-#' x <- 1:length(y)
+#' \donttest{# Load the Daily Toilet Paper Sales dataset
+#' data("toilet_paper_sales")
+#' y <- toilet_paper_sales$quantity
+#' x <- as.matrix(toilet_paper_sales[3:9])
 #'
-#' # Estimate GAS model based on the normal distribution with dynamic mean
-#' est_gas <- gas(y = y, x = x, distr = "norm", regress = "sep",
-#'   coef_start = c(9.99, -0.02, 0.46, 0.67, 0.46))
-#' est_gas
+#' # Estimate GAS model based on the negative binomial distribution
+#' est_negbin <- gas(y = y, x = x, distr = "negbin", regress = "sep")
+#' est_negbin
 #'
 #' # Forecast the model by the "mean_paths" method
-#' fcst_gas <- gas_forecast(est_gas, method = "mean_path",
-#'   t_ahead = 22, x_ahead = 99:120)
-#' fcst_gas
+#' x_ahead <- cbind(kronecker(matrix(1, 53, 1), diag(7)), 1)[3:367, -1]
+#' fcst_negbin <- gas_forecast(est_negbin, t_ahead = 365, x_ahead = x_ahead)
+#' fcst_negbin
 #'
 #' # Plot the forecasted expected value
-#' plot(fcst_gas)
+#' plot(fcst_negbin)}
 #'
 #' @export
 gas_forecast <- function(gas_object = NULL, method = "mean_path", t_ahead = 1L, x_ahead = NULL, rep_ahead = 1000L, quant = c(0.025, 0.975), y = NULL, x = NULL, distr = NULL, param = NULL, scaling = "unit", regress = "joint", p = 1L, q = 1L, par_static = NULL, par_link = NULL, par_init = NULL, coef_est = NULL) {
@@ -410,7 +409,7 @@ summary.gas_forecast <- function(object, ...) {
 #' @importFrom dplyr %>%
 #' @importFrom ggplot2 .data
 #' @export
-plot.gas_forecast <- function(x, ...) {
+plot.gas_forecast <- function(x, which = NULL, ...) {
   y <- x$data$y
   y_fcst <- x$forecast$y_ahead_mean
   if (is.vector(y)) {
@@ -423,7 +422,6 @@ plot.gas_forecast <- function(x, ...) {
       ggplot2::geom_line(color = "#800000") +
       ggplot2::geom_point(color = "#800000") +
       ggplot2::labs(title = "Forecasted Time Series", x = "Time Index", y = "Observation Value")
-    print(gg_fig)
     gg_list <- list(gg_fig)
   } else {
     y_full <- rbind(y, y_fcst)
@@ -448,10 +446,18 @@ plot.gas_forecast <- function(x, ...) {
         ggplot2::labs(title = paste("Forecasted Time Series", ser_names[i]), x = "Time Index", y = "Observation Value")
       gg_list <- append(gg_list, list(gg_fig))
     }
-    print(gg_list[[1]])
+  }
+  gg_which <- 1:length(gg_list)
+  if (!is.null(which)) {
+    gg_which <- gg_which[gg_which %in% which]
+  }
+  if (length(gg_which) == 1) {
+    be_silent(print(gg_list[[gg_which[1]]]))
+  } else if (length(gg_which) > 1) {
+    be_silent(print(gg_list[[gg_which[1]]]))
     old_par <- grDevices::devAskNewPage(ask = TRUE)
-    for (i in 2:length(gg_list)) {
-      print(gg_list[[i]])
+    for (i in 2:length(gg_which)) {
+      be_silent(print(gg_list[[gg_which[i]]]))
     }
     on.exit(grDevices::devAskNewPage(ask = old_par))
   }

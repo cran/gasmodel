@@ -47,13 +47,13 @@
 #' @seealso \code{\link[gasmodel:gas]{gas()}}
 #'
 #' @examples
-#' # Simulate GAS model based on the Weibull distribution with dynamic scale
-#' sim_gas <- gas_simulate(t_sim = 50, distr = "weibull",
-#'   coef_est = c(0.2, 0.1, 0.8, 2.0))
-#' sim_gas
+#' \donttest{# Simulate GAS model based on the negative binomial distribution
+#' sim_negbin <- gas_simulate(t_sim = 50, distr = "negbin", reg = "sep",
+#'   coef_est = c(2.60, 0.02, 0.95, 0.03))
+#' sim_negbin
 #'
 #' # Plot the simulated time series
-#' plot(sim_gas)
+#' plot(sim_negbin)}
 #'
 #' @export
 gas_simulate <- function(gas_object = NULL, t_sim = 1L, x_sim = NULL, distr = NULL, param = NULL, scaling = "unit", regress = "joint", n = NULL, p = 1L, q = 1L, par_static = NULL, par_link = NULL, par_init = NULL, coef_est = NULL) {
@@ -226,7 +226,7 @@ summary.gas_simulate <- function(object, ...) {
 #' @importFrom dplyr %>%
 #' @importFrom ggplot2 .data
 #' @export
-plot.gas_simulate <- function(x, ...) {
+plot.gas_simulate <- function(x, which = NULL, ...) {
   y_sim <- x$simulation$y_sim
   if (is.vector(y_sim)) {
     ts_index <- 1:length(y_sim)
@@ -235,7 +235,6 @@ plot.gas_simulate <- function(x, ...) {
       ggplot2::geom_line(color = "#800000") +
       ggplot2::geom_point(color = "#800000") +
       ggplot2::labs(title = "Simulated Time Series", x = "Time Index", y = "Observation Value")
-    print(gg_fig)
     gg_list <- list(gg_fig)
   } else {
     ser_names <- colnames(y_sim)
@@ -257,10 +256,18 @@ plot.gas_simulate <- function(x, ...) {
         ggplot2::labs(title = paste("Simulated Time Series", ser_names[i]), x = "Time Index", y = "Observation Value")
       gg_list <- append(gg_list, list(gg_fig))
     }
-    print(gg_list[[1]])
+  }
+  gg_which <- 1:length(gg_list)
+  if (!is.null(which)) {
+    gg_which <- gg_which[gg_which %in% which]
+  }
+  if (length(gg_which) == 1) {
+    be_silent(print(gg_list[[gg_which[1]]]))
+  } else if (length(gg_which) > 1) {
+    be_silent(print(gg_list[[gg_which[1]]]))
     old_par <- grDevices::devAskNewPage(ask = TRUE)
-    for (i in 2:length(gg_list)) {
-      print(gg_list[[i]])
+    for (i in 2:length(gg_which)) {
+      be_silent(print(gg_list[[gg_which[i]]]))
     }
     on.exit(grDevices::devAskNewPage(ask = old_par))
   }

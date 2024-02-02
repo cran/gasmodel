@@ -43,8 +43,10 @@
 #' Exogenous variables can also be included.
 #' Specifically, time-varying parameters \eqn{f_t} follow the recursion
 #' \deqn{f_t = \omega + \sum_{i=1}^M \beta_i x_{ti} + \sum_{j=1}^P \alpha_j S(f_{t-j}) \nabla(y_{t-j}, f_{t-j}) + \sum_{k=1}^Q \varphi_k f_{t-k},}{f_t = \omega + \sum_{i=1}^M \beta_i x_{ti} + \sum_{j=1}^P \alpha_j S(f_{t-j}) ∇(y_{t-j}, f_{t-j}) + \sum_{k=1}^Q \phi_k f_{t-k},}
-#' where \eqn{\omega} is a vector of constants, \eqn{\beta_i} are regression parameters, \eqn{\alpha_j} are score parameters, \eqn{\varphi_k}{\phi_k} are autoregressive parameters, \eqn{x_{ti}} are exogenous variables, \eqn{S(f_t)} is a scaling function for the score, and \eqn{\nabla(y_t, f_t)}{∇(y_t, f_t)} is the score given by
+#' where \eqn{\omega} is the intercept, \eqn{\beta_i} are the regression parameters, \eqn{\alpha_j} are the score parameters, \eqn{\varphi_k}{\phi_k} are the autoregressive parameters, \eqn{x_{ti}} are the exogenous variables, \eqn{S(f_t)} is a scaling function for the score, and \eqn{\nabla(y_t, f_t)}{∇(y_t, f_t)} is the score given by
 #' \deqn{\nabla(y_t, f_t) = \frac{\partial \ln p(y_t | f_t)}{\partial f_t}.}{∇(y_t, f_t) = d ln p(y_t | f_t) / d f_t.}
+#' In the case of a single time-varying parameter, \eqn{\omega}, \eqn{\beta_i}, \eqn{\alpha_j}, \eqn{\varphi_k}, \eqn{x_{ti}}, \eqn{S(f_t)}, and \eqn{\nabla(y_t, f_t)} are all scalar.
+#' In the case of multiple time-varying parameters, \eqn{x_{ti}} are scalar, \eqn{\omega}, \eqn{\beta_i}, and \eqn{\nabla(y_{t - j}, f_{t - j})} are vectors, \eqn{\alpha_j} and \eqn{\varphi_k} are diagonal matrices, and \eqn{S(f_t)} is a square matrix.
 #' Alternatively, a different model can be obtained by defining the recursion in the fashion of regression models with dynamic errors as
 #' \deqn{f_t = \omega + \sum_{i=1}^M \beta_i x_{ti} + e_{t}, \quad e_t = \sum_{j=1}^P \alpha_j S(f_{t-j}) \nabla(y_{t-j}, f_{t-j}) + \sum_{k=1}^Q \varphi_k e_{t-k}.}{f_t = \omega + \sum_{i=1}^M \beta_i x_{ti} + e_t,   e_t = \sum_{j=1}^P \alpha_j S(f_{t-j}) ∇(y_{t-j}, f_{t-j}) + \sum_{k=1}^Q \phi_k e_{t-k}.}
 #'
@@ -162,32 +164,31 @@
 #' \code{\link[gasmodel:wrappers_hessian]{wrappers_hessian}}
 #'
 #' @examples
-#' # Load Level of Lake Huron dataset
-#' data(LakeHuron)
-#' y <- LakeHuron - 570
-#' x <- 1:length(y)
+#' \donttest{# Load the Daily Toilet Paper Sales dataset
+#' data("toilet_paper_sales")
+#' y <- toilet_paper_sales$quantity
+#' x <- as.matrix(toilet_paper_sales[3:9])
 #'
-#' # Estimate GAS model based on the normal distribution with dynamic mean
-#' est_gas <- gas(y = y, x = x, distr = "norm", regress = "sep",
-#'   coef_start = c(9.99, -0.02, 0.46, 0.67, 0.46))
-#' est_gas
+#' # Estimate GAS model based on the negative binomial distribution
+#' est_negbin <- gas(y = y, x = x, distr = "negbin", regress = "sep")
+#' est_negbin
 #'
 #' # Obtain the estimated coefficients
-#' coef(est_gas)
+#' coef(est_negbin)
 #'
 #' # Obtain the estimated variance-covariance matrix
-#' vcov(est_gas)
+#' vcov(est_negbin)
 #'
 #' # Obtain the log-likelihood, AIC, and BIC
-#' logLik(est_gas)
-#' AIC(est_gas)
-#' BIC(est_gas)
+#' logLik(est_negbin)
+#' AIC(est_negbin)
+#' BIC(est_negbin)
 #'
 #' # Obtain the confidence intervals of coefficients
-#' confint(est_gas)
+#' confint(est_negbin)
 #'
 #' # Plot the time-varying parameters
-#' plot(est_gas)
+#' plot(est_negbin)}
 #'
 #' @export
 gas <- function(y, x = NULL, distr, param = NULL, scaling = "unit", regress = "joint", p = 1L, q = 1L, par_static = NULL, par_link = NULL, par_init = NULL, lik_skip = 0L, coef_fix_value = NULL, coef_fix_other = NULL, coef_fix_special = NULL, coef_bound_lower = NULL, coef_bound_upper = NULL, coef_start = NULL, optim_function = wrapper_optim_nloptr, optim_arguments = list(opts = list(algorithm = 'NLOPT_LN_NELDERMEAD', xtol_rel = 0, maxeval = 1e6)), hessian_function = wrapper_hessian_stats, hessian_arguments = list(), print_progress = FALSE) {
@@ -304,18 +305,19 @@ gas <- function(y, x = NULL, distr, param = NULL, scaling = "unit", regress = "j
   model$num_obs <- sum(!is.na(comp$eval_tv$lik))
   model$num_coef <- info_theta$theta_num
   comp$theta_vcov <- matrix_inv(solution$theta_hessian) / model$num_obs
-  info_data <- info_data(y = data$y, x = data$x)
-  data$y <- name_matrix(data$y, info_data$index_time, info_data$index_series, drop = c(FALSE, TRUE))
-  data$x <- name_list_of_matrices(data$x, info_par$par_names, info_data$index_time_list, info_data$index_vars_list, drop = c(FALSE, TRUE), zero = c(FALSE, TRUE))
+  comp$struc <- convert_coef_vector_to_struc_list(coef_vec = fit$coef_est, m = model$m, p = model$p, q = model$q, par_names = info_par$par_names, par_of_coef_names = info_coef$par_of_coef_names)
   fit$coef_vcov <- name_matrix(convert_theta_matrix_to_coef_matrix(comp$theta_vcov, coef_fix_value = model$coef_fix_value, coef_fix_other = model$coef_fix_other), info_coef$coef_names, info_coef$coef_names)
   fit$coef_sd <- be_silent(sqrt(diag(fit$coef_vcov)))
   fit$coef_zstat <- fit$coef_est / fit$coef_sd
   fit$coef_pval <- 2 * stats::pnorm(-abs(fit$coef_zstat))
   if (model$regress == "joint") {
-    fit$par_unc <- name_vector(sapply(convert_coef_vector_to_struc_list(coef_vec = fit$coef_est, m = model$m, p = model$p, q = model$q, par_names = info_par$par_names, par_of_coef_names = info_coef$par_of_coef_names), function(e) { e$omega / (1 - sum(e$phi)) }), info_par$par_names)
+    fit$par_unc <- sapply(1:info_par$par_num, function(i) { (comp$struc[[i]]$omega + colMeans(data$x[[i]], na.rm = TRUE) %*% comp$struc[[i]]$beta) / (1 - sum(comp$struc[[i]]$phi)) })
   } else if (model$regress == "sep") {
-    fit$par_unc <- name_vector(sapply(convert_coef_vector_to_struc_list(coef_vec = fit$coef_est, m = model$m, p = model$p, q = model$q, par_names = info_par$par_names, par_of_coef_names = info_coef$par_of_coef_names), function(e) { e$omega }), info_par$par_names)
+    fit$par_unc <- sapply(1:info_par$par_num, function(i) { comp$struc[[i]]$omega + colMeans(data$x[[i]], na.rm = TRUE) %*% comp$struc[[i]]$beta })
   }
+  info_data <- info_data(y = data$y, x = data$x)
+  data$y <- name_matrix(data$y, info_data$index_time, info_data$index_series, drop = c(FALSE, TRUE))
+  data$x <- name_list_of_matrices(data$x, info_par$par_names, info_data$index_time_list, info_data$index_vars_list, drop = c(FALSE, TRUE), zero = c(FALSE, TRUE))
   fit$par_tv <- name_matrix(comp$eval_tv$par, info_data$index_time, info_par$par_names, drop = c(FALSE, TRUE))
   fit$score_tv <- name_matrix(comp$eval_tv$score, info_data$index_time, info_par$par_names, drop = c(FALSE, TRUE))
   fit$mean_tv <- name_matrix(fun$mean(comp$eval_tv$par), info_data$index_time, info_data$index_series, drop = c(FALSE, TRUE))
@@ -420,7 +422,7 @@ logLik.gas <- function(object, ...) {
 # Plot Time-Varying Parameters -------------------------------------------------
 #' @importFrom ggplot2 .data
 #' @export
-plot.gas <- function(x, ...) {
+plot.gas <- function(x, which = NULL, ...) {
   par_static <- x$model$par_static
   par_tv <- as.matrix(x$fit$par_tv)
   par_unc <- x$fit$par_unc
@@ -440,11 +442,17 @@ plot.gas <- function(x, ...) {
       ggplot2::labs(title = paste("Time-Varying Parameter", par_names[i]), x = "Time Index", y = "Parameter Value")
     gg_list <- append(gg_list, list(gg_fig))
   }
-  print(gg_list[[1]])
-  if (length(gg_list) > 1) {
+  gg_which <- 1:length(gg_list)
+  if (!is.null(which)) {
+    gg_which <- gg_which[gg_which %in% which]
+  }
+  if (length(gg_which) == 1) {
+    be_silent(print(gg_list[[gg_which[1]]]))
+  } else if (length(gg_which) > 1) {
+    be_silent(print(gg_list[[gg_which[1]]]))
     old_par <- grDevices::devAskNewPage(ask = TRUE)
-    for (i in 2:length(gg_list)) {
-      print(gg_list[[i]])
+    for (i in 2:length(gg_which)) {
+      be_silent(print(gg_list[[gg_which[i]]]))
     }
     on.exit(grDevices::devAskNewPage(ask = old_par))
   }

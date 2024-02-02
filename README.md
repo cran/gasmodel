@@ -18,7 +18,7 @@ different parametrizations, exogenous variables, higher score and
 autoregressive orders, custom and unconditional initial values of
 time-varying parameters, fixed and bounded values of coefficients, and
 missing values. Model estimation is performed by the maximum likelihood
-method and the Hessian matrix.
+method.
 
 The package offers the following functions for working with GAS models:
 
@@ -44,12 +44,10 @@ functions:
 In addition, the package provides the following datasets used in
 examples:
 
-- `bookshop_sales` contains times of antiquarian bookshop sales.
-- `german_car_market_cap` contains the market capitalization of major
-  German car manufacturers.
+- `bookshop_orders` contains times of antiquarian bookshop orders.
 - `ice_hockey_championships` contains the results of the Ice Hockey
   World Championships.
-- `sp500_daily` contains daily S&P 500 prices.
+- `toilet_paper_sales` contains daily sales of toilet paper.
 
 ## Installation
 
@@ -69,46 +67,42 @@ devtools::install_github("vladimirholy/gasmodel")
 
 ## Example
 
-As a simple example, let us model volatility of daily S&P 500 prices in
-2021 in the fashion of GARCH models. We estimate the GAS model based on
-the Student’s t-distribution with time-varying volatility and plot the
-filtered time-varying parameters:
+As a simple example, let us model daily toilet paper sales in a store.
+We estimate the GAS model based on the negative binomial distribution
+with time-varying mean and incorporating dummy variables to indicate the
+day of the week and whether the product is being promoted. We also plot
+the filtered time-varying parameters:
 
 ``` r
-library(dplyr)
-library(ggplot2)
-library(gasmodel)
+library("gasmodel")
 
-data <- sp500_daily %>%
-  mutate(return = log(close) - log(lag(close))) %>%
-  filter(format(sp500_daily$date, "%Y") == "2021") %>%
-  select(date, return)
-summary(data)
-#>       date                return         
-#>  Min.   :2021-01-04   Min.   :-0.023512  
-#>  1st Qu.:2021-04-05   1st Qu.:-0.006242  
-#>  Median :2021-07-04   Median :-0.001423  
-#>  Mean   :2021-07-03   Mean   :-0.001029  
-#>  3rd Qu.:2021-10-01   3rd Qu.: 0.003219  
-#>  Max.   :2021-12-31   Max.   : 0.026013
+data("toilet_paper_sales")
+y <- toilet_paper_sales$quantity
+x <- as.matrix(toilet_paper_sales[3:9])
 
-model_gas <- gas(y = data$return, distr = "t", par_static = c(TRUE, FALSE, TRUE))
-model_gas
-#> GAS Model: Student‘s t Distribution / Mean-Variance Parametrization / Unit Scaling 
+est_negbin <- gas(y = y, x = x, distr = "negbin", regress = "sep")
+est_negbin
+#> GAS Model: Negative Binomial Distribution / NB2 Parametrization / Unit Scaling 
 #> 
 #> Coefficients: 
-#>                    Estimate  Std. Error  Z-Test  Pr(>|Z|)    
-#> mean            -0.00145631  0.00042388 -3.4357 0.0005911 ***
-#> log(var)_omega  -2.16158419  0.76650952 -2.8200 0.0048018 ** 
-#> log(var)_alpha1  0.54442475  0.15216805  3.5778 0.0003465 ***
-#> log(var)_phi1    0.78322463  0.07644654 10.2454 < 2.2e-16 ***
-#> df              10.11802479  6.59431541  1.5344 0.1249422    
+#>                    Estimate Std. Error   Z-Test  Pr(>|Z|)    
+#> log(mean)_omega   2.6384526  0.0562032  46.9449 < 2.2e-16 ***
+#> log(mean)_beta1  -0.0100824  0.0357634  -0.2819   0.77800    
+#> log(mean)_beta2  -0.0772088  0.0366240  -2.1081   0.03502 *  
+#> log(mean)_beta3  -0.0155342  0.0361813  -0.4293   0.66767    
+#> log(mean)_beta4   0.0452482  0.0357004   1.2674   0.20500    
+#> log(mean)_beta5  -0.8240699  0.0430441 -19.1448 < 2.2e-16 ***
+#> log(mean)_beta6  -1.7736613  0.0589493 -30.0879 < 2.2e-16 ***
+#> log(mean)_beta7   0.7037864  0.0481655  14.6118 < 2.2e-16 ***
+#> log(mean)_alpha1  0.0256734  0.0035329   7.2670 3.676e-13 ***
+#> log(mean)_phi1    0.9769718  0.0175857  55.5549 < 2.2e-16 ***
+#> dispersion        0.0349699  0.0051488   6.7918 1.107e-11 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Log-Likelihood: 870.9712, AIC: -1731.942, BIC: -1714.295
+#> Log-Likelihood: -2059.834, AIC: 4141.668, BIC: 4191.824
 
-plot(model_gas)
+plot(est_negbin)
 ```
 
 <img src="man/figures/README-example-1.png" width="75%" style="display: block; margin: auto;" />
@@ -125,50 +119,48 @@ the following case studies in the form of vignettes:
 
 ## Supported Distributions
 
-Currently, there are 26 distributions available.
+Currently, there are 35 distributions available.
 
 The list of supported distribution can be obtained by the `distr()`
 function:
 
-``` r
-distr() %>%
-  arrange(!default, param) %>%
-  select(distr, distr_title, dim, type, param) %>%
-  group_by(distr, distr_title, dim, type) %>%
-  summarize(param = paste(param, collapse = ", ")) %>%
-  ungroup() %>%
-  arrange(distr) %>%
-  print(right = FALSE, row.names = FALSE)
-#> # A tibble: 26 × 5
-#>    distr     distr_title                     dim   type     param                  
-#>    <chr>     <chr>                           <fct> <fct>    <chr>                  
-#>  1 alaplace  Asymmetric Laplace              uni   real     meanscale              
-#>  2 bernoulli Bernoulli                       uni   binary   prob                   
-#>  3 beta      Beta                            uni   interval conc, meansize, meanvar
-#>  4 bisa      Birnbaum-Saunders               uni   duration scale                  
-#>  5 cat       Categorical                     multi cat      worth                  
-#>  6 dirichlet Dirichlet                       multi comp     conc                   
-#>  7 dpois     Double Poisson                  uni   count    mean                   
-#>  8 exp       Exponential                     uni   duration scale, rate            
-#>  9 gamma     Gamma                           uni   duration scale, rate            
-#> 10 gengamma  Generalized Gamma               uni   duration scale, rate            
-#> 11 geom      Geometric                       uni   count    mean, prob             
-#> 12 laplace   Laplace                         uni   real     meanscale              
-#> 13 mvnorm    Multivariate Normal             multi real     meanvar                
-#> 14 mvt       Multivariate Student‘s t        multi real     meanvar                
-#> 15 negbin    Negative Binomial               uni   count    nb2, prob              
-#> 16 norm      Normal                          uni   real     meanvar                
-#> 17 pluce     Plackett-Luce                   multi ranking  worth                  
-#> 18 pois      Poisson                         uni   count    mean                   
-#> 19 skellam   Skellam                         uni   integer  meanvar, diff, meandisp
-#> 20 t         Student‘s t                     uni   real     meanvar                
-#> 21 vonmises  von Mises                       uni   circular meanconc               
-#> 22 weibull   Weibull                         uni   duration scale, rate            
-#> 23 zigeom    Zero-Inflated Geometric         uni   count    mean                   
-#> 24 zinegbin  Zero-Inflated Negative Binomial uni   count    nb2                    
-#> 25 zipois    Zero-Inflated Poisson           uni   count    mean                   
-#> 26 ziskellam Zero-Inflated Skellam           uni   integer  meanvar, diff, meandisp
-```
+| Label     | Distribution                    | Dimension    | Data Type     | Parametrizations        |
+|:----------|:--------------------------------|:-------------|:--------------|:------------------------|
+| alaplace  | Asymmetric Laplace              | Univariate   | Real          | meanscale               |
+| bernoulli | Bernoulli                       | Univariate   | Binary        | prob                    |
+| beta      | Beta                            | Univariate   | Interval      | conc, meansize, meanvar |
+| bisa      | Birnbaum-Saunders               | Univariate   | Duration      | scale                   |
+| burr      | Burr                            | Univariate   | Duration      | scale                   |
+| cat       | Categorical                     | Multivariate | Categorical   | worth                   |
+| dirichlet | Dirichlet                       | Multivariate | Compositional | conc                    |
+| dpois     | Double Poisson                  | Univariate   | Count         | mean                    |
+| exp       | Exponential                     | Univariate   | Duration      | scale, rate             |
+| explog    | Exponential-Logarithmic         | Univariate   | Duration      | rate                    |
+| fisk      | Fisk                            | Univariate   | Duration      | scale                   |
+| gamma     | Gamma                           | Univariate   | Duration      | scale, rate             |
+| gengamma  | Generalized Gamma               | Univariate   | Duration      | scale, rate             |
+| geom      | Geometric                       | Univariate   | Count         | mean, prob              |
+| kuma      | Kumaraswamy                     | Univariate   | Interval      | conc                    |
+| laplace   | Laplace                         | Univariate   | Real          | meanscale               |
+| logistic  | Logistic                        | Univariate   | Real          | meanscale               |
+| logitnorm | Logit-Normal                    | Univariate   | Interval      | logitmeanvar            |
+| lognorm   | Log-Normal                      | Univariate   | Duration      | logmeanvar              |
+| lomax     | Lomax                           | Univariate   | Duration      | scale                   |
+| mvnorm    | Multivariate Normal             | Multivariate | Real          | meanvar                 |
+| mvt       | Multivariate Student’s t        | Multivariate | Real          | meanvar                 |
+| negbin    | Negative Binomial               | Univariate   | Count         | nb2, prob               |
+| norm      | Normal                          | Univariate   | Real          | meanvar                 |
+| pluce     | Plackett-Luce                   | Multivariate | Ranking       | worth                   |
+| pois      | Poisson                         | Univariate   | Count         | mean                    |
+| rayleigh  | Rayleigh                        | Univariate   | Duration      | scale                   |
+| skellam   | Skellam                         | Univariate   | Integer       | meanvar, diff, meandisp |
+| t         | Student’s t                     | Univariate   | Real          | meanvar                 |
+| vonmises  | von Mises                       | Univariate   | Circular      | meanconc                |
+| weibull   | Weibull                         | Univariate   | Duration      | scale, rate             |
+| zigeom    | Zero-Inflated Geometric         | Univariate   | Count         | mean                    |
+| zinegbin  | Zero-Inflated Negative Binomial | Univariate   | Count         | nb2                     |
+| zipois    | Zero-Inflated Poisson           | Univariate   | Count         | mean                    |
+| ziskellam | Zero-Inflated Skellam           | Univariate   | Integer       | meanvar, diff, meandisp |
 
 Details of each distribution, including its density function, expected
 value, variance, score, and Fisher information, can be found in vignette
@@ -189,14 +181,20 @@ gradient of the log-likelihood function. Exogenous variables can also be
 included. Specifically, time-varying parameters $f_{t}$ follow the
 recursion
 $$f_{t} = \omega + \sum_{i=1}^M \beta_i x_{ti} + \sum_{j=1}^P \alpha_j S(f_{t - j}) \nabla(y_{t - j}, f_{t - j}) + \sum_{k=1}^Q \varphi_k f_{t-k},$$
-where $\omega$ is a vector of constants, $\beta_i$ are regression
-parameters, $\alpha_j$ are score parameters, $\varphi_k$ are
-autoregressive parameters, $x_{ti}$ are exogenous variables, $S(f_t)$ is
-a scaling function for the score, and $\nabla(y_t, f_t)$ is the score
-given by
+where $\omega$ is the intercept, $\beta_i$ are the regression
+parameters, $\alpha_j$ are the score parameters, $\varphi_k$ are the
+autoregressive parameters, $x_{ti}$ are the exogenous variables,
+$S(f_t)$ is a scaling function for the score, and $\nabla(y_t, f_t)$ is
+the score given by
 $$\nabla(y_t, f_t) = \frac{\partial \ln p(y_t | f_t)}{\partial f_t}.$$
-Alternatively, a different model can be obtained by defining the
-recursion in the fashion of regression models with dynamic errors as
+In the case of a single time-varying parameter, $\omega$, $\beta_i$,
+$\alpha_j$, $\varphi_k$, $x_{ti}$, $S(f_t)$, and $\nabla(y_t, f_t)$ are
+all scalar. In the case of multiple time-varying parameters, $x_{ti}$
+are scalar, $\omega$, $\beta_i$, and $\nabla(y_{t - j}, f_{t - j})$ are
+vectors, $\alpha_j$ and $\varphi_k$ are diagonal matrices, and $S(f_t)$
+is a square matrix. Alternatively, a different model can be obtained by
+defining the recursion in the fashion of regression models with dynamic
+errors as
 $$f_{t} = \omega + \sum_{i=1}^M \beta_i x_{ti} + e_{t}, \quad e_t = \sum_{j=1}^P \alpha_j S(f_{t - j}) \nabla(y_{t - j}, f_{t - j}) + \sum_{k=1}^Q \varphi_k e_{t-k}.$$
 
 The GAS models can be straightforwardly estimated by the maximum
