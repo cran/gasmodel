@@ -1,3 +1,6 @@
+# gasmodel 0.6.1
+* Modified code for the von Mises distribution.
+
 # gasmodel 0.6.0
 * Added the Burr distribution.
 * Added the exponential-logarithmic distribution.
